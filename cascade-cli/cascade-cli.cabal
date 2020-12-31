@@ -4,7 +4,7 @@ version:             0.0.0.0
 synopsis:            Cascade command line tool
 description:         Cascade command line tool
 license:             MPL-2.0
-license-file:        LICENSE
+license-file:        ../LICENSE
 author:              Mohammad Hasani
 maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
 copyright:           2020 Mohammad Hasani
