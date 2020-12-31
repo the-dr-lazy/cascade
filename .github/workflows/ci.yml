@@ -34,12 +34,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cabal build all --only-dependencies
+          cabal new-build all --only-dependencies
 
       - name: Build
         run: |
-          cabal build all
+          cabal new-build all
 
       - name: Test
         run: |
-          cabal test all
+          cabal new-test all
