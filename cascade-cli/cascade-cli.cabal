@@ -1,8 +1,8 @@
 cabal-version:       2.4
-name:                zyme-cli
+name:                cascade-cli
 version:             0.0.0.0
-synopsis:            Zyme command line tool
-description:         Zyme command line tool
+synopsis:            Cascade command line tool
+description:         Cascade command line tool
 license:             MPL-2.0
 license-file:        LICENSE
 author:              Mohammad Hasani
@@ -34,7 +34,7 @@ common common-options
 
   default-language:    Haskell2010
 
-executable zyme-cli
+executable cascade-cli
   import:              common-options
   hs-source-dirs:      app
   main-is:             Main.hs
@@ -43,7 +43,7 @@ executable zyme-cli
                        -rtsopts
                        -with-rtsopts=-N
 
-test-suite zyme-cli-test
+test-suite cascade-cli-test
   import:              common-options
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
