@@ -1,0 +1,54 @@
+cabal-version:       2.4
+name:                zyme-cli
+version:             0.0.0.0
+synopsis:            Zyme command line tool
+description:         Zyme command line tool
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Mohammad Hasani
+maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
+copyright:           2020 Mohammad Hasani
+category:            CLI
+build-type:          Simple
+extra-doc-files:     README.md
+                     CHANGELOG.md
+tested-with:         GHC == 8.8.4
+
+common common-options
+  build-depends:       base ^>= 4.13.0.0
+  
+  ghc-options:         -Wall
+                       -Wcompat
+                       -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+  if impl(ghc >= 8.0)
+    ghc-options:       -Wredundant-constraints
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+  if impl(ghc >= 8.8)
+    ghc-options:       -Wmissing-deriving-strategies
+
+  default-language:    Haskell2010
+
+executable zyme-cli
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+
+test-suite zyme-cli-test
+  import:              common-options
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
