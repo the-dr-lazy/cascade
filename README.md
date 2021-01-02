@@ -1,12 +1,12 @@
-# Welcome to cascade 👋
-[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/the-dr-lazy/cascade/wiki)
-[![Twitter: the\_dr\_lazy\_](https://img.shields.io/twitter/follow/the\_dr\_lazy\_.svg?style=social)](https://twitter.com/the\_dr\_lazy\_)
+# Welcome to case 👋
 https://github.com/the-dr-lazy/cascade/blob/master/LICENSE
 > A project management service just to show that real-world Haskell is awesome.
 
-### 🏠 [Homepage](https://github.com/the-dr-lazy/cascade)
+## Show your support
 
-### ✨ [Demo](www.demo.com)
+Give a ⭐️ if this project helped you!
+
+### 🏠 [Homepage](https://github.com/the-dr-lazy/cascade)
 
 ## Install
 
@@ -26,7 +26,7 @@ how to use it
 how to test it
 ```
 
-## Author
+## Authors
 
 👤 **Mohammad Hasani**
 
@@ -39,15 +39,11 @@ how to test it
 
 Contributions, issues and feature requests are welcome!
 
-Feel free to check [issues page](https://github.com/the-dr-lazy/cascade/issues). You can also take a look at the [contributing guide](https://github.com/the-dr-lazy/cascade/graphs/contributors).
-
-## Show your support
-
-Give a ⭐️ if this project helped you!
+Feel free to check [issues page](https://github.com/the-dr-lazy/cascade/issues). You can also take a look at the [contributing guide](hhttps://github.com/the-dr-lazy/purescript-monarch#authors).
 
 
 ## 📝 License
 
-Copyright © 2021 [Mohammad Hasani](https://github.com/https:\/\/github.com\/the-dr-lazy).
+Copyright © 2021 Cascade (https://github.com/the-dr-lazy/cascade/).
 
 This project is [MPL--2.0 License](https://github.com/the-dr-lazy/cascade/blob/master/LICENSE) licensed.
