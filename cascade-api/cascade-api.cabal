@@ -10,8 +10,7 @@ maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
 copyright:           2021 Mohammad Hasani
 category:            Web
 build-type:          Custom
-extra-doc-files:     README.md
-                     CHANGELOG.md
+extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.8.4
 
 common common-options

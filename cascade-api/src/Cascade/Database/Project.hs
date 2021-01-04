@@ -5,6 +5,7 @@ module Cascade.Database.Project
   , Project
   ) where
 
+import           Data.Generics.Labels           ( )
 import           Data.UUID                      ( UUID )
 import           Database.Beam                  ( Beamable
                                                 , C
