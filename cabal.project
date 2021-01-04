@@ -1,1 +1,1 @@
-packages: cascade-cli
+packages: cascade-prelude, cascade-cli

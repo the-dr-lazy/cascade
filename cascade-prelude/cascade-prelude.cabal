@@ -1,0 +1,41 @@
+cabal-version:       2.4
+name:                cascade-prelude
+version:             0.0.0.0
+synopsis:            Cascade custom prelude
+description:         Cascade custom prelude
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Mohammad Hasani
+maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
+copyright:           2021 Mohammad Hasani
+build-type:          Simple
+extra-doc-files:     CHANGELOG.md
+tested-with:         GHC == 8.8.4
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Prelude
+  build-depends:       base-noprelude
+                     , relude
+                     , flow
+  -- For details on warnings:
+  -- https://downloads.haskell.org/~ghc/master/users-guide/using-warnings.html
+  -- This list taken from https://medium.com/mercury-bank/enable-all-the-warnings-a0517bc081c3#
+  -- Enable all warnings with -Weverything, then disable the ones we don’t care about
+  ghc-options:         -Weverything
+                       -- missing-exported-signatures turns off the more strict -Wmissing-signatures.
+                       -- See https://ghc.haskell.org/trac/ghc/ticket/14794#ticket
+                       -Wno-missing-exported-signatures
+                       -- Requires explicit imports of _every_ function (e.g. ‘$’); too strict
+                       -Wno-missing-import-lists
+                       -- When GHC can’t specialize a polymorphic function. No big deal and requires fixing underlying libraries to solve.
+                       -Wno-missed-specialisations
+                       -- See missed-specialisations
+                       -Wno-all-missed-specialisations
+                       -- Don’t use Safe Haskell warnings
+                       -Wno-unsafe
+                       -Wno-safe
+                       -- Warning for polymorphic local bindings; nothing wrong with those.
+                       -Wno-missing-local-signatures
+                       -- Don’t warn if the monomorphism restriction is used
+                       -Wno-monomorphism-restriction
