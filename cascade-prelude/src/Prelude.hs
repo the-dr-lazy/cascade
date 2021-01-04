@@ -8,4 +8,4 @@ import           Flow                           ( (!>)
                                                 , (<|)
                                                 , (|>)
                                                 )
-import           Relude
+import           Relude                  hiding ( id )
