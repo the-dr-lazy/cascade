@@ -1,6 +1,7 @@
 # Welcome to case 👋
 https://github.com/the-dr-lazy/cascade/blob/master/LICENSE
-> A project management service just to show that real-world Haskell is awesome.
+> A project management service just to show that real-world Haskell is awesome. project is in WIP(Work in Progress) . 
+> Can you help us in develop? we are waiting for your PR (Pull Request) . 
 
 ## Show your support
 
@@ -13,11 +14,6 @@ Give a ⭐️ if this project helped you!
 ```sh
 install command
 ```
-
-## Usage
-
-```sh
-how to use it
 ```
 
 ## Run tests
@@ -46,4 +42,4 @@ Feel free to check [issues page](https://github.com/the-dr-lazy/cascade/issues).
 
 Copyright © 2021 Cascade (https://github.com/the-dr-lazy/cascade/).
 
-This project is [MPL--2.0 License](https://github.com/the-dr-lazy/cascade/blob/master/LICENSE) licensed.
+This project is [Mozilla Public License 2.0](https://github.com/the-dr-lazy/cascade/blob/master/LICENSE) licensed.
