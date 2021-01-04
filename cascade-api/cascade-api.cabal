@@ -9,7 +9,7 @@ author:              Mohammad Hasani
 maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
 copyright:           2021 Mohammad Hasani
 category:            Web
-build-type:          Simple
+build-type:          Custom
 extra-doc-files:     README.md
                      CHANGELOG.md
 tested-with:         GHC == 8.8.4
@@ -91,6 +91,10 @@ common common-options
                        -- Don’t warn if the monomorphism restriction is used
                        -Wno-monomorphism-restriction
 
+custom-setup
+  setup-depends:       base
+                     , autopack
+                        
 library
   import:              common-options
   hs-source-dirs:      src
