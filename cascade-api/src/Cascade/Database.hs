@@ -4,6 +4,7 @@ module Cascade.Database
   ) where
 
 import           Cascade.Database.Project       ( ProjectTable )
+import           Data.Generics.Labels           ( )
 import           Database.Beam                  ( DatabaseSettings
                                                 , TableEntity
                                                 )
