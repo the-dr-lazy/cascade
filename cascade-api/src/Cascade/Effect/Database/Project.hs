@@ -15,7 +15,6 @@ import qualified Cascade.Database.Project      as Project
 import qualified Cascade.Effect.Database       as Database
 import           Cascade.Effect.Database        ( DatabaseL )
 import           Control.Lens                   ( (^.) )
-import           Data.UUID                      ( UUID )
 import           Database.Beam                  ( (==.)
                                                 , PrimaryKey
                                                 , insertValues
@@ -26,7 +25,6 @@ import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
                                                 , BeamSqlBackendCanSerialize
                                                 )
-import qualified Database.Beam.Schema.Tables   as Beam
 import           Polysemy                       ( Member
                                                 , Sem
                                                 , interpret
@@ -37,7 +35,14 @@ data ProjectL m a where
   FindAll ::ProjectL m [Project]
   FindById ::Project.Id -> ProjectL m (Maybe Project)
   Create ::[Project] -> ProjectL m [Project]
-  UpdateById ::Project.Id -> (forall backend s. ProjectTable (Beam.QField s) -> [Beam.QAssignment backend s]) -> ProjectL m (Maybe Project)
+  UpdateById ::Project.Id
+             -> (forall backend s
+                . BeamSqlBackend backend
+               => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
+               => ProjectTable (Beam.QField s)
+               -> [Beam.QAssignment backend s]
+                )
+             -> ProjectL m (Maybe Project)
   DeleteById ::Project.Id -> ProjectL m ()
 
 makeSem ''ProjectL
@@ -45,12 +50,13 @@ makeSem ''ProjectL
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
-    => Beam.HasSqlEqualityCheck backend UUID
-    => BeamSqlBackendCanSerialize backend UUID
-    => Beam.SqlValableTable backend (PrimaryKey ProjectTable)
-    => Beam.FieldsFulfillConstraint
+    => Database.TableFieldsFulfillConstraint
+         (Beam.HasSqlEqualityCheck backend)
+         ProjectTable
+    => Database.TableFieldsFulfillConstraint
          (BeamSqlBackendCanSerialize backend)
          ProjectTable
+    => Beam.SqlValableTable backend (PrimaryKey ProjectTable)
     => Member (DatabaseL backend) r
     => Sem (ProjectL ': r) a
     -> Sem r a
