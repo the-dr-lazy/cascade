@@ -16,7 +16,6 @@ import qualified Cascade.Effect.Database       as Database
 import           Cascade.Effect.Database        ( DatabaseL )
 import           Control.Lens                   ( (^.) )
 import           Database.Beam                  ( (==.)
-                                                , PrimaryKey
                                                 , insertValues
                                                 , select
                                                 , val_
