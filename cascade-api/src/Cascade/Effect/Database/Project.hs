@@ -1,5 +1,5 @@
 module Cascade.Effect.Database.Project
-  ( ProjectL (..)
+  ( ProjectL(..)
   , findAll
   , findById
   , create
@@ -61,7 +61,9 @@ run :: forall backend r a
 run = interpret \case
   FindAll ->
     Database.all #projects |> select |> Database.runSelectReturningList
-  FindById id -> Database.lookup #projects (Project.PrimaryKey $ coerce id) |> Database.runSelectReturningOne
+  FindById id ->
+    Database.lookup #projects (Project.PrimaryKey $ coerce id)
+      |> Database.runSelectReturningOne
   Create rows ->
     insertValues rows
       |> Database.insert #projects
