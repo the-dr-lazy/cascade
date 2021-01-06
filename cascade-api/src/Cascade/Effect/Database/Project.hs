@@ -1,5 +1,5 @@
 module Cascade.Effect.Database.Project
-  ( ProjectL
+  ( ProjectL (..)
   , findAll
   , findById
   , create
@@ -56,7 +56,6 @@ run :: forall backend r a
     => Database.TableFieldsFulfillConstraint
          (BeamSqlBackendCanSerialize backend)
          ProjectTable
-    => Beam.SqlValableTable backend (PrimaryKey ProjectTable)
     => Member (DatabaseL backend) r
     => Sem (ProjectL ': r) a
     -> Sem r a
