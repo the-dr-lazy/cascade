@@ -1,7 +1,7 @@
 module Cascade.Database.Project
   ( ProjectTable
   , PrimaryKey(..)
-  , Id
+  , Id (..)
   , Project
   ) where
 
@@ -23,15 +23,15 @@ data ProjectTable (f :: Type -> Type) = Project
   deriving anyclass Beamable
 
 instance Table ProjectTable where
-  data PrimaryKey ProjectTable f = Id
+  data PrimaryKey ProjectTable f = PrimaryKey
     { unId :: C f UUID
     }
     deriving stock Generic
     deriving anyclass Beamable
-  primaryKey = Id . id
+  primaryKey = PrimaryKey . id
 
 
-type Id = PrimaryKey ProjectTable Identity
+newtype Id = Id UUID
 
 
 type Project = ProjectTable Identity
