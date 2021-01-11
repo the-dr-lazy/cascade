@@ -1,40 +1,34 @@
 module Cascade.Database.Project
-  ( ProjectTable
+  ( ProjectTable(..)
   , PrimaryKey(..)
-  , Id (..)
-  , Project
+  , Row
   ) where
 
+import qualified Cascade.Data.Api.Project      as Project
 import           Data.Generics.Labels           ( )
-import           Data.UUID                      ( UUID )
 import           Database.Beam                  ( Beamable
                                                 , C
                                                 , PrimaryKey
-                                                , Table
+                                                , Table(..)
                                                 )
-import qualified Database.Beam                 as Beam
 
 -- brittany-disable-next-binding
-data ProjectTable (f :: Type -> Type) = Project
-  { id   :: C f UUID
+data ProjectTable (f :: Type -> Type) = Row
+  { id   :: C f Project.Id
   , name :: C f Text
   }
   deriving stock Generic
   deriving anyclass Beamable
 
 instance Table ProjectTable where
-  data PrimaryKey ProjectTable f = PrimaryKey
-    { unId :: C f UUID
+  newtype PrimaryKey ProjectTable f = PrimaryKey
+    { unPrimaryKey :: C f Project.Id
     }
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
 
+type Row = ProjectTable Identity
 
-newtype Id = Id UUID
-
-
-type Project = ProjectTable Identity
-
-deriving stock instance Show Project
-deriving stock instance Eq Project
+deriving stock instance Show Row
+deriving stock instance Eq Row
