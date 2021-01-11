@@ -19,6 +19,8 @@ library
   build-depends:       base-noprelude
                      , relude
                      , flow
+                     , containers
+                     , uuid
   -- For details on warnings:
   -- https://downloads.haskell.org/~ghc/master/users-guide/using-warnings.html
   -- This list taken from https://medium.com/mercury-bank/enable-all-the-warnings-a0517bc081c3#
