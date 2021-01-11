@@ -7,7 +7,7 @@ module Cascade.Effect.Database
   , runSelectReturningOne
   , runInsertReturningList
   , runUpdateReturningOne
-  , runDelete
+  , runDeleteReturningOne
   , runPostgres
   , all
   , lookup
@@ -50,7 +50,7 @@ data DatabaseL backend (m :: Type -> Type) a where
   RunSelectReturningOne ::BeamSqlBackend backend => Beam.SqlSelect backend a -> DatabaseL backend m (Maybe a)
   RunInsertReturningList ::(BeamSqlBackend backend, Beamable table)=> Beam.SqlInsert backend table -> DatabaseL backend m [table Identity]
   RunUpdateReturningOne ::(BeamSqlBackend backend, Beamable table) => Beam.SqlUpdate backend table -> DatabaseL backend m (Maybe (table Identity))
-  RunDelete ::BeamSqlBackend backend => Beam.SqlDelete backend table -> DatabaseL backend m ()
+  RunDeleteReturningOne ::BeamSqlBackend backend => Beam.SqlDelete backend table -> DatabaseL backend m (Maybe (table Identity))
 
 makeSem ''DatabaseL
 
