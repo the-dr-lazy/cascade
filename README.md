@@ -16,7 +16,7 @@ Give a ⭐ if this project helped you!
 - **Mohammad Hadi Aliakbar** - _Collaborator_ - [mohaalak](https://github.com/mohaalak)
 - **Roozbeh Sharifnasab** - _Collaborator_ - [rsharifnasab](https://github.com/rsharifnasab)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues and feature requests are welcome!
 
