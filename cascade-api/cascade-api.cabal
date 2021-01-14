@@ -123,8 +123,17 @@ test-suite cascade-api-test
   import:              common-options
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             Driver.hs
   build-depends:       cascade-api
+                     , tasty
+                     , tasty-hedgehog
+                     , hedgehog
+                     , free
+                     , http-client
+                     , servant-client-core
+                     , servant-client
+                     , http-types
+
   ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
