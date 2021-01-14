@@ -20,10 +20,15 @@ Give a ⭐ if this project helped you!
 
 Contributions, issues and feature requests are welcome!
 
-Feel free to check [issues page](https://github.com/the-dr-lazy/cascade/issues). You can also take a look at the [contributing guide](hhttps://github.com/the-dr-lazy/purescript-monarch#authors).
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Feel free to check [issues page](https://github.com/the-dr-lazy/cascade/issues).
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/the-dr-lazy/cascade/releases).
 
 ## 📝 License
 
 Copyright © 2021 Cascade (https://github.com/the-dr-lazy/cascade/).
 
-This project is [Mozilla Public License 2.0](https://github.com/the-dr-lazy/cascade/blob/master/LICENSE) licensed.
+This project is [Mozilla Public License 2.0](LICENSE) licensed.
