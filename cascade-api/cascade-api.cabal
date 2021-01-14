@@ -17,10 +17,13 @@ common common-options
   build-depends:       cascade-prelude
                      , base-noprelude
                      , uuid
+                     , containers
+                     , aeson
                      , lens
                      , generic-lens
                      , polysemy
                      , polysemy-plugin
+                     , servant
                      
   default-language:    Haskell2010
   -- Based on
@@ -113,6 +116,8 @@ library
   hs-source-dirs:      src
   build-depends:       beam-core
                      , beam-postgres
+                     , servant-server
+                     , http-media
 
 test-suite cascade-api-test
   import:              common-options
