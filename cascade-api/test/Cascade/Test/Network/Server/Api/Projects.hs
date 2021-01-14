@@ -201,14 +201,12 @@ c_updateExistingProject =
       execute input@UpdateById { updatable } = do
         let id = input ^. #id . concreted
         response <- evalIO $ Cascade.Project.updateById id updatable
-        let project = response ^. #responseBody
 
         project :: Readable Project <-
           (response ^. #responseBody)
           |> matchUnion @(Resource.Ok (Readable Project))
           |> fmap coerce
           |> evalMaybe
-
         project ^. #id === id
 
         pure id
@@ -229,9 +227,8 @@ c_updateNotExistingProject :: forall g m
 c_updateNotExistingProject =
   let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
       generator Model { notExistingIds } = case notExistingIds of
-        [] -> Nothing
-        ids ->
-          Just $ UpdateById <$> Gen.element notExistingIds <*> Gen.project
+        []  -> Nothing
+        ids -> Just $ UpdateById <$> Gen.element ids <*> Gen.project
 
       execute :: UpdateById Concrete -> m ()
       execute input@UpdateById { updatable } = do
