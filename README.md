@@ -7,7 +7,7 @@ https://github.com/the-dr-lazy/cascade/blob/master/LICENSE
 
 ## Show your support
 
-Give a ⭐️ if this project helped you!
+Give a ⭐ if this project helped you!
 
 ### 🏠 [Homepage](https://github.com/the-dr-lazy/cascade)
 
