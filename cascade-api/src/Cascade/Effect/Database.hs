@@ -5,7 +5,7 @@ module Cascade.Effect.Database
   , TableFieldsFulfillConstraint
   , runSelectReturningList
   , runSelectReturningOne
-  , runInsertReturningList
+  , runInsertReturningOne
   , runUpdateReturningOne
   , runDeleteReturningOne
   , runPostgres
@@ -48,7 +48,7 @@ import           Prelude                        ( ($)
 data DatabaseL backend (m :: Type -> Type) a where
   RunSelectReturningList ::BeamSqlBackend backend => Beam.SqlSelect backend a -> DatabaseL backend m [a]
   RunSelectReturningOne ::BeamSqlBackend backend => Beam.SqlSelect backend a -> DatabaseL backend m (Maybe a)
-  RunInsertReturningList ::(BeamSqlBackend backend, Beamable table)=> Beam.SqlInsert backend table -> DatabaseL backend m [table Identity]
+  RunInsertReturningOne ::(BeamSqlBackend backend, Beamable table)=> Beam.SqlInsert backend table -> DatabaseL backend m (table Identity)
   RunUpdateReturningOne ::(BeamSqlBackend backend, Beamable table) => Beam.SqlUpdate backend table -> DatabaseL backend m (Maybe (table Identity))
   RunDeleteReturningOne ::BeamSqlBackend backend => Beam.SqlDelete backend table -> DatabaseL backend m (Maybe (table Identity))
 
