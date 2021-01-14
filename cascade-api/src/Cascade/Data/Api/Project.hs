@@ -7,12 +7,16 @@ module Cascade.Data.Api.Project
   ) where
 
 import           Cascade.Data.Api.Prelude
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
 import           Data.Generics.Labels           ( )
+import           Servant.API                    ( ToHttpApiData )
 
 newtype Id = Id
   { unId :: UUID }
   deriving stock Generic
-  deriving newtype (Show, Eq)
+  deriving newtype (Show, Eq, Ord, ToHttpApiData, FromJSON, ToJSON)
 
 data Project
 
@@ -21,11 +25,14 @@ data instance Readable Project = ProjectR
   , name :: Text
   }
   deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
 
-newtype instance Creatable Project = ProjectC
+data instance Creatable Project = ProjectC
   { name :: Text }
   deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
 
-newtype instance Updatable Project = ProjectU
+data instance Updatable Project = ProjectU
   { name :: Maybe Text }
   deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
