@@ -35,9 +35,9 @@ import           Polysemy                       ( Member
                                                 )
 
 data ProjectL m a where
-  FindAll ::ProjectL m [Readable Project]
-  FindById ::Project.Id -> ProjectL m (Maybe (Readable Project))
-  Create ::[Creatable Project] -> ProjectL m [Readable Project]
+  FindAll    ::ProjectL m [Readable Project]
+  FindById   ::Project.Id -> ProjectL m (Maybe (Readable Project))
+  Create     ::Creatable Project -> ProjectL m (Readable Project)
   UpdateById ::Project.Id -> Updatable Project -> ProjectL m (Maybe (Readable Project))
   DeleteById ::Project.Id -> ProjectL m (Maybe (Readable Project))
 
@@ -65,11 +65,11 @@ run = interpret \case
     Database.lookup #projects (Database.Project.PrimaryKey id)
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableProject
-  Create creatables ->
-    insertExpressions (fmap fromCreatableProject creatables)
+  Create creatable ->
+    insertExpressions [fromCreatableProject creatable]
       |> Database.insert #projects
-      |> Database.runInsertReturningList
-      |> (fmap . fmap) toReadableProject
+      |> Database.runInsertReturningOne
+      |> fmap toReadableProject
   UpdateById id updatable ->
     Database.update #projects
                     (fromUpdatableProject updatable)
