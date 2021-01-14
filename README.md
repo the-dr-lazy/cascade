@@ -1,6 +1,4 @@
-# Welcome to Cascade 👋
-
-https://github.com/the-dr-lazy/cascade/blob/master/LICENSE
+# Welcome to Cascade 👋 [![License](https://img.shields.io/badge/license-MPL-%23242631?style=for-the-badge)](LICENSE)
 
 > A project management service just to show that real-world Haskell is awesome. project is in **Work In Progress**.
 > Can you help us in develop? we are waiting for your PR (Pull Request) .
