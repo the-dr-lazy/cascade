@@ -38,6 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           cabal new-build all --only-dependencies
+          cabal new-install tasty-discover
 
       - name: Build
         run: |
