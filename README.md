@@ -27,12 +27,10 @@ how to test it
 
 ## Authors
 
-👤 **Mohammad Hasani**
-
-- Website: https://the-dr-lazy.github.io/
-- Twitter: [@the_dr_lazy\_](https://twitter.com/the_dr_lazy_)
-- Github: [@https:\/\/github.com\/the-dr-lazy](https://github.com/https://github.com/the-dr-lazy)
-- LinkedIn: [@https:\/\/www.linkedin.com\/in\/the-dr-lazy](https://linkedin.com/in/https://www.linkedin.com/in/the-dr-lazy)
+- **Mohammad Hasani** - _Maintainer_ - [amygdala :: ∀ a. a → IO Memory](https://github.com/the-dr-lazy)
+- **Mahdi Seyedan** - _Collaborator_ - [jedimahdi](https://github.com/jedimahdi)
+- **Mohammad Hadi Aliakbar** - _Collaborator_ - [mohaalak](https://github.com/mohaalak)
+- **Roozbeh Sharifnasab** - _Collaborator_ - [rsharifnasab](https://github.com/rsharifnasab)
 
 ## 🤝 Contributing
 
