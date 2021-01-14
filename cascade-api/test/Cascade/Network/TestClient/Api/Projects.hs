@@ -14,14 +14,10 @@ import           Cascade.Network.TestClient     ( interpret )
 import qualified Cascade.Network.TestClient.Api
                                                as Client.Api
 import           Control.Lens                   ( (^.) )
-import           Control.Monad.Free
 import           Data.Generics.Labels           ( )
 import           Prelude                 hiding ( getAll )
 import           Servant.API                    ( Union )
-import           Servant.Client.Free            ( ClientF
-                                                , ResponseF
-                                                )
-import           Servant.Client.Generic
+import           Servant.Client.Free            ( ResponseF )
 
 create :: Creatable Project -> IO (ResponseF (Readable Project))
 create = interpret . go where go = Client.Api.projects ^. #create

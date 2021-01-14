@@ -138,6 +138,15 @@ test-suite cascade-api-test
                        -rtsopts
                        -with-rtsopts=-N
 
+  other-modules:       Cascade.Hedgehog.Gen
+                       Cascade.Hedgehog.Gen.Api.Project
+                       Cascade.Network.TestClient
+                       Cascade.Network.TestClient.Api
+                       Cascade.Network.TestClient.Api.Projects
+                       Cascade.Test.Network.Server.Api.Projects
+                       Cascade.Test.Prelude
+                       Cascade.Test.Prelude.Orphans
+
 benchmark cascade-api-benchmark
   import:              common-options
   type:                exitcode-stdio-1.0

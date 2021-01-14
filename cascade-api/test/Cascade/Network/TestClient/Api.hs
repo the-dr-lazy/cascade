@@ -1,4 +1,6 @@
-module Cascade.Network.TestClient.Api where
+module Cascade.Network.TestClient.Api
+  ( projects
+  ) where
 
 import qualified Cascade.Network.Anatomy.Api.Projects
                                                as Api.Projects
