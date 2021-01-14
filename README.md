@@ -1,4 +1,4 @@
-# Welcome to case 👋
+# Welcome to Cascade 👋
 https://github.com/the-dr-lazy/cascade/blob/master/LICENSE
 > A project management service just to show that real-world Haskell is awesome. project is in WIP(Work in Progress) . 
 > Can you help us in develop? we are waiting for your PR (Pull Request) . 
