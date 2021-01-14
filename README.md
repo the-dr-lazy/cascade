@@ -11,20 +11,6 @@ Give a ⭐ if this project helped you!
 
 ### 🏠 [Homepage](https://github.com/the-dr-lazy/cascade)
 
-## Install
-
-```sh
-install command
-```
-
-````
-
-## Run tests
-
-```sh
-how to test it
-````
-
 ## Authors
 
 - **Mohammad Hasani** - _Maintainer_ - [amygdala :: ∀ a. a → IO Memory](https://github.com/the-dr-lazy)
