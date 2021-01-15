@@ -1,5 +1,3 @@
-{-# LANGUAGE PartialTypeSignatures #-}
-
 module Cascade.Effect.Database.Project
   ( ProjectL(..)
   , findAll
@@ -33,6 +31,8 @@ import           Polysemy                       ( Member
                                                 , interpret
                                                 , makeSem
                                                 )
+import qualified Relude.Unsafe                 as Unsafe
+                                                ( fromJust )
 
 data ProjectL m a where
   FindAll    ::ProjectL m [Readable Project]
@@ -46,6 +46,9 @@ makeSem ''ProjectL
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
+    => Database.TableFieldsFulfillConstraint
+         (Beam.FromBackendRow backend)
+         ProjectTable
     => Database.TableFieldsFulfillConstraint
          (Beam.HasSqlEqualityCheck backend)
          ProjectTable
@@ -69,6 +72,8 @@ run = interpret \case
     insertExpressions [fromCreatableProject creatable]
       |> Database.insert #projects
       |> Database.runInsertReturningOne
+      -- Only @Just@ is acceptable.
+      |> fmap Unsafe.fromJust
       |> fmap toReadableProject
   UpdateById id updatable ->
     Database.update #projects
