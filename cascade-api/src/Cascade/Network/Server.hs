@@ -1,4 +1,6 @@
-module Cascade.Network.Server where
+module Cascade.Network.Server
+  ( server
+  ) where
 
 import qualified Cascade.Effect.Database.Project
                                                as Database
@@ -8,10 +10,7 @@ import qualified Cascade.Network.Server.Api    as Api
 import           Polysemy                       ( Members
                                                 , Sem
                                                 )
-import           Servant.API.Generic
-import           Servant.Server.Generic         ( AsServerT
-                                                , genericServerT
-                                                )
+import           Servant.Server.Generic         ( AsServerT )
 
-server :: Members '[Database.ProjectL] r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { api = Api.server }
+server :: Members '[Database.ProjectL] r => Routes (AsServerT (Sem r))
+server = Routes { api = Api.server }
