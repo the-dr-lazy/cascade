@@ -2,6 +2,7 @@ module Main
   ( main
   ) where
 
+import qualified Cascade.Api
 
 main :: IO ()
-main = putStrLn ("Hello, world!" :: String)
+main = Cascade.Api.main
