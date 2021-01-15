@@ -7,6 +7,7 @@ module Cascade.Data.Api.Project
   ) where
 
 import           Cascade.Data.Api.Prelude
+import           Control.Lens.TH                ( makeWrapped )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
@@ -17,6 +18,8 @@ newtype Id = Id
   { unId :: UUID }
   deriving stock Generic
   deriving newtype (Show, Eq, Ord, ToHttpApiData, FromJSON, ToJSON)
+
+makeWrapped ''Id
 
 data Project
 
