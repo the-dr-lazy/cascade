@@ -10,13 +10,12 @@ import           Data.Aeson                     ( (.=)
                                                 , ToJSON(..)
                                                 , object
                                                 )
-import           Network.HTTP.Media             ( (//) )
 import           Servant
 
 data NotFound = NotFound
 
 instance FromJSON NotFound where
-  parseJSON = undefined
+  parseJSON _ = pure NotFound
 
 instance ToJSON NotFound where
   toJSON _ = object ["title" .= ("Not Found" :: Text)]
