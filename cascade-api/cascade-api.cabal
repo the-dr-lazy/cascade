@@ -116,8 +116,11 @@ library
   hs-source-dirs:      src
   build-depends:       beam-core
                      , beam-postgres
-                     , servant-server
                      , http-media
+                     , postgresql-simple
+                     , relude
+                     , resource-pool
+                     , servant-server
 
 test-suite cascade-api-test
   import:              common-options
@@ -125,14 +128,14 @@ test-suite cascade-api-test
   hs-source-dirs:      test
   main-is:             Driver.hs
   build-depends:       cascade-api
+                     , free
+                     , hedgehog
+                     , http-client
+                     , http-types
+                     , servant-client
+                     , servant-client-core
                      , tasty
                      , tasty-hedgehog
-                     , hedgehog
-                     , free
-                     , http-client
-                     , servant-client-core
-                     , servant-client
-                     , http-types
 
   ghc-options:         -threaded
                        -rtsopts
