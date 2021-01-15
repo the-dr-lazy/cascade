@@ -15,7 +15,63 @@ tested-with:         GHC == 8.8.4
 
 common common-options
   build-depends:       cascade-prelude
+
   default-language:    Haskell2010
+  -- Based on
+  -- https://lexi-lambda.github.io/blog/2018/02/10/an-opinionated-guide-to-haskell-in-2018/
+  --
+  -- Trivial lifting of standards-imposed limitations
+  default-extensions:  EmptyCase
+                       FlexibleContexts
+                       FlexibleInstances
+                       InstanceSigs
+                       MultiParamTypeClasses
+                       -- Syntactic conveniences
+                       LambdaCase
+                       MultiWayIf
+                       NamedFieldPuns
+                       TupleSections
+                       ApplicativeDo
+                       PatternSynonyms
+                       BangPatterns
+                       KindSignatures
+                       TypeOperators
+                       DefaultSignatures
+                       Arrows
+                       BlockArguments
+                       RecordWildCards
+                       -- Extensions to the deriving mechanism
+                       DeriveFoldable
+                       DeriveFunctor
+                       DeriveGeneric
+                       DeriveLift
+                       DeriveTraversable
+                       DeriveAnyClass
+                       DerivingStrategies
+                       GeneralizedNewtypeDeriving
+                       StandaloneDeriving
+                       -- Polymorphic string literals
+                       OverloadedStrings
+                       -- Extensions to aid type annotation
+                       ScopedTypeVariables
+                       TypeApplications
+                       -- Extensions to the Haskell type system
+                       ConstraintKinds
+                       RankNTypes
+                       GADTs
+                       ExistentialQuantification
+                       FunctionalDependencies
+                       DataKinds
+                       PolyKinds
+                       TypeFamilies
+                       TypeFamilyDependencies
+                       -- Extension to boilerplate generation
+                       TemplateHaskell
+                       -- Extensions to the generic-lens!
+                       DuplicateRecordFields
+                       OverloadedLabels
+                       -- Make laziness your power
+                       StrictData
   -- For details on warnings:
   -- https://downloads.haskell.org/~ghc/master/users-guide/using-warnings.html
   -- This list taken from https://medium.com/mercury-bank/enable-all-the-warnings-a0517bc081c3#
@@ -44,6 +100,7 @@ executable cascade-cli
   import:              common-options
   hs-source-dirs:      app
   main-is:             Main.hs
+  build-depends:       cascade-api
   
   ghc-options:         -threaded
                        -rtsopts
