@@ -10,6 +10,7 @@ module Cascade.Effect.Database.Project
 
 import           Cascade.Data.Api.Project
 import qualified Cascade.Data.Api.Project      as Project
+import           Cascade.Data.WrappedC
 import           Cascade.Database.Project       ( ProjectTable )
 import qualified Cascade.Database.Project      as Database.Project
 import qualified Cascade.Effect.Database       as Database
@@ -65,7 +66,7 @@ run = interpret \case
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindById id ->
-    Database.lookup #projects (Database.Project.PrimaryKey id)
+    Database.lookup #projects (Database.Project.PrimaryKey $ coerce id)
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableProject
   Create creatable ->
@@ -78,16 +79,16 @@ run = interpret \case
   UpdateById id updatable ->
     Database.update #projects
                     (fromUpdatableProject updatable)
-                    (\project -> project ^. #id ==. val_ id)
+                    (\project -> project ^. #id ==. val_ (coerce id))
       |> Database.runUpdateReturningOne
       |> (fmap . fmap) toReadableProject
   DeleteById id ->
-    Database.delete #projects (\project -> project ^. #id ==. val_ id)
+    Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
 
 toReadableProject :: Database.Project.Row -> Readable Project
-toReadableProject Database.Project.Row {..} = ProjectR { .. }
+toReadableProject Database.Project.Row {..} = ProjectR { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
