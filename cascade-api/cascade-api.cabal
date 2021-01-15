@@ -121,6 +121,8 @@ library
                      , relude
                      , resource-pool
                      , servant-server
+                     , wai
+                     , warp
 
 test-suite cascade-api-test
   import:              common-options

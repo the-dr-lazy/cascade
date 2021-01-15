@@ -12,12 +12,14 @@ import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
 import           Data.Generics.Labels           ( )
-import           Servant.API                    ( ToHttpApiData )
+import           Servant.API                    ( FromHttpApiData
+                                                , ToHttpApiData
+                                                )
 
 newtype Id = Id
   { unId :: UUID }
   deriving stock Generic
-  deriving newtype (Show, Eq, Ord, ToHttpApiData, FromJSON, ToJSON)
+  deriving newtype (Show, Eq, Ord, FromHttpApiData, ToHttpApiData, FromJSON, ToJSON)
 
 makeWrapped ''Id
 
