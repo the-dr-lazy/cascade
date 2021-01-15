@@ -3,3 +3,4 @@
 %uri=https://github.com/the-dr-lazy/cascade
 
 uuid-ossp 2021-01-15T22:31:42Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Load `uuid-ossp` module.
+projects [uuid-ossp] 2021-01-15T22:32:28Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Create projects table.
