@@ -143,14 +143,14 @@ test-suite cascade-api-test
                        -rtsopts
                        -with-rtsopts=-N
 
-  other-modules:       Cascade.Hedgehog.Gen
-                       Cascade.Hedgehog.Gen.Api.Project
-                       Cascade.Network.TestClient
-                       Cascade.Network.TestClient.Api
-                       Cascade.Network.TestClient.Api.Projects
-                       Cascade.Test.Prelude
-                       Cascade.Test.Prelude.Orphans
-                       Test.Cascade.Network.Server.Api.Projects
+  other-modules:       Cascade.Api.Hedgehog.Gen
+                       Cascade.Api.Hedgehog.Gen.Api.Project
+                       Cascade.Api.Network.TestClient
+                       Cascade.Api.Network.TestClient.Api
+                       Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Test.Prelude
+                       Cascade.Api.Test.Prelude.Orphans
+                       Test.Cascade.Api.Network.Server.Api.Projects
 
 benchmark cascade-api-benchmark
   import:              common-options
