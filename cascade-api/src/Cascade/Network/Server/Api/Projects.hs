@@ -21,8 +21,9 @@ import           Servant.Server.Generic         ( AsServerT
 
 handleCreate :: Member ProjectL r
              => Creatable Project
-             -> Sem r (Readable Project)
-handleCreate = Database.Project.create
+             -> Sem r (Union CreateResponse)
+handleCreate creatable =
+  Database.Project.create creatable >>= respond . Resource.created
 
 handleGetAll :: Member ProjectL r => Sem r [Readable Project]
 handleGetAll = Database.Project.findAll

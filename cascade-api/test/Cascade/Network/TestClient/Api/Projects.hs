@@ -19,7 +19,8 @@ import           Prelude                 hiding ( getAll )
 import           Servant.API                    ( Union )
 import           Servant.Client.Free            ( ResponseF )
 
-create :: Creatable Project -> IO (ResponseF (Readable Project))
+create :: Creatable Project
+       -> IO (ResponseF (Union Api.Projects.CreateResponse))
 create = interpret . go where go = Client.Api.projects ^. #create
 
 getAll :: IO (ResponseF [Readable Project])
