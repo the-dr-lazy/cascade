@@ -101,6 +101,8 @@ executable cascade-cli
   hs-source-dirs:      app
   main-is:             Main.hs
   build-depends:       cascade-api
+                     , postgresql-simple
+                     , resource-pool
   
   ghc-options:         -threaded
                        -rtsopts
