@@ -1,5 +1,6 @@
 module Cascade.Network.Anatomy.Api.Projects
   ( Routes(..)
+  , CreateResponse
   , GetByIdResponse
   , UpdateByIdResponse
   , DeleteByIdResponse
@@ -12,6 +13,8 @@ import           Data.Generics.Labels           ( )
 import           Servant
 import           Servant.API.Generic
 
+type CreateResponse = '[Resource.Created (Readable Project)]
+
 type GetByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
 
 type UpdateByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
@@ -20,7 +23,7 @@ type DeleteByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
 
 data Routes route = Routes
   { create
-      :: route :- ReqBody '[JSON] (Creatable Project) :> Post '[JSON] (Readable Project)
+      :: route :- ReqBody '[JSON] (Creatable Project) :> UVerb 'POST '[JSON] CreateResponse
   , getAll :: route :- Get '[JSON] [Readable Project]
   , getById
       :: route :- Capture "id" Project.Id :> UVerb 'GET '[JSON] GetByIdResponse

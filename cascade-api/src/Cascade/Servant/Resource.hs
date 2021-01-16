@@ -1,8 +1,10 @@
 module Cascade.Servant.Resource
   ( NotFound(..)
   , Ok(..)
+  , Created(..)
   , notFound
   , ok
+  , created
   ) where
 
 import           Data.Aeson                     ( (.=)
@@ -33,3 +35,11 @@ instance HasStatus (Ok a) where
 
 ok :: a -> Ok a
 ok = Ok
+
+newtype Created a = Created a deriving newtype (FromJSON, ToJSON)
+
+instance HasStatus (Created a) where
+  type StatusOf (Created a) = 201
+
+created :: a -> Created a
+created = Created

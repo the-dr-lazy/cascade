@@ -1,5 +1,5 @@
-module Cascade.Test.Network.Server.Api.Projects
-  ( hprop_projectsEndpoint
+module Test.Cascade.Network.Server.Api.Projects
+  ( tests
   ) where
 
 import           Cascade.Data.Api.Project
@@ -12,16 +12,29 @@ import qualified Cascade.Network.TestClient.Api.Projects
 import qualified Cascade.Servant.Resource      as Resource
 import           Cascade.Test.Prelude
 import           Control.Lens                   ( (%~)
+                                                , (?~)
                                                 , (^.)
+                                                , at
+                                                , to
                                                 )
 import           Control.Lens.Combinators       ( cons )
-import           Data.Generics.Labels           ( )
 import           Data.Generics.Labels           ( )
 import qualified Data.Map.Strict               as Map
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import           Servant.API.UVerb.Union        ( matchUnion )
+import           Test.Tasty
+import           Test.Tasty.Hedgehog
+
+tests :: TestTree
+tests =
+  let properties = testGroup
+        "Properties"
+        [ testProperty "Endpoint state machine testing"
+                       prop_projectsEndpointMachineTest
+        ]
+  in  testGroup "Cascade.Network.Server.Api.Projects" [properties]
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
@@ -51,10 +64,14 @@ c_createProject =
       execute :: Create Concrete -> m Project.Id
       execute (Create creatable) = do
         response <- evalIO . Cascade.Project.create $ creatable
-        let project = response ^. #responseBody
-            id      = project ^. #id
 
-        response ^. #responseStatusCode . #statusCode === 201
+        project  <-
+          (response ^. #responseBody)
+          |> matchUnion @(Resource.Created (Readable Project))
+          |> fmap coerce
+          |> evalMaybe
+        let id = project ^. #id
+
         project === mkReadableProjectFromCreatableProject id creatable
 
         pure id
@@ -62,7 +79,7 @@ c_createProject =
         generator
         execute
         [ Update \model (Create creatable) id ->
-            model |> #projects %~ Map.insert id creatable
+            model |> #projects . at id ?~ creatable
         ]
 
 -- brittany-disable-next-binding
@@ -88,14 +105,14 @@ c_getAllProjects =
   in  Command
         generator
         execute
-        [ Ensure \Model { projects } _after _input output -> do
-            length projects === length output
+        [ Ensure \_before Model { projects } _input output -> do
+            Map.size projects === length output
             for_
               output
               \project -> do
                 let id = project ^. #id
                 project' <-
-                  Map.lookup (Var $ Concrete id) projects
+                  (projects ^. at (Var $ Concrete id))
                   |> fmap (mkReadableProjectFromCreatableProject id)
                   |> evalMaybe
                 project === project'
@@ -290,10 +307,10 @@ c_deleteNotExistingProject =
         response <- evalIO . Cascade.Project.deleteById $ id
 
         response ^. #responseStatusCode . #statusCode === 404
-  in  Command generator execute [] -- ensure 404
+  in  Command generator execute []
 
-hprop_projectsEndpoint :: Property
-hprop_projectsEndpoint = property do
+prop_projectsEndpointMachineTest :: Property
+prop_projectsEndpointMachineTest = property do
   actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
   executeSequential initialModel actions
  where
@@ -309,7 +326,6 @@ hprop_projectsEndpoint = property do
     , c_deleteExistingProject
     , c_deleteNotExistingProject
     ]
-
 
 mkReadableProjectFromCreatableProject :: Project.Id
                                       -> Creatable Project

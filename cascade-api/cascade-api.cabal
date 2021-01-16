@@ -128,7 +128,7 @@ test-suite cascade-api-test
   import:              common-options
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Driver.hs
+  main-is:             Main.hs
   build-depends:       cascade-api
                      , free
                      , hedgehog
@@ -148,9 +148,9 @@ test-suite cascade-api-test
                        Cascade.Network.TestClient
                        Cascade.Network.TestClient.Api
                        Cascade.Network.TestClient.Api.Projects
-                       Cascade.Test.Network.Server.Api.Projects
                        Cascade.Test.Prelude
                        Cascade.Test.Prelude.Orphans
+                       Test.Cascade.Network.Server.Api.Projects
 
 benchmark cascade-api-benchmark
   import:              common-options
