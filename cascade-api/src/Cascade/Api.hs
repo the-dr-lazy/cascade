@@ -2,10 +2,10 @@ module Cascade.Api
   ( main
   ) where
 
-import qualified Cascade.Effect.Database       as Database
-import qualified Cascade.Effect.Database.Project
+import qualified Cascade.Api.Effect.Database   as Database
+import qualified Cascade.Api.Effect.Database.Project
                                                as Database.Project
-import           Cascade.Network.Wai.Application
+import           Cascade.Api.Network.Wai.Application
 import           Data.Pool                      ( Pool
                                                 , createPool
                                                 )
