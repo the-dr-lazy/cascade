@@ -9,7 +9,6 @@ module Cascade.Api.Effect.Database
   , runUpdateReturningOne
   , runDeleteReturningOne
   , runPostgres
-  , runSqlByPostgresPooled
   , all
   , lookup
   , update
@@ -17,7 +16,7 @@ module Cascade.Api.Effect.Database
   , delete
   ) where
 
-import           Cascade.Api.Database               ( Database
+import           Cascade.Api.Database           ( Database
                                                 , database
                                                 )
 import           Control.Lens                   ( Getter
@@ -25,8 +24,6 @@ import           Control.Lens                   ( Getter
                                                 )
 import           Data.Functor.Identity
 import           Data.Kind
-import qualified Data.Pool                     as Pool
-import           Data.Pool
 import           Database.Beam                  ( Beamable
                                                 , PrimaryKey
                                                 )
@@ -48,14 +45,12 @@ import           Database.Beam.Schema.Tables    ( HasConstraint(..) )
 import qualified Database.PostgreSQL.Simple    as Postgres
 import           GHC.Generics
 import           Polysemy                       ( Embed
+                                                , Member
                                                 , Members
                                                 , Sem
                                                 , embed
                                                 , interpret
                                                 , makeSem
-                                                )
-import           Polysemy.Input                 ( Input
-                                                , input
                                                 )
 import           Prelude                        ( ($)
                                                 , (.)
@@ -77,11 +72,11 @@ data DatabaseL backend (m :: Type -> Type) a where
 
 makeSem ''DatabaseL
 
-runPostgres :: Members '[Embed IO , Input input] r
-            => (forall b . Pg b -> Sem r b)
+runPostgres :: Member (Embed IO) r
+            => (forall b . (Postgres.Connection -> IO b) -> IO b)
             -> Sem (DatabaseL Beam.Postgres ': r) a
             -> Sem r a
-runPostgres runSql = interpret \case
+runPostgres withConnection = interpret \case
   RunSelectReturningList sql -> Beam.runSelectReturningList sql |> runSql
   RunSelectReturningOne  sql -> Beam.runSelectReturningOne sql |> runSql
   RunInsertReturningOne sql ->
@@ -90,15 +85,9 @@ runPostgres runSql = interpret \case
     Beam.runUpdateReturningList sql |> runSql |> fmap listToMaybe
   RunDeleteReturningOne sql ->
     Beam.runDeleteReturningList sql |> runSql |> fmap listToMaybe
-
-runSqlByPostgresPooled :: Members
-                            '[Embed IO , Input (Pool Postgres.Connection)]
-                            r
-                       => Pg a
-                       -> Sem r a
-runSqlByPostgresPooled sql = do
-  pool <- input
-  embed $ Pool.withResource pool (`runBeamPostgres` sql)
+ where
+  runSql :: Member (Embed IO) r => Pg a -> Sem r a
+  runSql sql = embed $ withConnection (`runBeamPostgres` sql)
 
 type DatabaseEntityGetter backend table
   = Getter
