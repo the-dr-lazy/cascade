@@ -1,7 +1,8 @@
-# Welcome to Cascade 👋 [![License](https://img.shields.io/badge/license-MPL-%23242631?style=for-the-badge)](LICENSE)
+<img src="design/logo/SVG/cascade.svg" alt="Logo" width="180" align="right" />
 
-> A project management service just to show that real-world Haskell is awesome. project is in **Work In Progress**.
-> Can you help us in develop? we are waiting for your PR (Pull Request) .
+# Welcome to Cascade [![License](https://img.shields.io/badge/license-MPL--2.0-3400FD?style=for-the-badge)](LICENSE)
+
+A project management service just to show that real-world Haskell is awesome. project is in **Work In Progress**. Can you help us in develop? we are waiting for your PR (Pull Request).
 
 ## Show your support
 
