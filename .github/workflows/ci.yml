@@ -63,7 +63,7 @@ jobs:
         uses: knicknic/os-specific-run@v1.0.2
         linux: |
           sudo apt-get install postgresql-13
-          echo "/usr/lib/postgresql/VERSION/bin" >> $GITHUB_PATH
+          echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
         macos: |
           brew install postgres
 
