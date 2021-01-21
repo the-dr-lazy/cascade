@@ -1,40 +1,58 @@
-module Test.Cascade.Api.Network.Server.Api.Projects
+module Test.Cascade.Api.StateMachine
   ( tests
   ) where
 
+import qualified Cascade.Api
 import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Hedgehog.Gen          as Gen
+import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects
-                                               as Cascade.Api.Project
-import qualified Cascade.Api.Servant.Resource      as Resource
+                                               as Cascade.Api.Projects
+import qualified Cascade.Api.Servant.Resource  as Resource
 import           Cascade.Api.Test.Prelude
+import           Control.Concurrent.Async.Lifted
+
+import qualified Cascade.Api.Test.Resource     as Resource
 import           Control.Lens                   ( (%~)
                                                 , (?~)
                                                 , (^.)
                                                 , at
-                                                , to
                                                 )
 import           Control.Lens.Combinators       ( cons )
+import           Control.Monad.Managed
+import           Control.Monad.Trans.Control
 import           Data.Generics.Labels           ( )
 import qualified Data.Map.Strict               as Map
+import           Data.Pool                      ( Pool )
+import qualified Database.PostgreSQL.Simple    as Postgres
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
+import qualified Network.Socket.Wait           as Socket
 import           Servant.API.UVerb.Union        ( matchUnion )
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
 tests :: TestTree
-tests =
-  let properties = testGroup
-        "Properties"
-        [ testProperty "Endpoint state machine testing"
-                       prop_projectsEndpointMachineTest
-        ]
-  in  testGroup "Cascade.Api.Network.Server.Api.Projects" [properties]
+tests = testGroup
+  "Test.Cascade.Api.StateMachine"
+  [ Resource.withTemporaryPostgresConnectionPool
+      (testProperty "Sequential" . prop_sequential)
+  ]
+
+prop_sequential :: IO (Pool Postgres.Connection) -> Property
+prop_sequential getPool = withTests 1000 . property $ do
+  pool    <- evalIO getPool
+  actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
+  control \runInBase -> flip with pure $ do
+    connection <- Resource.withPostgresConnectionInAbortionBracket pool
+    liftIO $ withAsync
+      (Cascade.Api.main \f -> f connection)
+      \_ -> do
+        Socket.wait "127.0.0.1" 3141
+        runInBase $ executeSequential initialModel actions
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
@@ -42,6 +60,22 @@ data Model (v :: Type -> Type) = Model
   , notExistingIds :: [Var Project.Id v]
   }
   deriving stock Generic
+
+initialModel :: Model v
+initialModel = Model { projects = Map.empty, notExistingIds = mempty }
+
+commands :: MonadGen g => MonadIO m => MonadTest m => [Command g m Model]
+commands =
+  [ c_createProject
+  , c_getAllProjects
+  , c_addNotExistingId
+  , c_getExistingProject
+  , c_getNotExistingProject
+  , c_updateExistingProject
+  , c_updateNotExistingProject
+  , c_deleteExistingProject
+  , c_deleteNotExistingProject
+  ]
 
 -- brittany-disable-next-binding
 newtype Create (v :: Type -> Type) = Create
@@ -52,8 +86,6 @@ newtype Create (v :: Type -> Type) = Create
 instance HTraversable Create where
   htraverse _ (Create projects) = pure $ Create projects
 
-
-
 c_createProject :: forall g m
                  . MonadGen g
                 => MonadIO m => MonadTest m => Command g m Model
@@ -63,7 +95,7 @@ c_createProject =
 
       execute :: Create Concrete -> m Project.Id
       execute (Create creatable) = do
-        response <- evalIO . Cascade.Api.Project.create $ creatable
+        response <- evalIO . Cascade.Api.Projects.create $ creatable
 
         project  <-
           (response ^. #responseBody)
@@ -97,7 +129,7 @@ c_getAllProjects =
 
       execute :: GetAll Concrete -> m [Readable Project]
       execute _ = do
-        response <- evalIO Cascade.Api.Project.getAll
+        response <- evalIO Cascade.Api.Projects.getAll
 
         response ^. #responseStatusCode . #statusCode === 200
 
@@ -161,7 +193,8 @@ c_getExistingProject =
 
       execute :: GetById Concrete -> m (Readable Project)
       execute input = do
-        response <- evalIO . Cascade.Api.Project.getById $ input ^. #id . concreted
+        response <-
+          evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
 
         (response ^. #responseBody)
           |> matchUnion @(Resource.Ok (Readable Project))
@@ -190,7 +223,8 @@ c_getNotExistingProject =
 
       execute :: GetById Concrete -> m ()
       execute input = do
-        response <- evalIO . Cascade.Api.Project.getById $ input ^. #id . concreted
+        response <-
+          evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute []
 
@@ -217,7 +251,7 @@ c_updateExistingProject =
       execute :: UpdateById Concrete -> m Project.Id
       execute input@UpdateById { updatable } = do
         let id = input ^. #id . concreted
-        response <- evalIO $ Cascade.Api.Project.updateById id updatable
+        response <- evalIO $ Cascade.Api.Projects.updateById id updatable
 
         project :: Readable Project <-
           (response ^. #responseBody)
@@ -236,8 +270,6 @@ c_updateExistingProject =
               %~ Map.adjust (updateCreatableProject updatable) id
         ]
 
-
-
 c_updateNotExistingProject :: forall g m
                             . MonadGen g
                            => MonadIO m => MonadTest m => Command g m Model
@@ -250,7 +282,7 @@ c_updateNotExistingProject =
       execute :: UpdateById Concrete -> m ()
       execute input@UpdateById { updatable } = do
         let id = input ^. #id . concreted
-        response <- evalIO $ Cascade.Api.Project.updateById id updatable
+        response <- evalIO $ Cascade.Api.Projects.updateById id updatable
 
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [] -- ensure 404
@@ -277,7 +309,7 @@ c_deleteExistingProject =
       execute input = do
         let id = input ^. #id . concreted
 
-        response                    <- evalIO . Cascade.Api.Project.deleteById $ id
+        response <- evalIO . Cascade.Api.Projects.deleteById $ id
 
         project :: Readable Project <-
           (response ^. #responseBody)
@@ -304,28 +336,10 @@ c_deleteNotExistingProject =
       execute input = do
         let id = input ^. #id . concreted
 
-        response <- evalIO . Cascade.Api.Project.deleteById $ id
+        response <- evalIO . Cascade.Api.Projects.deleteById $ id
 
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute []
-
-prop_projectsEndpointMachineTest :: Property
-prop_projectsEndpointMachineTest = property do
-  actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
-  executeSequential initialModel actions
- where
-  initialModel = Model { projects = Map.empty, notExistingIds = mempty }
-  commands =
-    [ c_createProject
-    , c_getAllProjects
-    , c_addNotExistingId
-    , c_getExistingProject
-    , c_getNotExistingProject
-    , c_updateExistingProject
-    , c_updateNotExistingProject
-    , c_deleteExistingProject
-    , c_deleteNotExistingProject
-    ]
 
 mkReadableProjectFromCreatableProject :: Project.Id
                                       -> Creatable Project
