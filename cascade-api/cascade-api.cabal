@@ -14,16 +14,17 @@ extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.8.4
 
 common common-options
-  build-depends:       cascade-prelude
+  build-depends:       aeson
                      , base-noprelude
-                     , uuid
+                     , cascade-prelude
                      , containers
-                     , aeson
-                     , lens
                      , generic-lens
+                     , lens
                      , polysemy
                      , polysemy-plugin
+                     , postgresql-simple
                      , servant
+                     , uuid
                      
   default-language:    Haskell2010
   -- Based on
@@ -117,7 +118,6 @@ library
   build-depends:       beam-core
                      , beam-postgres
                      , http-media
-                     , postgresql-simple
                      , relude
                      , servant-server
                      , wai
@@ -133,15 +133,24 @@ test-suite cascade-api-test
                      , hedgehog
                      , http-client
                      , http-types
+                     , lifted-async
+                     , lifted-base
+                     , managed
+                     , monad-control
+                     , port-utils
+                     , postgres-options
+                     , relude
+                     , resource-pool
                      , servant-client
                      , servant-client-core
                      , tasty
                      , tasty-hedgehog
+                     , tmp-postgres
+                     , typed-process
 
   ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
-
   other-modules:       Cascade.Api.Hedgehog.Gen
                        Cascade.Api.Hedgehog.Gen.Api.Project
                        Cascade.Api.Network.TestClient
@@ -149,7 +158,8 @@ test-suite cascade-api-test
                        Cascade.Api.Network.TestClient.Api.Projects
                        Cascade.Api.Test.Prelude
                        Cascade.Api.Test.Prelude.Orphans
-                       Test.Cascade.Api.Network.Server.Api.Projects
+                       Cascade.Api.Test.Resource
+                       Test.Cascade.Api.StateMachine
 
 benchmark cascade-api-benchmark
   import:              common-options

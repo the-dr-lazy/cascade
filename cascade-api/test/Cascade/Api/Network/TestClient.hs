@@ -3,8 +3,9 @@ module Cascade.Api.Network.TestClient
   , interpret
   ) where
 
-import           Cascade.Api.Network.Anatomy        ( Routes )
-import qualified Cascade.Api.Network.Anatomy.Api   as Api
+import           Cascade.Api.Network.Anatomy    ( Routes )
+import qualified Cascade.Api.Network.Anatomy.Api
+                                               as Api
 import           Control.Lens                   ( (^.) )
 import           Control.Monad.Free
 import qualified Network.HTTP.Client           as Http
@@ -31,7 +32,7 @@ interpret x = case x of
   Pure _                          -> error "ERROR: got (Pure a)."
   Free (Throw clientError       ) -> error $ "ERROR: " <> show clientError
   Free (RunRequest request parse) -> do
-    baseUrl <- parseBaseUrl "http://localhost:3000"
+    baseUrl <- parseBaseUrl "http://localhost:3141"
     manager <- Http.newManager Http.defaultManagerSettings
     let request' = Http.defaultMakeClientRequest baseUrl request
     response' <- Http.httpLbs request' manager
