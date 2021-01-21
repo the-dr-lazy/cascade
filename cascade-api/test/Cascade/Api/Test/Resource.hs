@@ -54,7 +54,8 @@ withTemporaryPostgresConnectionPool :: (  IO (Pool Postgres.Connection)
                                        )
                                     -> TestTree
 withTemporaryPostgresConnectionPool f =
-  let acquire :: IO
+  let acquire :: HasCallStack
+              => IO
                    ( TempPostgres.Cache
                    , TempPostgres.DB
                    , Pool Postgres.Connection
