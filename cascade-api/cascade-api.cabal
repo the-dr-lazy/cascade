@@ -129,6 +129,8 @@ test-suite cascade-api-test
   hs-source-dirs:      test
   main-is:             Main.hs
   build-depends:       cascade-api
+                     , directory
+                     , filepath
                      , free
                      , hedgehog
                      , http-client

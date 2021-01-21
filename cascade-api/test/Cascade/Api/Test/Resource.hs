@@ -3,6 +3,7 @@ module Cascade.Api.Test.Resource
   , withTemporaryPostgresConnectionPool
   ) where
 
+import           Cascade.Api.Test.FilePath      ( findSqitchConfigFileUpward )
 import           Control.Exception.Lifted       ( bracket
                                                 , throwIO
                                                 )
@@ -20,18 +21,23 @@ import qualified Database.PostgreSQL.Simple.Options
                                                as Postgres
 import qualified Database.Postgres.Temp        as TempPostgres
 import qualified Relude.Unsafe                 as Unsafe
-                                                ( fromJust )
+import           System.Directory               ( getCurrentDirectory )
+import           System.FilePath                ( takeDirectory )
 import           System.Process.Typed           ( nullStream
                                                 , runProcess_
                                                 , setStdout
-                                                , setWorkingDirInherit
+                                                , setWorkingDir
                                                 )
 import qualified System.Process.Typed          as Process
 import qualified Test.Tasty                    as Tasty
 import           Test.Tasty                     ( TestTree )
 
-migrate :: TempPostgres.DB -> IO ()
-migrate db =
+migrate :: HasCallStack => TempPostgres.DB -> IO ()
+migrate db = do
+  cwd <-
+    (getCurrentDirectory >>= findSqitchConfigFileUpward)
+    |> (fmap . fmap) takeDirectory
+    |> fmap Unsafe.fromJust
   Process.proc
       "sqitch"
       [ "deploy"
@@ -39,7 +45,7 @@ migrate db =
       , connectionUri . TempPostgres.toConnectionOptions $ db
       ]
     |> setStdout nullStream
-    |> setWorkingDirInherit
+    |> setWorkingDir cwd
     |> runProcess_
  where
   connectionUri Postgres.Options {..} =
