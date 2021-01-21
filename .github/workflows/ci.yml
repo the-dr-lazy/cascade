@@ -61,11 +61,14 @@ jobs:
 
       - name: Install PostgreSQL
         uses: knicknic/os-specific-run@v1.0.2
-        linux: |
-          sudo apt-get install postgresql-13
-          echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
-        macos: |
-          brew install postgres
+        with:
+          linux: |
+            sudo apt-get install postgresql-13
+            echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
+            postgres --version
+          macos: |
+            brew install postgres
+            postgres --version
 
       - name: Test
         run: |
