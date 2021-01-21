@@ -65,7 +65,6 @@ jobs:
           linux: |
             sudo apt-get install postgresql-13
             echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
-            postgres --version
           macos: |
             brew install postgres
             postgres --version
