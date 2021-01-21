@@ -31,13 +31,14 @@ import           Test.Tasty                     ( TestTree )
 
 migrate :: TempPostgres.DB -> IO ()
 migrate db =
-  do
-      Process.proc
-        "sqitch"
-        [ "deploy"
-        , "--target"
-        , connectionUri . TempPostgres.toConnectionOptions $ db
-        ]
+  Process.proc
+      "sqitch"
+      [ "deploy"
+      , "--target"
+      , connectionUri . TempPostgres.toConnectionOptions $ db
+      , "--plan-file"
+      , "migrations/sqitch.plan"
+      ]
     |> setStdout nullStream
     |> runProcess_
  where
