@@ -84,10 +84,12 @@ jobs:
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
-            sudo apt-get install sqitch libdbd-pg-perl postgresql-client
+            sudo apt-get install libdbd-pg-perl postgresql-client
+            apt-get install build-essential cpanminus perl perl-doc libdbd-pg-perl postgresql-client
+            cpanm --quiet --notest App::Sqitch
           macos: |
             brew tap sqitchers/sqitch
-            brew install sqitch --with-postgres-support --with-sqlite-support
+            brew install sqitch --with-postgres-support
 
       - name: Install PostgreSQL
         uses: knicknic/os-specific-run@v1.0.2
