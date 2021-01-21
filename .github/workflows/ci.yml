@@ -28,7 +28,7 @@ jobs:
       - uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
-            apt-get install sqitch libdbd-pg-perl postgresql-client
+            sudo apt-get install sqitch libdbd-pg-perl postgresql-client
           macos: |
             brew tap sqitchers/sqitch
             brew install sqitch --with-postgres-support --with-sqlite-support
