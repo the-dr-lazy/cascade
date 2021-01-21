@@ -24,6 +24,7 @@ import qualified Relude.Unsafe                 as Unsafe
 import           System.Process.Typed           ( nullStream
                                                 , runProcess_
                                                 , setStdout
+                                                , setWorkingDirInherit
                                                 )
 import qualified System.Process.Typed          as Process
 import qualified Test.Tasty                    as Tasty
@@ -36,10 +37,9 @@ migrate db =
       [ "deploy"
       , "--target"
       , connectionUri . TempPostgres.toConnectionOptions $ db
-      , "--plan-file"
-      , "migrations/sqitch.plan"
       ]
     |> setStdout nullStream
+    |> setWorkingDirInherit
     |> runProcess_
  where
   connectionUri Postgres.Options {..} =
