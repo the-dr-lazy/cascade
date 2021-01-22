@@ -46,6 +46,7 @@ prop_sequential :: IO (Pool Postgres.Connection) -> Property
 prop_sequential getPool = withTests 1000 . property $ do
   pool    <- evalIO getPool
   actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
+
   control \runInBase -> flip with pure $ do
     connection <- Resource.withPostgresConnectionInAbortionBracket pool
     liftIO $ withAsync
@@ -84,7 +85,7 @@ newtype Create (v :: Type -> Type) = Create
   deriving stock (Generic, Show)
 
 instance HTraversable Create where
-  htraverse _ (Create projects) = pure $ Create projects
+  htraverse _ (Create creatable) = pure $ Create creatable
 
 c_createProject :: forall g m
                  . MonadGen g
