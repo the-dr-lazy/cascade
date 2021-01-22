@@ -89,12 +89,13 @@ jobs:
             brew tap sqitchers/sqitch
             brew install sqitch --with-postgres-support
 
-      - name: Install PostgreSQL
+      - name: Setup PostgreSQL
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
             sudo apt-get install postgresql-13
             echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
+            sudo service postgresql start
           macos: |
             brew install postgres
             postgres --version
