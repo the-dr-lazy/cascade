@@ -99,6 +99,9 @@ jobs:
             brew install postgres
             postgres --version
 
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.1
+
       - name: Test
         run: |
           cabal new-test all
