@@ -1,4 +1,6 @@
-module Cascade.Api.Test.FilePath where
+module Cascade.Api.Test.FilePath
+  ( findSqitchConfigFileUpward
+  ) where
 
 import           System.Directory
 import           System.FilePath
