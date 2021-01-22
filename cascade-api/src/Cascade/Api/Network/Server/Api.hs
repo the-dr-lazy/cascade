@@ -1,4 +1,6 @@
-module Cascade.Api.Network.Server.Api where
+module Cascade.Api.Network.Server.Api
+  ( server
+  ) where
 
 import qualified Cascade.Api.Effect.Database.Project
                                                as Database
