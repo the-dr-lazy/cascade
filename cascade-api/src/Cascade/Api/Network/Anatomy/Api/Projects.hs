@@ -28,7 +28,7 @@ data Routes route = Routes
   , getById
       :: route :- Capture "id" Project.Id :> UVerb 'GET '[JSON] GetByIdResponse
   , updateById
-      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] (Updatable Project) :> UVerb 'PUT '[JSON] UpdateByIdResponse
+      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] (Updatable Project) :> UVerb 'PATCH '[JSON] UpdateByIdResponse
   , deleteById
       :: route :- Capture "id" Project.Id :> UVerb 'DELETE '[JSON] DeleteByIdResponse
   }
