@@ -319,9 +319,12 @@ c_deleteExistingProject =
         project ^. #id === id
 
         pure id
-  in  Command generator
-              execute
-              [Update \model _input id -> model |> #projects %~ Map.delete id]
+  in  Command
+        generator
+        execute
+        [ Update \model (DeleteById id) _output ->
+            model |> #projects %~ Map.delete id
+        ]
 
 c_deleteNotExistingProject :: forall g m
                             . MonadGen g
