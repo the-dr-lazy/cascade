@@ -15,6 +15,7 @@ import           Data.Aeson                     ( (.=)
 import           Servant
 
 data NotFound = NotFound
+  deriving stock Show
 
 instance FromJSON NotFound where
   parseJSON _ = pure NotFound
@@ -28,7 +29,9 @@ instance HasStatus NotFound where
 notFound :: NotFound
 notFound = NotFound
 
-newtype Ok a = Ok a deriving newtype (FromJSON, ToJSON)
+newtype Ok a = Ok a
+  deriving stock Show
+  deriving newtype (FromJSON, ToJSON)
 
 instance HasStatus (Ok a) where
   type StatusOf (Ok a) = 200

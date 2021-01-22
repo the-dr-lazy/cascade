@@ -12,6 +12,7 @@ import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
 import           Cascade.Api.Test.Prelude
+import           Cascade.Api.Network.Anatomy.Api.Projects ( DeleteByIdResponse )
 import           Control.Concurrent.Async.Lifted
 
 import qualified Cascade.Api.Test.Resource     as Resource
@@ -31,7 +32,8 @@ import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import qualified Network.Socket.Wait           as Socket
-import           Servant.API.UVerb.Union        ( matchUnion )
+import           Servant.API.UVerb.Union       ( matchUnion, Union )
+import           Servant.Client.Core.Response  ( ResponseF )
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
@@ -306,25 +308,25 @@ c_deleteExistingProject =
         []  -> Nothing
         ids -> Gen.element ids |> fmap DeleteById |> Just
 
-      execute :: DeleteById Concrete -> m Project.Id
+      execute :: DeleteById Concrete -> m (ResponseF (Union DeleteByIdResponse))
       execute input = do
         let id = input ^. #id . concreted
 
-        response <- evalIO . Cascade.Api.Projects.deleteById $ id
-
-        project :: Readable Project <-
-          (response ^. #responseBody)
-          |> matchUnion @(Response.Ok (Readable Project))
-          |> fmap coerce
-          |> evalMaybe
-        project ^. #id === id
-
-        pure id
+        evalIO . Cascade.Api.Projects.deleteById $ id
   in  Command
         generator
         execute
         [ Update \model (DeleteById id) _output ->
             model |> #projects %~ Map.delete id
+        , Ensure \_before _after input response -> do
+            let id = input ^. #id . concreted
+
+            project :: Readable Project <-
+              (response ^. #responseBody)
+              |> matchUnion @(Response.Ok (Readable Project))
+              |> fmap coerce
+              |> evalMaybe
+            project ^. #id === id
         ]
 
 c_deleteNotExistingProject :: forall g m
