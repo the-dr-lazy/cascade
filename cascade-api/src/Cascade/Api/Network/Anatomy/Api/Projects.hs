@@ -8,18 +8,18 @@ module Cascade.Api.Network.Anatomy.Api.Projects
 
 import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Servant.Resource      as Resource
+import qualified Cascade.Api.Servant.Response  as Response
 import           Data.Generics.Labels           ( )
 import           Servant
 import           Servant.API.Generic
 
-type CreateResponse = '[Resource.Created (Readable Project)]
+type CreateResponse = '[Response.Created (Readable Project)]
 
-type GetByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
+type GetByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
 
-type UpdateByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
+type UpdateByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
 
-type DeleteByIdResponse = '[Resource.Ok (Readable Project) , Resource.NotFound]
+type DeleteByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
 
 data Routes route = Routes
   { create

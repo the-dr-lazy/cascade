@@ -10,7 +10,7 @@ import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
-import qualified Cascade.Api.Servant.Resource  as Resource
+import qualified Cascade.Api.Servant.Response  as Response
 import           Cascade.Api.Test.Prelude
 import           Control.Concurrent.Async.Lifted
 
@@ -99,7 +99,7 @@ c_createProject =
 
         project  <-
           (response ^. #responseBody)
-          |> matchUnion @(Resource.Created (Readable Project))
+          |> matchUnion @(Response.Created (Readable Project))
           |> fmap coerce
           |> evalMaybe
         let id = project ^. #id
@@ -197,7 +197,7 @@ c_getExistingProject =
           evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
 
         (response ^. #responseBody)
-          |> matchUnion @(Resource.Ok (Readable Project))
+          |> matchUnion @(Response.Ok (Readable Project))
           |> fmap coerce
           |> evalMaybe
   in  Command
@@ -255,7 +255,7 @@ c_updateExistingProject =
 
         project :: Readable Project <-
           (response ^. #responseBody)
-          |> matchUnion @(Resource.Ok (Readable Project))
+          |> matchUnion @(Response.Ok (Readable Project))
           |> fmap coerce
           |> evalMaybe
         project ^. #id === id
@@ -313,7 +313,7 @@ c_deleteExistingProject =
 
         project :: Readable Project <-
           (response ^. #responseBody)
-          |> matchUnion @(Resource.Ok (Readable Project))
+          |> matchUnion @(Response.Ok (Readable Project))
           |> fmap coerce
           |> evalMaybe
         project ^. #id === id

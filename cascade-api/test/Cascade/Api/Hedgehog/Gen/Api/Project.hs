@@ -4,7 +4,7 @@ module Cascade.Api.Hedgehog.Gen.Api.Project
 
 import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Hedgehog.Gen          as Gen
+import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
@@ -16,12 +16,12 @@ instance ProjectGenerator Readable where
   project = ProjectR <$> id <*> name
    where
     id   = Gen.uuid |> fmap Project.Id
-    name = Gen.text (Range.linear 8 32) Gen.unicodeAll
+    name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Creatable where
   project = ProjectC <$> name
-    where name = Gen.text (Range.linear 8 32) Gen.unicodeAll
+    where name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Updatable where
   project = ProjectU <$> name
-    where name = Gen.maybe (Gen.text (Range.linear 8 32) Gen.unicodeAll)
+    where name = Gen.maybe (Gen.text (Range.linear 8 32) Gen.alphaNum)

@@ -1,4 +1,4 @@
-module Cascade.Api.Servant.Resource
+module Cascade.Api.Servant.Response
   ( NotFound(..)
   , Ok(..)
   , Created(..)
