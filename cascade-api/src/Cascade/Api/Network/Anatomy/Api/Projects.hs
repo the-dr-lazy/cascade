@@ -1,6 +1,7 @@
 module Cascade.Api.Network.Anatomy.Api.Projects
   ( Routes(..)
   , CreateResponse
+  , GetAllResponse
   , GetByIdResponse
   , UpdateByIdResponse
   , DeleteByIdResponse
@@ -8,12 +9,13 @@ module Cascade.Api.Network.Anatomy.Api.Projects
 
 import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
+import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response  as Response
 import           Data.Generics.Labels           ( )
-import           Servant
-import           Servant.API.Generic
 
 type CreateResponse = '[Response.Created (Readable Project)]
+
+type GetAllResponse = '[Response.Ok [Readable Project]]
 
 type GetByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
 
@@ -23,13 +25,12 @@ type DeleteByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
 
 data Routes route = Routes
   { create
-      :: route :- ReqBody '[JSON] (Creatable Project) :> UVerb 'POST '[JSON] CreateResponse
-  , getAll :: route :- Get '[JSON] [Readable Project]
-  , getById
-      :: route :- Capture "id" Project.Id :> UVerb 'GET '[JSON] GetByIdResponse
+      :: route :- ReqBody '[JSON] (Creatable Project) :> Post '[JSON] CreateResponse
+  , getAll  :: route :- Get '[JSON] GetAllResponse
+  , getById :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
   , updateById
-      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] (Updatable Project) :> UVerb 'PATCH '[JSON] UpdateByIdResponse
+      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] (Updatable Project) :> Patch '[JSON] UpdateByIdResponse
   , deleteById
-      :: route :- Capture "id" Project.Id :> UVerb 'DELETE '[JSON] DeleteByIdResponse
+      :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
   }
   deriving stock Generic

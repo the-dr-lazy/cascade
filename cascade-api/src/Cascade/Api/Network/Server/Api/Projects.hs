@@ -25,8 +25,8 @@ handleCreate :: Member ProjectL r
 handleCreate creatable =
   Database.Project.create creatable >>= respond . Response.created
 
-handleGetAll :: Member ProjectL r => Sem r [Readable Project]
-handleGetAll = Database.Project.findAll
+handleGetAll :: Member ProjectL r => Sem r (Union GetAllResponse)
+handleGetAll = Database.Project.findAll >>= respond . Response.ok
 
 handleGetById :: Member ProjectL r
               => Project.Id
