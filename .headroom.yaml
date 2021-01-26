@@ -1,0 +1,35 @@
+## This is the configuration file for Headroom.
+## See https://github.com/vaclavsvejcar/headroom for more details.
+
+run-mode: replace
+
+source-paths:
+  - cascade-prelude/src
+  - cascade-api/src
+  - cascade-api/test
+  - cascade-api/benchmark
+  - cascade-cli/app
+  - cascade-cli/test
+
+excluded-paths: []
+
+template-paths:
+  - .headroom-templates
+
+variables:
+  project: Cascade
+  year: "2020"
+  maintainer_name: Mohammad Hasani
+  maintainer_email: the-dr-lazy@pm.me
+  maintainer_comment: the-dr-lazy.github.io
+
+license-headers:
+  haskell:
+    margin-after: 1
+    block-comment:
+      starts-with: "{-|"
+      ends-with: "-}"
+
+post-process:
+  update-copyright:
+    enabled: true
