@@ -87,7 +87,7 @@ jobs:
 
       - name: Configure
         run: |
-          cabal new-configure --enable-tests --enable-optimization --enable-coverage --test-show-details=direct
+          cabal new-configure --enable-tests --enable-optimization=2 --enable-coverage --test-show-details=direct
 
       - name: Cache ~/.cabal/store
         uses: actions/cache@v2.1.3
