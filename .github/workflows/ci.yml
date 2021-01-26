@@ -27,7 +27,11 @@ jobs:
 
       - name: Configure
         run: |
-          cabal new-configure --disable-optimization --enable-tests --enable-benchmarks --test-show-details=direct
+          cabal new-configure --disable-documentation \
+                              --disable-optimization \
+                              --enable-tests \
+                              --enable-benchmarks \
+                              --test-show-details=direct
 
       - uses: actions/cache@v2.1.3
         name: Cache ~/.cabal/store
@@ -93,7 +97,11 @@ jobs:
 
       - name: Configure
         run: |
-          cabal new-configure --enable-optimization=2 --enable-tests --enable-coverage --test-show-details=direct
+          cabal new-configure --disable-documentation \
+                              --enable-optimization=2 \
+                              --enable-tests \
+                              --enable-coverage \
+                              --test-show-details=direct
 
       - name: Cache ~/.cabal/store
         uses: actions/cache@v2.1.3
