@@ -118,7 +118,7 @@ jobs:
 
       - name: Generate coverage reports
         run: |
-          cabal new-install hpc-codecov --install-method=copy --overwrite-poly=always
+          cabal new-install hpc-codecov --install-method=copy --overwrite-policy=always
           scripts/codecov
 
       - name: Upload coverage to Codecov
