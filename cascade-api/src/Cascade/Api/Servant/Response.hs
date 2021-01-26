@@ -39,7 +39,9 @@ instance HasStatus (Ok a) where
 ok :: a -> Ok a
 ok = Ok
 
-newtype Created a = Created a deriving newtype (FromJSON, ToJSON)
+newtype Created a = Created a
+  deriving stock Show
+  deriving newtype (FromJSON, ToJSON)
 
 instance HasStatus (Created a) where
   type StatusOf (Created a) = 201
