@@ -17,12 +17,6 @@ jobs:
       - run: |
           sudo curl -Lo /usr/bin/headroom https://github.com/vaclavsvejcar/headroom/releases/download/v0.3.2.0/headroom-0.3.2.0-Linux-ghc-8.8.4
           sudo chmod +x /usr/bin/headroom
-      - name: Cache Headroom binary
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-headroom-${{ hashFiles('/usr/bin/headroom') }}
-          restore-keys: ${{ runner.os }}-headroom-
-          path: /usr/bin/headroom
 
       - name: Check headers
         run: headroom run --check-headers
