@@ -1,5 +1,10 @@
 module Cascade.Api.Network.TestClient.Api.Projects
-  ( create
+  ( CreateResponse
+  , GetAllResponse
+  , GetByIdResponse
+  , UpdateByIdResponse
+  , DeleteByIdResponse
+  , create
   , getAll
   , getById
   , updateById
@@ -19,22 +24,28 @@ import           Prelude                 hiding ( getAll )
 import           Servant.API                    ( Union )
 import           Servant.Client.Free            ( ResponseF )
 
-create :: Creatable Project
-       -> IO (ResponseF (Union Api.Projects.CreateResponse))
+type CreateResponse = (ResponseF (Union Api.Projects.CreateResponse))
+
+type GetAllResponse = (ResponseF (Union Api.Projects.GetAllResponse))
+
+type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
+
+type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
+
+type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
+
+create :: Creatable Project -> IO CreateResponse
 create = interpret . go where go = Client.Api.projects ^. #create
 
-getAll :: IO (ResponseF (Union Api.Projects.GetAllResponse))
+getAll :: IO GetAllResponse
 getAll = interpret go where go = Client.Api.projects ^. #getAll
 
-getById :: Id -> IO (ResponseF (Union Api.Projects.GetByIdResponse))
+getById :: Id -> IO GetByIdResponse
 getById = interpret . go where go = Client.Api.projects ^. #getById
 
-updateById :: Project.Id
-           -> Updatable Project
-           -> IO (ResponseF (Union Api.Projects.UpdateByIdResponse))
+updateById :: Project.Id -> Updatable Project -> IO UpdateByIdResponse
 updateById id updatable = interpret $ go id updatable
   where go = Client.Api.projects ^. #updateById
 
-deleteById :: Project.Id
-           -> IO (ResponseF (Union Api.Projects.DeleteByIdResponse))
+deleteById :: Project.Id -> IO DeleteByIdResponse
 deleteById = interpret . go where go = Client.Api.projects ^. #deleteById
