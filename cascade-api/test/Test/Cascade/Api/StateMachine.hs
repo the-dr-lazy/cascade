@@ -11,6 +11,8 @@ import qualified Cascade.Api.Hedgehog.Gen.Api.Project
 import           Cascade.Api.Network.Anatomy.Api.Projects
                                                 ( DeleteByIdResponse
                                                 , GetAllResponse
+                                                , GetByIdResponse
+                                                , UpdateByIdResponse
                                                 )
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
@@ -104,11 +106,12 @@ c_createProject =
       execute :: Create Concrete -> m Project.Id
       execute (Create creatable) = do
         response <- evalIO . Cascade.Api.Projects.create $ creatable
+        footnoteShow response
 
-        project  <-
+        project <-
           (response ^. #responseBody)
           |> matchUnion @(Response.Created (Readable Project))
-          |> fmap coerce
+          |> coerce
           |> evalMaybe
         let id = project ^. #id
 
@@ -141,12 +144,15 @@ c_getAllProjects =
         generator
         execute
         [ Ensure \_before Model { projects } _input response -> do
+            footnoteShow response
             output :: [Readable Project] <-
               (response ^. #responseBody)
               |> matchUnion @(Response.Ok [Readable Project])
-              |> fmap coerce
+              |> coerce
               |> evalMaybe
+
             Map.size projects === length output
+
             for_
               output
               \project -> do
@@ -199,20 +205,22 @@ c_getExistingProject =
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
-      execute :: GetById Concrete -> m (Readable Project)
-      execute input = do
-        response <-
-          evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
-
-        (response ^. #responseBody)
-          |> matchUnion @(Response.Ok (Readable Project))
-          |> fmap coerce
-          |> evalMaybe
+      execute :: GetById Concrete -> m (ResponseF (Union GetByIdResponse))
+      execute input =
+        evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
   in  Command
         generator
         execute
-        [ Ensure \Model { projects } _after _input project -> do
+        [ Ensure \Model { projects } _after _input response -> do
+            footnoteShow response
+            project :: Readable Project <-
+              (response ^. #responseBody)
+              |> matchUnion @(Response.Ok (Readable Project))
+              |> coerce
+              |> evalMaybe
+
             let id = project ^. #id
+
             project' <-
               Map.lookup (Var $ Concrete id) projects
               |> fmap (mkReadableProjectFromCreatableProject id)
@@ -260,11 +268,11 @@ c_updateExistingProject =
       execute input@UpdateById { updatable } = do
         let id = input ^. #id . concreted
         response <- evalIO $ Cascade.Api.Projects.updateById id updatable
-
+        footnoteShow response
         project :: Readable Project <-
           (response ^. #responseBody)
           |> matchUnion @(Response.Ok (Readable Project))
-          |> fmap coerce
+          |> coerce
           |> evalMaybe
         project ^. #id === id
 
@@ -287,13 +295,17 @@ c_updateNotExistingProject =
         []  -> Nothing
         ids -> Just $ UpdateById <$> Gen.element ids <*> Gen.project
 
-      execute :: UpdateById Concrete -> m ()
-      execute input@UpdateById { updatable } = do
-        let id = input ^. #id . concreted
-        response <- evalIO $ Cascade.Api.Projects.updateById id updatable
-
-        response ^. #responseStatusCode . #statusCode === 404
-  in  Command generator execute [] -- ensure 404
+      execute :: UpdateById Concrete -> m (ResponseF (Union UpdateByIdResponse))
+      execute input@UpdateById { updatable } =
+        evalIO $ Cascade.Api.Projects.updateById id updatable
+        where id = input ^. #id . concreted
+  in  Command
+        generator
+        execute
+        [ Ensure \_before _after _input response -> do
+            footnoteShow response
+            response ^. #responseStatusCode . #statusCode === 404
+        ]
 
 -- brittany-disable-next-binding
 newtype DeleteById (v :: Type -> Type) = DeleteById
@@ -314,24 +326,21 @@ c_deleteExistingProject =
         ids -> Gen.element ids |> fmap DeleteById |> Just
 
       execute :: DeleteById Concrete -> m (ResponseF (Union DeleteByIdResponse))
-      execute input = do
-        let id = input ^. #id . concreted
-
-        evalIO . Cascade.Api.Projects.deleteById $ id
+      execute input = evalIO . Cascade.Api.Projects.deleteById $ id
+        where id = input ^. #id . concreted
   in  Command
         generator
         execute
         [ Update \model (DeleteById id) _output ->
           model |> #projects %~ Map.delete id
         , Ensure \_before _after input response -> do
-          let id = input ^. #id . concreted
-
+          footnoteShow response
           project :: Readable Project <-
             (response ^. #responseBody)
             |> matchUnion @(Response.Ok (Readable Project))
-            |> fmap coerce
+            |> coerce
             |> evalMaybe
-          project ^. #id === id
+          project ^. #id === input ^. #id . concreted
         ]
 
 c_deleteNotExistingProject :: forall g m
@@ -343,19 +352,20 @@ c_deleteNotExistingProject =
         []  -> Nothing
         ids -> Gen.element ids |> fmap DeleteById |> Just
 
-      execute :: DeleteById Concrete -> m ()
-      execute input = do
-        let id = input ^. #id . concreted
-
-        response <- evalIO . Cascade.Api.Projects.deleteById $ id
-
-        response ^. #responseStatusCode . #statusCode === 404
-  in  Command generator execute []
+      execute :: DeleteById Concrete -> m (ResponseF (Union DeleteByIdResponse))
+      execute input = evalIO . Cascade.Api.Projects.deleteById $ id
+        where id = input ^. #id . concreted
+  in  Command
+        generator
+        execute
+        [ Ensure \_before _after _input response ->
+            response ^. #responseStatusCode . #statusCode === 404
+        ]
 
 mkReadableProjectFromCreatableProject :: Project.Id
                                       -> Creatable Project
                                       -> Readable Project
-mkReadableProjectFromCreatableProject id (ProjectC {..}) = ProjectR { .. }
+mkReadableProjectFromCreatableProject id ProjectC {..} = ProjectR { .. }
 
 updateCreatableProject :: Updatable Project
                        -> Creatable Project
