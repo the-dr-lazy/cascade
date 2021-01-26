@@ -8,12 +8,6 @@ import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
-import           Cascade.Api.Network.Anatomy.Api.Projects
-                                                ( DeleteByIdResponse
-                                                , GetAllResponse
-                                                , GetByIdResponse
-                                                , UpdateByIdResponse
-                                                )
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
@@ -37,10 +31,7 @@ import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import qualified Network.Socket.Wait           as Socket
-import           Servant.API.UVerb.Union        ( Union
-                                                , matchUnion
-                                                )
-import           Servant.Client.Core.Response   ( ResponseF )
+import           Servant.API.UVerb.Union        ( matchUnion )
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
@@ -138,7 +129,7 @@ c_getAllProjects =
   let generator :: Model Symbolic -> Maybe (g (GetAll Symbolic))
       generator _ = Just . pure $ GetAll
 
-      execute :: GetAll Concrete -> m (ResponseF (Union GetAllResponse))
+      execute :: GetAll Concrete -> m Cascade.Api.Projects.GetAllResponse
       execute _ = evalIO Cascade.Api.Projects.getAll
   in  Command
         generator
@@ -205,7 +196,7 @@ c_getExistingProject =
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
-      execute :: GetById Concrete -> m (ResponseF (Union GetByIdResponse))
+      execute :: GetById Concrete -> m Cascade.Api.Projects.GetByIdResponse
       execute input =
         evalIO . Cascade.Api.Projects.getById $ input ^. #id . concreted
   in  Command
@@ -290,22 +281,24 @@ c_updateNotExistingProject :: forall g m
                             . MonadGen g
                            => MonadIO m => MonadTest m => Command g m Model
 c_updateNotExistingProject =
-  let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
-      generator Model { notExistingIds } = case notExistingIds of
-        []  -> Nothing
-        ids -> Just $ UpdateById <$> Gen.element ids <*> Gen.project
+  let
+    generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
+    generator Model { notExistingIds } = case notExistingIds of
+      []  -> Nothing
+      ids -> Just $ UpdateById <$> Gen.element ids <*> Gen.project
 
-      execute :: UpdateById Concrete -> m (ResponseF (Union UpdateByIdResponse))
-      execute input@UpdateById { updatable } =
-        evalIO $ Cascade.Api.Projects.updateById id updatable
-        where id = input ^. #id . concreted
-  in  Command
-        generator
-        execute
-        [ Ensure \_before _after _input response -> do
-            footnoteShow response
-            response ^. #responseStatusCode . #statusCode === 404
-        ]
+    execute :: UpdateById Concrete -> m Cascade.Api.Projects.UpdateByIdResponse
+    execute input@UpdateById { updatable } =
+      evalIO $ Cascade.Api.Projects.updateById id updatable
+      where id = input ^. #id . concreted
+  in
+    Command
+      generator
+      execute
+      [ Ensure \_before _after _input response -> do
+          footnoteShow response
+          response ^. #responseStatusCode . #statusCode === 404
+      ]
 
 -- brittany-disable-next-binding
 newtype DeleteById (v :: Type -> Type) = DeleteById
@@ -320,47 +313,51 @@ c_deleteExistingProject :: forall g m
                          . MonadGen g
                         => MonadIO m => MonadTest m => Command g m Model
 c_deleteExistingProject =
-  let generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
-      generator Model { projects } = case Map.keys projects of
-        []  -> Nothing
-        ids -> Gen.element ids |> fmap DeleteById |> Just
+  let
+    generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
+    generator Model { projects } = case Map.keys projects of
+      []  -> Nothing
+      ids -> Gen.element ids |> fmap DeleteById |> Just
 
-      execute :: DeleteById Concrete -> m (ResponseF (Union DeleteByIdResponse))
-      execute input = evalIO . Cascade.Api.Projects.deleteById $ id
-        where id = input ^. #id . concreted
-  in  Command
-        generator
-        execute
-        [ Update \model (DeleteById id) _output ->
-          model |> #projects %~ Map.delete id
-        , Ensure \_before _after input response -> do
-          footnoteShow response
-          project :: Readable Project <-
-            (response ^. #responseBody)
-            |> matchUnion @(Response.Ok (Readable Project))
-            |> coerce
-            |> evalMaybe
-          project ^. #id === input ^. #id . concreted
-        ]
+    execute :: DeleteById Concrete -> m Cascade.Api.Projects.DeleteByIdResponse
+    execute input = evalIO . Cascade.Api.Projects.deleteById $ id
+      where id = input ^. #id . concreted
+  in
+    Command
+      generator
+      execute
+      [ Update \model (DeleteById id) _output ->
+        model |> #projects %~ Map.delete id
+      , Ensure \_before _after input response -> do
+        footnoteShow response
+        project :: Readable Project <-
+          (response ^. #responseBody)
+          |> matchUnion @(Response.Ok (Readable Project))
+          |> coerce
+          |> evalMaybe
+        project ^. #id === input ^. #id . concreted
+      ]
 
 c_deleteNotExistingProject :: forall g m
                             . MonadGen g
                            => MonadIO m => MonadTest m => Command g m Model
 c_deleteNotExistingProject =
-  let generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
-      generator Model { notExistingIds } = case notExistingIds of
-        []  -> Nothing
-        ids -> Gen.element ids |> fmap DeleteById |> Just
+  let
+    generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
+    generator Model { notExistingIds } = case notExistingIds of
+      []  -> Nothing
+      ids -> Gen.element ids |> fmap DeleteById |> Just
 
-      execute :: DeleteById Concrete -> m (ResponseF (Union DeleteByIdResponse))
-      execute input = evalIO . Cascade.Api.Projects.deleteById $ id
-        where id = input ^. #id . concreted
-  in  Command
-        generator
-        execute
-        [ Ensure \_before _after _input response ->
-            response ^. #responseStatusCode . #statusCode === 404
-        ]
+    execute :: DeleteById Concrete -> m Cascade.Api.Projects.DeleteByIdResponse
+    execute input = evalIO . Cascade.Api.Projects.deleteById $ id
+      where id = input ^. #id . concreted
+  in
+    Command
+      generator
+      execute
+      [ Ensure \_before _after _input response ->
+          response ^. #responseStatusCode . #statusCode === 404
+      ]
 
 mkReadableProjectFromCreatableProject :: Project.Id
                                       -> Creatable Project
