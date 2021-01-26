@@ -126,6 +126,7 @@ jobs:
         with:
           name: Cascade
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: "*.json"
           directory: ./coverage/reports
           fail_ci_if_error: true
           verbose: true
