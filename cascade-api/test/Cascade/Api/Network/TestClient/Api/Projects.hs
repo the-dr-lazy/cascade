@@ -23,7 +23,7 @@ create :: Creatable Project
        -> IO (ResponseF (Union Api.Projects.CreateResponse))
 create = interpret . go where go = Client.Api.projects ^. #create
 
-getAll :: IO (ResponseF [Readable Project])
+getAll :: IO (ResponseF (Union Api.Projects.GetAllResponse))
 getAll = interpret go where go = Client.Api.projects ^. #getAll
 
 getById :: Id -> IO (ResponseF (Union Api.Projects.GetByIdResponse))

@@ -8,11 +8,14 @@ import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
+import           Cascade.Api.Network.Anatomy.Api.Projects
+                                                ( DeleteByIdResponse
+                                                , GetAllResponse
+                                                )
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
 import           Cascade.Api.Test.Prelude
-import           Cascade.Api.Network.Anatomy.Api.Projects ( DeleteByIdResponse )
 import           Control.Concurrent.Async.Lifted
 
 import qualified Cascade.Api.Test.Resource     as Resource
@@ -32,8 +35,10 @@ import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import qualified Network.Socket.Wait           as Socket
-import           Servant.API.UVerb.Union       ( matchUnion, Union )
-import           Servant.Client.Core.Response  ( ResponseF )
+import           Servant.API.UVerb.Union        ( Union
+                                                , matchUnion
+                                                )
+import           Servant.Client.Core.Response   ( ResponseF )
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
@@ -130,17 +135,17 @@ c_getAllProjects =
   let generator :: Model Symbolic -> Maybe (g (GetAll Symbolic))
       generator _ = Just . pure $ GetAll
 
-      execute :: GetAll Concrete -> m [Readable Project]
-      execute _ = do
-        response <- evalIO Cascade.Api.Projects.getAll
-
-        response ^. #responseStatusCode . #statusCode === 200
-
-        pure $ response ^. #responseBody
+      execute :: GetAll Concrete -> m (ResponseF (Union GetAllResponse))
+      execute _ = evalIO Cascade.Api.Projects.getAll
   in  Command
         generator
         execute
-        [ Ensure \_before Model { projects } _input output -> do
+        [ Ensure \_before Model { projects } _input response -> do
+            output :: [Readable Project] <-
+              (response ^. #responseBody)
+              |> matchUnion @(Response.Ok [Readable Project])
+              |> fmap coerce
+              |> evalMaybe
             Map.size projects === length output
             for_
               output
