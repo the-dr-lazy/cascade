@@ -111,19 +111,21 @@ jobs:
       - name: Build
         run: |
           cabal new-build all
-          cabal new-install hpc-codecov --install-method=copy --overwrite-policy=always --installdir=dist
 
       - name: Test
         run: |
           cabal new-test all
-      # - name: Generate coverage reports
-      #   run: |
-      #     scripts/codecov
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1
-      #   with:
-      #     name: Cascade
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     directory: ./coverage/reports
-      #     fail_ci_if_error: true
-      #     verbose: true
+
+      - name: Generate coverage reports
+        run: |
+          cabal new-install hpc-codecov --install-method=copy --overwrite-poly=always
+          scripts/codecov
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          name: Cascade
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage/reports
+          fail_ci_if_error: true
+          verbose: true
