@@ -11,10 +11,10 @@ module Cascade.Api.Effect.Database.Project
 import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.WrappedC
-import           Cascade.Api.Database.Project       ( ProjectTable )
-import qualified Cascade.Api.Database.Project      as Database.Project
-import qualified Cascade.Api.Effect.Database       as Database
-import           Cascade.Api.Effect.Database        ( DatabaseL )
+import           Cascade.Api.Database.Project   ( ProjectTable )
+import qualified Cascade.Api.Database.Project  as Database.Project
+import qualified Cascade.Api.Effect.Database   as Database
+import           Cascade.Api.Effect.Database    ( DatabaseL )
 import           Control.Lens                   ( (^.) )
 import           Database.Beam                  ( (<-.)
                                                 , (==.)
@@ -76,12 +76,14 @@ run = interpret \case
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableProject
-  UpdateById id updatable ->
-    Database.update #projects
-                    (fromUpdatableProject updatable)
-                    (\project -> project ^. #id ==. val_ (coerce id))
-      |> Database.runUpdateReturningOne
-      |> (fmap . fmap) toReadableProject
+  UpdateById id updatable -> case updatable of
+    ProjectU { name = Nothing } -> run $ findById id
+    _ ->
+      Database.update #projects
+                      (fromUpdatableProject updatable)
+                      (\project -> project ^. #id ==. val_ (coerce id))
+        |> Database.runUpdateReturningOne
+        |> (fmap . fmap) toReadableProject
   DeleteById id ->
     Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
       |> Database.runDeleteReturningOne
