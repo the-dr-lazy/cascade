@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+output=$(realpath -m ./coverage/reports)
+
+rm -rf $output
+mkdir -p $output
+
+packages=(
+    "cascade-api"
+)
+
+for package in "${packages[@]}"; do
+    cd $package
+
+    tix=$(find ../dist-newstyle -name $package-*.*.tix)
+
+    mixes=""
+    for mix in $(find ../dist-newstyle -name vanilla -print -quit)/mix/$package*; do
+        mixes+="--mix $mix "
+    done
+
+    hpc-codecov $mixes --out=$output/$package.json $tix
+
+    cd ..
+done
