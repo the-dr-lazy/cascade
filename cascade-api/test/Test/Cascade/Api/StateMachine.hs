@@ -322,16 +322,16 @@ c_deleteExistingProject =
         generator
         execute
         [ Update \model (DeleteById id) _output ->
-            model |> #projects %~ Map.delete id
+          model |> #projects %~ Map.delete id
         , Ensure \_before _after input response -> do
-            let id = input ^. #id . concreted
+          let id = input ^. #id . concreted
 
-            project :: Readable Project <-
-              (response ^. #responseBody)
-              |> matchUnion @(Response.Ok (Readable Project))
-              |> fmap coerce
-              |> evalMaybe
-            project ^. #id === id
+          project :: Readable Project <-
+            (response ^. #responseBody)
+            |> matchUnion @(Response.Ok (Readable Project))
+            |> fmap coerce
+            |> evalMaybe
+          project ^. #id === id
         ]
 
 c_deleteNotExistingProject :: forall g m
