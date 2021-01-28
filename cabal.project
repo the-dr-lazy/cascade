@@ -1,1 +1,10 @@
 packages: cascade-prelude, cascade-api, cascade-cli
+optimization: False
+documentation: True
+
+package *
+  documentation: True
+  ghc-options: -haddock
+
+program-options
+  ghc-options: -haddock
