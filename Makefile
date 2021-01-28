@@ -8,4 +8,7 @@ endif
 wtest-api: 
 	$(MAKE) wtest dir=cascade-api
 
-.PHONY: wtest wtest-api
+clean:
+	git clean -Xdf
+
+.PHONY: wtest wtest-api clean
