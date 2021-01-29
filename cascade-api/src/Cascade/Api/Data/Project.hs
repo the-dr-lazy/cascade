@@ -11,27 +11,22 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Data.Project
-  ( Id(..)
+  ( Project
+  , Id
   , Readable(..)
   , Creatable(..)
   , Updatable(..)
   ) where
 
-import           Control.Lens.TH                ( makeWrapped )
+import qualified Cascade.Api.Data.Id           as Data
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
 import           Data.Generics.Labels           ( )
-import           Servant.API                    ( FromHttpApiData
-                                                , ToHttpApiData
-                                                )
 
-newtype Id = Id
-  { unId :: UUID }
-  deriving stock Generic
-  deriving newtype (Show, Eq, Ord, FromHttpApiData, ToHttpApiData, FromJSON, ToJSON)
+data Project
 
-makeWrapped ''Id
+type Id = Data.Id Project
 
 data Readable = Readable
   { id   :: Id

@@ -15,7 +15,7 @@ module Cascade.Api.Hedgehog.Gen.Api.Project
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Hedgehog.Gen      as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Id   as Gen
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
@@ -24,10 +24,8 @@ class ProjectGenerator (a :: Type) where
   project :: MonadGen m => m a
 
 instance ProjectGenerator Project.Readable where
-  project = Project.Readable <$> id <*> name
-   where
-    id   = Gen.uuid |> fmap Project.Id
-    name = Gen.text (Range.linear 8 32) Gen.alphaNum
+  project = Project.Readable <$> Gen.id <*> name
+    where name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Project.Creatable where
   project = Project.Creatable <$> name

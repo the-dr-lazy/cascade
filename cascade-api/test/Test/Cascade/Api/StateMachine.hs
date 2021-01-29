@@ -16,9 +16,9 @@ module Test.Cascade.Api.StateMachine
 
 import qualified Cascade.Api
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Id   as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
@@ -180,8 +180,7 @@ c_addNotExistingId :: forall g m
                    => Applicative m => Command g m Model
 c_addNotExistingId =
   let generator :: Model Symbolic -> Maybe (g (AddNotExistingId Symbolic))
-      generator _ =
-        Gen.uuid |> fmap Project.Id |> fmap AddNotExistingId |> Just
+      generator _ = Gen.id |> fmap AddNotExistingId |> Just
 
       execute :: AddNotExistingId Concrete -> m Project.Id
       execute (AddNotExistingId id) = pure id
