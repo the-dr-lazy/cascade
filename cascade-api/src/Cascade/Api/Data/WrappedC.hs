@@ -14,6 +14,7 @@ Portability : POSIX
 
 module Cascade.Api.Data.WrappedC
   ( WrappedC(..)
+  , C
   ) where
 
 import           Control.Lens                   ( Unwrapped
@@ -58,3 +59,6 @@ instance (Wrapped a, Postgres.FromField (Unwrapped a)) => Postgres.FromField (Wr
 instance (Wrapped a, Beam.HasSqlValueSyntax backend (Unwrapped a)) =>
          Beam.HasSqlValueSyntax backend (WrappedC a) where
   sqlValueSyntax = Beam.sqlValueSyntax . view (_Wrapped' . _Wrapped')
+
+type family C (f :: Type -> Type) (a :: Type) :: Type where
+  C f x = Beam.C f (WrappedC x)
