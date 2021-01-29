@@ -32,7 +32,7 @@ import           Servant.Server.Generic         ( AsServerT
                                                 )
 
 handleCreate :: Member ProjectL r
-             => Creatable Project
+             => Project.Creatable
              -> Sem r (Union CreateResponse)
 handleCreate creatable =
   Database.Project.create creatable >>= respond . Response.created
@@ -48,7 +48,7 @@ handleGetById id = Database.Project.findById id
 
 handleUpdateById :: Member ProjectL r
                  => Project.Id
-                 -> Updatable Project
+                 -> Project.Updatable
                  -> Sem r (Union UpdateByIdResponse)
 handleUpdateById id updatable =
   Database.Project.updateById id updatable

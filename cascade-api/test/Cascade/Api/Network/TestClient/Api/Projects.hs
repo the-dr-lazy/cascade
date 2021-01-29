@@ -46,7 +46,7 @@ type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
 
 type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
 
-create :: Creatable Project -> IO CreateResponse
+create :: Project.Creatable -> IO CreateResponse
 create = interpret . go where go = Client.Api.projects ^. #create
 
 getAll :: IO GetAllResponse
@@ -55,7 +55,7 @@ getAll = interpret go where go = Client.Api.projects ^. #getAll
 getById :: Id -> IO GetByIdResponse
 getById = interpret . go where go = Client.Api.projects ^. #getById
 
-updateById :: Project.Id -> Updatable Project -> IO UpdateByIdResponse
+updateById :: Project.Id -> Project.Updatable -> IO UpdateByIdResponse
 updateById id updatable = interpret $ go id updatable
   where go = Client.Api.projects ^. #updateById
 

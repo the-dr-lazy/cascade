@@ -25,23 +25,23 @@ import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response  as Response
 import           Data.Generics.Labels           ( )
 
-type CreateResponse = '[Response.Created (Readable Project)]
+type CreateResponse = '[Response.Created Project.Readable]
 
-type GetAllResponse = '[Response.Ok [Readable Project]]
+type GetAllResponse = '[Response.Ok [Project.Readable]]
 
-type GetByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
+type GetByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
 
-type UpdateByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
+type UpdateByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
 
-type DeleteByIdResponse = '[Response.Ok (Readable Project) , Response.NotFound]
+type DeleteByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
 
 data Routes route = Routes
   { create
-      :: route :- ReqBody '[JSON] (Creatable Project) :> Post '[JSON] CreateResponse
+      :: route :- ReqBody '[JSON] Project.Creatable :> Post '[JSON] CreateResponse
   , getAll  :: route :- Get '[JSON] GetAllResponse
   , getById :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
   , updateById
-      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] (Updatable Project) :> Patch '[JSON] UpdateByIdResponse
+      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
   , deleteById
       :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
   }

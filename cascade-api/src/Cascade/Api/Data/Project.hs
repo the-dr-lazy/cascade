@@ -12,13 +12,11 @@ Portability : POSIX
 
 module Cascade.Api.Data.Project
   ( Id(..)
-  , Project
   , Readable(..)
   , Creatable(..)
   , Updatable(..)
   ) where
 
-import           Cascade.Api.Data.Prelude
 import           Control.Lens.TH                ( makeWrapped )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
@@ -35,21 +33,21 @@ newtype Id = Id
 
 makeWrapped ''Id
 
-data Project
-
-data instance Readable Project = Readable
+data Readable = Readable
   { id   :: Id
   , name :: Text
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Creatable Project = Creatable
-  { name :: Text }
+data Creatable = Creatable
+  { name :: Text
+  }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Updatable Project = Updatable
-  { name :: Maybe Text }
+data Updatable = Updatable
+  { name :: Maybe Text
+  }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
