@@ -20,8 +20,8 @@ import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 
-class ProjectGenerator (f :: Type -> Type) where
-  project :: MonadGen m => m (f Project)
+class ProjectGenerator (a :: Type) where
+  project :: MonadGen m => m a
 
 instance ProjectGenerator Project.Readable where
   project = Project.Readable <$> id <*> name
