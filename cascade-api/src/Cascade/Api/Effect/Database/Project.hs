@@ -89,7 +89,7 @@ run = interpret \case
       |> fmap Unsafe.fromJust
       |> fmap toReadableProject
   UpdateById id updatable -> case updatable of
-    ProjectU { name = Nothing } -> run $ findById id
+    Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
       Database.update #projects
                       (fromUpdatableProject updatable)
@@ -102,7 +102,7 @@ run = interpret \case
       |> (fmap . fmap) toReadableProject
 
 toReadableProject :: Database.Project.Row -> Readable Project
-toReadableProject Database.Project.Row {..} = ProjectR { id = coerce id, name }
+toReadableProject Database.Project.Row {..} = Project.Readable { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
@@ -110,7 +110,7 @@ fromCreatableProject :: BeamSqlBackend backend
                           ProjectTable
                      => Creatable Project
                      -> ProjectTable (Beam.QExpr backend s)
-fromCreatableProject ProjectC {..} =
+fromCreatableProject Project.Creatable {..} =
   Database.Project.Row { id = default_, name = val_ name }
 
 fromUpdatableProject :: BeamSqlBackend backend

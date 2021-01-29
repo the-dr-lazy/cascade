@@ -37,19 +37,19 @@ makeWrapped ''Id
 
 data Project
 
-data instance Readable Project = ProjectR
+data instance Readable Project = Readable
   { id   :: Id
   , name :: Text
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Creatable Project = ProjectC
+data instance Creatable Project = Creatable
   { name :: Text }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Updatable Project = ProjectU
+data instance Updatable Project = Updatable
   { name :: Maybe Text }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)

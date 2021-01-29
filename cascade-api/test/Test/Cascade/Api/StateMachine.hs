@@ -374,10 +374,10 @@ c_deleteNotExistingProject =
 mkReadableProjectFromCreatableProject :: Project.Id
                                       -> Creatable Project
                                       -> Readable Project
-mkReadableProjectFromCreatableProject id ProjectC {..} = ProjectR { .. }
+mkReadableProjectFromCreatableProject id Project.Creatable {..} = Project.Readable { .. }
 
 updateCreatableProject :: Updatable Project
                        -> Creatable Project
                        -> Creatable Project
-updateCreatableProject updatable ProjectC {..} =
-  ProjectC { name = fromMaybe name $ updatable ^. #name }
+updateCreatableProject updatable Project.Creatable {..} =
+  Project.Creatable { name = fromMaybe name $ updatable ^. #name }

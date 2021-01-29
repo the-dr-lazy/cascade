@@ -25,15 +25,15 @@ class ProjectGenerator (f :: Type -> Type) where
   project :: MonadGen m => m (f Project)
 
 instance ProjectGenerator Readable where
-  project = ProjectR <$> id <*> name
+  project = Project.Readable <$> id <*> name
    where
     id   = Gen.uuid |> fmap Project.Id
     name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Creatable where
-  project = ProjectC <$> name
+  project = Project.Creatable <$> name
     where name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Updatable where
-  project = ProjectU <$> name
+  project = Project.Updatable <$> name
     where name = Gen.maybe (Gen.text (Range.linear 8 32) Gen.alphaNum)
