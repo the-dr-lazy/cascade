@@ -19,6 +19,7 @@ module Cascade.Api.Data.Project
   ) where
 
 import           Cascade.Api.Data.Prelude
+                                         hiding ( Id )
 import qualified Cascade.Api.Data.Prelude      as Prelude
 import           Control.Lens.TH                ( makeWrapped )
 import           Data.Aeson                     ( FromJSON
