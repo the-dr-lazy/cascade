@@ -20,7 +20,6 @@ module Cascade.Api.Effect.Database.Project
   , run
   ) where
 
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.WrappedC
 import           Cascade.Api.Database.Project   ( ProjectTable )

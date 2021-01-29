@@ -14,7 +14,6 @@ module Cascade.Api.Network.Server.Api.Projects
   ( server
   ) where
 
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Effect.Database.Project
                                                as Database.Project

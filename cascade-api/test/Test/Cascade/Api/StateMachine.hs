@@ -15,7 +15,6 @@ module Test.Cascade.Api.StateMachine
   ) where
 
 import qualified Cascade.Api
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project

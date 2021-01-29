@@ -23,7 +23,6 @@ module Cascade.Api.Network.TestClient.Api.Projects
   , deleteById
   ) where
 
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                as Api.Projects

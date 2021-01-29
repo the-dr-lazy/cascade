@@ -19,7 +19,6 @@ module Cascade.Api.Network.Anatomy.Api.Projects
   , DeleteByIdResponse
   ) where
 
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response  as Response
