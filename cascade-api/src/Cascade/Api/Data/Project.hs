@@ -18,9 +18,8 @@ module Cascade.Api.Data.Project
   , Updatable(..)
   ) where
 
+import qualified Cascade.Api.Data.Id           as Data
 import           Cascade.Api.Data.Prelude
-                                         hiding ( Id )
-import qualified Cascade.Api.Data.Prelude      as Prelude
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
@@ -28,7 +27,7 @@ import           Data.Generics.Labels           ( )
 
 data Project
 
-type Id = Prelude.Id Project
+type Id = Data.Id Project
 
 data instance Readable Project = ProjectR
   { id   :: Id
