@@ -4,8 +4,8 @@ module Cascade.Api.Database.Task
   , Row
   ) where
 
-import qualified Cascade.Api.Data.Task as Task
-import           Cascade.Api.Data.WrappedC
+import qualified Cascade.Api.Data.Task         as Task
+import qualified Cascade.Api.Data.WrappedC     as Wrapped
 import           Control.Lens                   ( _Wrapped'
                                                 , view
                                                 )
@@ -15,13 +15,12 @@ import           Database.Beam                  ( Beamable
                                                 , PrimaryKey
                                                 , Table(..)
                                                 )
-
 import           Cascade.Api.Database.Project   ( ProjectTable )
 import           Chronos                        ( Time )
 
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
-  { id         :: C f (WrappedC Task.TaskId)
+  { id         :: Wrapped.C f Task.Id
   , title      :: C f Text
   , deadlineAt :: C f Time
   , projectId  :: PrimaryKey ProjectTable f
@@ -31,7 +30,7 @@ data TaskTable (f :: Type -> Type) = Row
 
 instance Table TaskTable where
   newtype PrimaryKey TaskTable f = PrimaryKey
-    { unPrimaryKey :: C f (WrappedC Task.TaskId)
+    { unPrimaryKey :: Wrapped.C f Task.Id
     }
     deriving stock Generic
     deriving anyclass Beamable
