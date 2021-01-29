@@ -19,7 +19,6 @@ module Cascade.Api.Data.Project
   ) where
 
 import qualified Cascade.Api.Data.Id           as Data
-import           Cascade.Api.Data.Prelude
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
@@ -29,19 +28,21 @@ data Project
 
 type Id = Data.Id Project
 
-data instance Readable Project = ProjectR
+data Readable = Readable
   { id   :: Id
   , name :: Text
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Creatable Project = ProjectC
-  { name :: Text }
+data Creatable = Creatable
+  { name :: Text
+  }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data instance Updatable Project = ProjectU
-  { name :: Maybe Text }
+data Updatable = Updatable
+  { name :: Maybe Text
+  }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)

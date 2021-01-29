@@ -20,7 +20,6 @@ module Cascade.Api.Effect.Database.Project
   , run
   ) where
 
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.WrappedC
 import           Cascade.Api.Database.Project   ( ProjectTable )
@@ -48,11 +47,11 @@ import qualified Relude.Unsafe                 as Unsafe
                                                 ( fromJust )
 
 data ProjectL m a where
-  FindAll    ::ProjectL m [Readable Project]
-  FindById   ::Project.Id -> ProjectL m (Maybe (Readable Project))
-  Create     ::Creatable Project -> ProjectL m (Readable Project)
-  UpdateById ::Project.Id -> Updatable Project -> ProjectL m (Maybe (Readable Project))
-  DeleteById ::Project.Id -> ProjectL m (Maybe (Readable Project))
+  FindAll    ::ProjectL m [Project.Readable]
+  FindById   ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  Create     ::Project.Creatable -> ProjectL m Project.Readable
+  UpdateById ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
+  DeleteById ::Project.Id -> ProjectL m (Maybe Project.Readable)
 
 makeSem ''ProjectL
 
@@ -89,7 +88,7 @@ run = interpret \case
       |> fmap Unsafe.fromJust
       |> fmap toReadableProject
   UpdateById id updatable -> case updatable of
-    ProjectU { name = Nothing } -> run $ findById id
+    Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
       Database.update #projects
                       (fromUpdatableProject updatable)
@@ -101,23 +100,24 @@ run = interpret \case
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
 
-toReadableProject :: Database.Project.Row -> Readable Project
-toReadableProject Database.Project.Row {..} = ProjectR { id = coerce id, name }
+toReadableProject :: Database.Project.Row -> Project.Readable
+toReadableProject Database.Project.Row {..} =
+  Project.Readable { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
-                     => Creatable Project
+                     => Project.Creatable
                      -> ProjectTable (Beam.QExpr backend s)
-fromCreatableProject ProjectC {..} =
+fromCreatableProject Project.Creatable {..} =
   Database.Project.Row { id = default_, name = val_ name }
 
 fromUpdatableProject :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
-                     => Updatable Project
+                     => Project.Updatable
                      -> (  forall s
                          . ProjectTable (Beam.QField s)
                         -> Beam.QAssignment backend s
