@@ -155,9 +155,11 @@ test-suite cascade-api-test
                        -with-rtsopts=-N
   other-modules:       Cascade.Api.Hedgehog.Gen
                        Cascade.Api.Hedgehog.Gen.Api.Project
+                       Cascade.Api.Hedgehog.Gen.Id
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Test.FilePath
                        Cascade.Api.Test.Prelude
                        Cascade.Api.Test.Prelude.Orphans
                        Cascade.Api.Test.Resource

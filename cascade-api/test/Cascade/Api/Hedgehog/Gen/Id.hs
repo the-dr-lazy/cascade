@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Data.Prelude
+Module      : Cascade.Api.Hedgehog.Gen.Id
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,12 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Prelude where
+module Cascade.Api.Hedgehog.Gen.Id
+  ( id
+  ) where
 
-data family Readable (a :: Type)
+import           Cascade.Api.Data.Id
+import qualified Cascade.Api.Hedgehog.Gen      as Gen
+import           Hedgehog
 
-data family Creatable (a :: Type)
-
-data family Updatable (a :: Type)
-
-data family Deletable (a :: Type)
+id :: MonadGen m => m (Id entity)
+id = Id <$> Gen.uuid

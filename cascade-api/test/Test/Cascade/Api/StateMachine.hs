@@ -15,11 +15,10 @@ module Test.Cascade.Api.StateMachine
   ) where
 
 import qualified Cascade.Api
-import           Cascade.Api.Data.Project
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Hedgehog.Gen      as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Api.Project
                                                as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Id   as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
@@ -69,7 +68,7 @@ prop_sequential getPool = withTests 1000 . property $ do
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
-  { projects       :: Map (Var Project.Id v) (Creatable Project)
+  { projects       :: Map (Var Project.Id v) Project.Creatable
   , notExistingIds :: [Var Project.Id v]
   }
   deriving stock Generic
@@ -92,7 +91,7 @@ commands =
 
 -- brittany-disable-next-binding
 newtype Create (v :: Type -> Type) = Create
-  { creatable :: Creatable Project
+  { creatable :: Project.Creatable
   }
   deriving stock (Generic, Show)
 
@@ -113,7 +112,7 @@ c_createProject =
 
         project <-
           (response ^. #responseBody)
-          |> matchUnion @(Response.Created (Readable Project))
+          |> matchUnion @(Response.Created Project.Readable)
           |> coerce
           |> evalMaybe
         let id = project ^. #id
@@ -148,9 +147,9 @@ c_getAllProjects =
         execute
         [ Ensure \_before Model { projects } _input response -> do
             footnoteShow response
-            output :: [Readable Project] <-
+            output :: [Project.Readable] <-
               (response ^. #responseBody)
-              |> matchUnion @(Response.Ok [Readable Project])
+              |> matchUnion @(Response.Ok [Project.Readable])
               |> coerce
               |> evalMaybe
 
@@ -181,8 +180,7 @@ c_addNotExistingId :: forall g m
                    => Applicative m => Command g m Model
 c_addNotExistingId =
   let generator :: Model Symbolic -> Maybe (g (AddNotExistingId Symbolic))
-      generator _ =
-        Gen.uuid |> fmap Project.Id |> fmap AddNotExistingId |> Just
+      generator _ = Gen.id |> fmap AddNotExistingId |> Just
 
       execute :: AddNotExistingId Concrete -> m Project.Id
       execute (AddNotExistingId id) = pure id
@@ -216,9 +214,9 @@ c_getExistingProject =
         execute
         [ Ensure \Model { projects } _after _input response -> do
             footnoteShow response
-            project :: Readable Project <-
+            project :: Project.Readable <-
               (response ^. #responseBody)
-              |> matchUnion @(Response.Ok (Readable Project))
+              |> matchUnion @(Response.Ok Project.Readable)
               |> coerce
               |> evalMaybe
 
@@ -250,7 +248,7 @@ c_getNotExistingProject =
 -- brittany-disable-next-binding
 data UpdateById (v :: Type -> Type) = UpdateById
   { id :: Var Project.Id v
-  , updatable :: Updatable Project
+  , updatable :: Project.Updatable
   }
   deriving stock (Generic, Show)
 
@@ -272,9 +270,9 @@ c_updateExistingProject =
         let id = input ^. #id . concreted
         response <- evalIO $ Cascade.Api.Projects.updateById id updatable
         footnoteShow response
-        project :: Readable Project <-
+        project :: Project.Readable <-
           (response ^. #responseBody)
-          |> matchUnion @(Response.Ok (Readable Project))
+          |> matchUnion @(Response.Ok Project.Readable)
           |> coerce
           |> evalMaybe
         project ^. #id === id
@@ -342,9 +340,9 @@ c_deleteExistingProject =
         model |> #projects %~ Map.delete id
       , Ensure \_before _after input response -> do
         footnoteShow response
-        project :: Readable Project <-
+        project :: Project.Readable <-
           (response ^. #responseBody)
-          |> matchUnion @(Response.Ok (Readable Project))
+          |> matchUnion @(Response.Ok Project.Readable)
           |> coerce
           |> evalMaybe
         project ^. #id === input ^. #id . concreted
@@ -372,12 +370,13 @@ c_deleteNotExistingProject =
       ]
 
 mkReadableProjectFromCreatableProject :: Project.Id
-                                      -> Creatable Project
-                                      -> Readable Project
-mkReadableProjectFromCreatableProject id ProjectC {..} = ProjectR { .. }
+                                      -> Project.Creatable
+                                      -> Project.Readable
+mkReadableProjectFromCreatableProject id Project.Creatable {..} =
+  Project.Readable { .. }
 
-updateCreatableProject :: Updatable Project
-                       -> Creatable Project
-                       -> Creatable Project
-updateCreatableProject updatable ProjectC {..} =
-  ProjectC { name = fromMaybe name $ updatable ^. #name }
+updateCreatableProject :: Project.Updatable
+                       -> Project.Creatable
+                       -> Project.Creatable
+updateCreatableProject updatable Project.Creatable {..} =
+  Project.Creatable { name = fromMaybe name $ updatable ^. #name }
