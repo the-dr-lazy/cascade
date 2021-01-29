@@ -17,7 +17,7 @@ module Cascade.Api.Database.Project
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
-import           Cascade.Api.Data.WrappedC
+import qualified Cascade.Api.Data.WrappedC     as Wrapped
 import           Control.Lens                   ( _Wrapped'
                                                 , view
                                                 )
@@ -30,7 +30,7 @@ import           Database.Beam                  ( Beamable
 
 -- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row
-  { id   :: C f (WrappedC Project.Id)
+  { id   :: Wrapped.C f Project.Id
   , name :: C f Text
   }
   deriving stock Generic
@@ -38,7 +38,7 @@ data ProjectTable (f :: Type -> Type) = Row
 
 instance Table ProjectTable where
   newtype PrimaryKey ProjectTable f = PrimaryKey
-    { unPrimaryKey :: C f (WrappedC Project.Id)
+    { unPrimaryKey :: Wrapped.C f Project.Id
     }
     deriving stock Generic
     deriving anyclass Beamable
