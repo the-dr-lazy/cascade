@@ -117,6 +117,7 @@ library
   hs-source-dirs:      src
   build-depends:       beam-core
                      , beam-postgres
+                     , email-validate
                      , http-media
                      , relude
                      , servant-server
