@@ -24,6 +24,7 @@ common common-options
                      , polysemy-plugin
                      , postgresql-simple
                      , servant
+                     , text
                      , uuid
                      
   default-language:    Haskell2010
@@ -120,7 +121,9 @@ library
                      , email-validate
                      , http-media
                      , relude
+                     , selective
                      , servant-server
+                     , validation-selective
                      , wai
                      , warp
 
