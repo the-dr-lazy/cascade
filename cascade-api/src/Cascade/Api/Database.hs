@@ -14,6 +14,7 @@ module Cascade.Api.Database (Database, database) where
 
 import           Cascade.Api.Database.Project        ( ProjectTable )
 import           Cascade.Api.Database.User           ( UserTable(..) )
+import           Cascade.Api.Database.Task           ( TaskTable )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( DatabaseSettings
                                                      , TableEntity
@@ -23,12 +24,12 @@ import           Database.Beam                       ( DatabaseSettings
                                                      , tableModification
                                                      , withDbModification
                                                      )
-import qualified Database.Beam                      as Beam
 
 -- brittany-disable-next-binding
 data Database (f :: Type -> Type) = Database
   { projects :: f (TableEntity ProjectTable)
   , users    :: f (TableEntity UserTable)
+  , tasks    :: f (TableEntity TaskTable)
   }
   deriving stock Generic
   deriving anyclass (Beam.Database backend)

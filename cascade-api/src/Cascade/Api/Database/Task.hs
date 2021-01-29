@@ -1,5 +1,5 @@
 module Cascade.Api.Database.Task
-  ( ProjectTable(..)
+  ( TaskTable(..)
   , PrimaryKey(..)
   , Row
   ) where
