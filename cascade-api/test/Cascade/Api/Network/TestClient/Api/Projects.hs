@@ -51,7 +51,7 @@ create = interpret . go where go = Client.Api.projects ^. #create
 getAll :: IO GetAllResponse
 getAll = interpret go where go = Client.Api.projects ^. #getAll
 
-getById :: Id -> IO GetByIdResponse
+getById :: Project.Id -> IO GetByIdResponse
 getById = interpret . go where go = Client.Api.projects ^. #getById
 
 updateById :: Project.Id -> Project.Updatable -> IO UpdateByIdResponse
