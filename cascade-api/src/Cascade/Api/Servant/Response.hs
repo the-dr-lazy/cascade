@@ -14,6 +14,7 @@ module Cascade.Api.Servant.Response
   ( NotFound(..)
   , Ok(..)
   , Created(..)
+  , Unprocessable(..)
   , notFound
   , ok
   , created
@@ -60,3 +61,10 @@ instance HasStatus (Created a) where
 
 created :: a -> Created a
 created = Created
+
+newtype Unprocessable a = Unprocessable a
+  deriving stock Show
+  deriving newtype (FromJSON, ToJSON)
+
+instance HasStatus (Unprocessable a) where
+  type StatusOf (Unprocessable a) = 422
