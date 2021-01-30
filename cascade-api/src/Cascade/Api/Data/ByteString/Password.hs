@@ -16,6 +16,7 @@ module Cascade.Api.Data.ByteString.Password
   , ValidationError(..)
   , ValidationErrors
   , mk
+  , un
   ) where
 
 import           Control.Selective              ( ifS )
