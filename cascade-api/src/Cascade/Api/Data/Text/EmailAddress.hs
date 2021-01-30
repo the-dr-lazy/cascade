@@ -13,6 +13,7 @@ Portability : POSIX
 module Cascade.Api.Data.Text.EmailAddress
   ( EmailAddress
   , pattern EmailAddress
+  , ValidationError(..)
   , un
   , mk
   ) where
@@ -25,6 +26,8 @@ newtype EmailAddress = Mk
 
 pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
+
+data ValidationError = IsInvalid
 
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8

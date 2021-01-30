@@ -59,6 +59,7 @@ common common-options
                        DeriveLift
                        DeriveTraversable
                        DeriveAnyClass
+                       DerivingVia
                        DerivingStrategies
                        GeneralizedNewtypeDeriving
                        StandaloneDeriving
@@ -120,6 +121,7 @@ library
   build-depends:       beam-core
                      , beam-postgres
                      , email-validate
+                     , generic-monoid
                      , http-media
                      , relude
                      , selective

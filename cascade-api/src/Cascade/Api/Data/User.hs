@@ -11,7 +11,9 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Data.User
-  ( RawCreatable(..)
+  ( RawCreatableV(..)
+  , RawCreatable
+  , RawCreatableValidationErrors
   , ParsedCreatable
   , parseRawCreatableUser
   ) where
@@ -20,6 +22,7 @@ import           Cascade.Api.Data.ByteString.Password
                                                 ( Password )
 import qualified Cascade.Api.Data.ByteString.Password
                                                as Password
+import           Cascade.Api.Data.Prelude
 import           Cascade.Api.Data.Text.EmailAddress
                                                 ( EmailAddress )
 import qualified Cascade.Api.Data.Text.EmailAddress
@@ -31,15 +34,27 @@ import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
 import           Data.Generics.Labels           ( )
+import           Data.Monoid.Generic
 import           Validation
 
-data RawCreatable = RawCreatable
-  { username     :: Text
-  , emailAddress :: Text
-  , password     :: Text
+data RawCreatableV f = RawCreatable
+  { username     :: Validatable f Text (Maybe Username.ValidationErrors)
+  , emailAddress :: Validatable f Text (First EmailAddress.ValidationError)
+  , password     :: Validatable f Text (Maybe Password.ValidationErrors)
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock Generic
+
+type RawCreatable = RawCreatableV Identity
+
+deriving stock instance Show RawCreatable
+deriving stock instance Eq RawCreatable
+deriving anyclass instance FromJSON RawCreatable
+deriving anyclass instance ToJSON RawCreatable
+
+type RawCreatableValidationErrors = RawCreatableV Validate
+
+deriving via (GenericSemigroup RawCreatableValidationErrors) instance Semigroup RawCreatableValidationErrors
+deriving via (GenericMonoid RawCreatableValidationErrors) instance Monoid RawCreatableValidationErrors
 
 data ParsedCreatable = ParsedCreatable
   { username     :: Username
@@ -48,23 +63,19 @@ data ParsedCreatable = ParsedCreatable
   }
   deriving stock (Generic, Show, Eq)
 
-data RawCreatableValidationError
-  = UsernameField Username.ValidationErrors
-  | PasswordField Password.ValidationErrors
-  | EmailAddressField
-
-type RawCreatableValidationErrors = NonEmpty RawCreatableValidationError
-
 parseRawCreatableUser :: RawCreatable
                       -> Validation
                            RawCreatableValidationErrors
                            ParsedCreatable
 parseRawCreatableUser RawCreatable {..} =
-  let validateUsername = first (pure . UsernameField) $ Username.mk username
-      validateEmailAddress =
-        maybeToSuccess (pure EmailAddressField) (EmailAddress.mk emailAddress)
+  let validateUsername = Username.mk username |> first \e ->
+        mempty { username = Just e } :: RawCreatableValidationErrors
+      validateEmailAddress = EmailAddress.mk emailAddress |> maybeToSuccess
+        (mempty { emailAddress = coerce $ Just EmailAddress.IsInvalid } :: RawCreatableValidationErrors
+        )
       validatePassword =
-        first (pure . PasswordField) . Password.mk . encodeUtf8 $ password
+        password |> encodeUtf8 |> Password.mk |> first \e ->
+          mempty { password = Just e } :: RawCreatableValidationErrors
   in  ParsedCreatable
         <$> validateUsername
         <*> validateEmailAddress
