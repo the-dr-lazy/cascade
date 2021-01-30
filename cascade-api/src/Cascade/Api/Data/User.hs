@@ -11,7 +11,10 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Data.User
-  ( RawCreatableV(..)
+  ( User
+  , Id
+  , Readable
+  , RawCreatableV(..)
   , RawCreatable
   , RawCreatableValidationErrors
   , ParsedCreatable
@@ -22,6 +25,7 @@ import           Cascade.Api.Data.ByteString.Password
                                                 ( Password )
 import qualified Cascade.Api.Data.ByteString.Password
                                                as Password
+import qualified Cascade.Api.Data.Id           as Data
 import           Cascade.Api.Data.Prelude
 import           Cascade.Api.Data.Text.EmailAddress
                                                 ( EmailAddress )
@@ -36,6 +40,17 @@ import           Data.Aeson                     ( FromJSON
 import           Data.Generics.Labels           ( )
 import           Data.Monoid.Generic
 import           Validation
+
+data User
+
+type Id = Data.Id User
+
+data Readable = Readable
+  { id           :: Id
+  , username     :: Username
+  , emailAddress :: EmailAddress
+  }
+  deriving stock (Generic, Show, Eq)
 
 data RawCreatableV f = RawCreatable
   { username     :: Validatable f Text (Maybe Username.ValidationErrors)
