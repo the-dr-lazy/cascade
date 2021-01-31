@@ -13,6 +13,8 @@ Portability : POSIX
 module Cascade.Api.Data.User
   ( User
   , Id
+  , Username
+  , EmailAddress
   , Readable
   , RawCreatableV(..)
   , RawCreatable

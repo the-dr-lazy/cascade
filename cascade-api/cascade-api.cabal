@@ -120,10 +120,12 @@ library
   hs-source-dirs:      src
   build-depends:       beam-core
                      , beam-postgres
+                     , chronos
                      , email-validate
                      , generic-monoid
                      , http-media
                      , relude
+                     , scrypt
                      , selective
                      , servant-server
                      , validation-selective
