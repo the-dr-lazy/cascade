@@ -44,7 +44,7 @@ validate input = ifS
   (pure $ Text.null input)
   (failure IsEmpty)
   (  failureIf (l > 20) IsLong
-  *> failureIf (l < 20) IsShort
+  *> failureIf (l < 8)  IsShort
   *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid
   )
   where l = Text.length input
