@@ -15,7 +15,7 @@ module Cascade.Api.Data.User
   , Id
   , Username
   , EmailAddress
-  , Readable
+  , Readable(..)
   , RawCreatableV(..)
   , RawCreatable
   , RawCreatableValidationErrors
