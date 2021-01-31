@@ -26,7 +26,7 @@ type CreateResponse
      ]
 
 data Routes route
-  = Route
+  = Routes
     { create
         :: route :- ReqBody '[JSON] User.RawCreatable :> Post '[JSON] CreateResponse
     }
