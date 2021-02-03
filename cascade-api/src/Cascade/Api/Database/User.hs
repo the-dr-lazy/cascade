@@ -2,8 +2,8 @@ module Cascade.Api.Database.User where
 
 import qualified Cascade.Api.Data.User         as User
 import qualified Cascade.Api.Data.WrappedC     as Wrapped
+import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Chronos                        ( Time )
-import           Crypto.Scrypt                  ( PassHash )
 import           Database.Beam                  ( Beamable
                                                 , C
                                                 , Table(..)
@@ -11,12 +11,12 @@ import           Database.Beam                  ( Beamable
 
 -- brittany-disable-next-binding
 data UserTable (f :: Type -> Type) = Row
-  { id           :: Wrapped.C f User.Id
-  , username     :: Wrapped.C f User.Username
-  , emailAddress :: Wrapped.C f User.EmailAddress
-  , passHash     :: Wrapped.C f PassHash
-  , createdAt    :: C f Time
-  , updatedAt    :: C f Time
+  { id                :: Wrapped.C f User.Id
+  , username          :: Wrapped.C f User.Username
+  , emailAddress      :: Wrapped.C f User.EmailAddress
+  , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
+  , createdAt         :: C f Time
+  , updatedAt         :: C f Time
   }
   deriving stock Generic
   deriving anyclass Beamable
