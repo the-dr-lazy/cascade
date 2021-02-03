@@ -14,8 +14,8 @@ CREATE TABLE users (
   -- primary key
   CONSTRAINT users_pk PRIMARY KEY (id),
   -- alternative key
-  CONSTRAINT users_username_ak UNIQUE (username),
-  CONSTRAINT users_email_ak    UNIQUE (email)
+  CONSTRAINT users_username_ak      UNIQUE (username),
+  CONSTRAINT users_email_address_ak UNIQUE (email_address)
 );
 
 COMMIT;
