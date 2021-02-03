@@ -22,12 +22,13 @@ module Cascade.Api.Data.Text.Username
 
 import qualified Cascade.Api.Data.Char         as Char
 import           Control.Selective              ( ifS )
+import           Data.Aeson                     ( ToJSON )
 import qualified Data.Text                     as Text
 import           Validation
 
 newtype Username = Mk
   { un :: Text }
-  deriving newtype (Show, Eq)
+  deriving newtype (Show, Eq, ToJSON)
 
 pattern Username :: Text -> Username
 pattern Username a <- Mk a

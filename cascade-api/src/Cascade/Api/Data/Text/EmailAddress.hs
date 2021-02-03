@@ -18,11 +18,12 @@ module Cascade.Api.Data.Text.EmailAddress
   , mk
   ) where
 
+import           Data.Aeson                     ( ToJSON )
 import           Text.Email.Validate            ( canonicalizeEmail )
 
 newtype EmailAddress = Mk
   { un :: Text }
-  deriving newtype (Show, Eq)
+  deriving newtype (Show, Eq, ToJSON)
 
 pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
