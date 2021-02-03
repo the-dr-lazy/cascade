@@ -18,12 +18,15 @@ module Cascade.Api.Data.Text.EmailAddress
   , mk
   ) where
 
+import           Control.Lens.TH                ( makeWrapped )
 import           Data.Aeson                     ( ToJSON )
 import           Text.Email.Validate            ( canonicalizeEmail )
 
 newtype EmailAddress = Mk
   { un :: Text }
   deriving newtype (Show, Eq, ToJSON)
+
+makeWrapped ''EmailAddress
 
 pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
