@@ -15,6 +15,7 @@ module Cascade.Api.Servant.Response
   , Ok(..)
   , Created(..)
   , Unprocessable(..)
+  , Conflict(..)
   , notFound
   , ok
   , created
@@ -68,3 +69,15 @@ newtype Unprocessable a = Unprocessable a
 
 instance HasStatus (Unprocessable a) where
   type StatusOf (Unprocessable a) = 422
+
+data Conflict = Conflict
+  deriving stock Show
+
+instance FromJSON Conflict where
+  parseJSON _ = pure Conflict
+
+instance ToJSON Conflict where
+  toJSON _ = object ["title" .= ("Conflict" :: Text)]
+
+instance HasStatus Conflict where
+  type StatusOf Conflict = 409

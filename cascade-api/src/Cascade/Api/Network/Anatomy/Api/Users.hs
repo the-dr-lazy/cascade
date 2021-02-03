@@ -22,6 +22,7 @@ import           Data.Generics.Labels           ( )
 
 type CreateResponse
   = '[ Response.Created User.Readable
+     , Response.Conflict
      , Response.Unprocessable User.RawCreatableValidationErrors
      ]
 
