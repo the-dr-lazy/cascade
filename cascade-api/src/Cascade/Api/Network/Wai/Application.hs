@@ -14,8 +14,6 @@ module Cascade.Api.Network.Wai.Application
   ( application
   ) where
 
-import qualified Cascade.Api.Effect.Database.Project
-                                               as Database
 import           Cascade.Api.Network.Server
 import qualified Network.Wai                   as Wai
 import           Polysemy                       ( Members
@@ -27,9 +25,7 @@ import           Servant.Server                 ( Handler
                                                 )
 import           Servant.Server.Generic         ( genericServeT )
 
-type Effects = '[Database.ProjectL , Error ServerError]
-
-application :: Members Effects r
+application :: Members (Error ServerError ': Effects) r
             => (forall a . Sem r a -> Handler a)
             -> Wai.Application
 application nt = genericServeT nt server

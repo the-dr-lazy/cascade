@@ -35,8 +35,15 @@ makeWrapped ''Username
 
 pattern Username :: Text -> Username
 pattern Username a <- Mk a
+{-# COMPLETE Username #-}
 
-data ValidationError = IsEmpty | IsShort | IsLong | IsInvalid
+data ValidationError
+  = IsEmpty
+  | IsShort
+  | IsLong
+  | IsInvalid
+  deriving stock (Generic, Show)
+  deriving anyclass ToJSON
 
 type ValidationErrors = NonEmpty ValidationError
 

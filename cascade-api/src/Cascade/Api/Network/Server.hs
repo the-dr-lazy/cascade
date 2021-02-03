@@ -11,18 +11,17 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.Server
-  ( server
+  ( Api.Effects
+  , server
   ) where
 
-import qualified Cascade.Api.Effect.Database.Project
-                                               as Database
-                                                ( ProjectL )
 import           Cascade.Api.Network.Anatomy
-import qualified Cascade.Api.Network.Server.Api    as Api
+import qualified Cascade.Api.Network.Server.Api
+                                               as Api
 import           Polysemy                       ( Members
                                                 , Sem
                                                 )
 import           Servant.Server.Generic         ( AsServerT )
 
-server :: Members '[Database.ProjectL] r => Routes (AsServerT (Sem r))
+server :: Members Api.Effects r => Routes (AsServerT (Sem r))
 server = Routes { api = Api.server }

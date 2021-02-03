@@ -33,6 +33,8 @@ pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
 
 data ValidationError = IsInvalid
+  deriving stock (Generic, Show)
+  deriving anyclass ToJSON
 
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8
