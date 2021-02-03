@@ -16,10 +16,15 @@ module Cascade.Api.Database
   ) where
 
 import           Cascade.Api.Database.Project   ( ProjectTable )
-import           Cascade.Api.Database.User      ( UserTable )
+import           Cascade.Api.Database.User      ( UserTable(..) )
 import           Data.Generics.Labels           ( )
 import           Database.Beam                  ( DatabaseSettings
                                                 , TableEntity
+                                                , dbModification
+                                                , fieldNamed
+                                                , modifyTableFields
+                                                , tableModification
+                                                , withDbModification
                                                 )
 import qualified Database.Beam                 as Beam
 
@@ -32,4 +37,11 @@ data Database (f :: Type -> Type) = Database
   deriving anyclass (Beam.Database backend)
 
 database :: DatabaseSettings backend Database
-database = Beam.defaultDbSettings
+database = Beam.defaultDbSettings `withDbModification` dbModification
+  { users = modifyTableFields tableModification
+              { emailAddress      = fieldNamed "email_address"
+              , encryptedPassword = fieldNamed "encrypted_password"
+              , createdAt         = fieldNamed "created_at"
+              , updatedAt         = fieldNamed "updated_at"
+              }
+  }

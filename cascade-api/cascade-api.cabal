@@ -118,7 +118,8 @@ custom-setup
 library
   import:              common-options
   hs-source-dirs:      src
-  build-depends:       beam-core
+  build-depends:       attoparsec
+                     , beam-core
                      , beam-postgres
                      , chronos
                      , email-validate

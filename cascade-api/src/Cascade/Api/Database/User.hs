@@ -6,7 +6,7 @@ module Cascade.Api.Database.User
 import qualified Cascade.Api.Data.User         as User
 import qualified Cascade.Api.Data.WrappedC     as Wrapped
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
-import           Chronos                        ( Time )
+import           Chronos                        ( OffsetDatetime )
 import           Database.Beam                  ( Beamable
                                                 , C
                                                 , Table(..)
@@ -18,8 +18,8 @@ data UserTable (f :: Type -> Type) = Row
   , username          :: Wrapped.C f User.Username
   , emailAddress      :: Wrapped.C f User.EmailAddress
   , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
-  , createdAt         :: C f Time
-  , updatedAt         :: C f Time
+  , createdAt         :: C f OffsetDatetime
+  , updatedAt         :: C f OffsetDatetime
   }
   deriving stock Generic
   deriving anyclass Beamable

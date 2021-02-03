@@ -18,6 +18,7 @@ import qualified Cascade.Api.Effect.Database   as Database
 import qualified Cascade.Api.Effect.Database.Project
                                                as Database.Project
 import           Cascade.Api.Network.Wai.Application
+import           Cascade.Api.Orphans            ( )
 import qualified Database.PostgreSQL.Simple    as Postgres
 import qualified Network.Wai.Handler.Warp      as Warp
 import           Polysemy                       ( runFinal )
