@@ -26,6 +26,7 @@ newtype EmailAddress = Mk
 
 pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
+{-# COMPLETE EmailAddress #-}
 
 data ValidationError = IsInvalid
 

@@ -29,6 +29,7 @@ newtype Password = Mk
 
 pattern Password :: ByteString -> Password
 pattern Password a <- Mk a
+{-# COMPLETE Password #-}
 
 data ValidationError = IsEmpty | IsShort
 
