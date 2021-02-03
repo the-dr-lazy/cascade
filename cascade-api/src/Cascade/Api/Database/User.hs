@@ -1,4 +1,7 @@
-module Cascade.Api.Database.User where
+module Cascade.Api.Database.User
+  ( UserTable(..)
+  , Row
+  ) where
 
 import qualified Cascade.Api.Data.User         as User
 import qualified Cascade.Api.Data.WrappedC     as Wrapped
