@@ -45,7 +45,7 @@ handleCreate =
      => User.ParsedCreatable
      -> Sem r (Union CreateResponse)
   go creatable = do
-    hasConflict <- Database.User.doesAnyUserExistsByUsernameOrEmailAddress
+    hasConflict <- Database.User.doesExistsByUsernameOrEmailAddress
       (creatable ^. #username)
       (creatable ^. #emailAddress)
     if hasConflict

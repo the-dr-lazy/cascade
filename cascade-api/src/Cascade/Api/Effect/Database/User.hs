@@ -13,7 +13,7 @@ Portability : POSIX
 module Cascade.Api.Effect.Database.User
   ( UserL
   , create
-  , doesAnyUserExistsByUsernameOrEmailAddress
+  , doesExistsByUsernameOrEmailAddress
   , run
   ) where
 
@@ -53,7 +53,7 @@ import           Polysemy                       ( Members
 import qualified Relude.Unsafe                 as Unsafe
 
 data UserL m a where
-  DoesAnyUserExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
+  DoesExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
   Create ::User.ParsedCreatable -> UserL m User.Readable
 
 makeSem ''UserL
@@ -74,7 +74,7 @@ run :: BeamSqlBackend backend
     => Sem (UserL ': r) a
     -> Sem r a
 run = interpret \case
-  DoesAnyUserExistsByUsernameOrEmailAddress username emailAddress -> do
+  DoesExistsByUsernameOrEmailAddress username emailAddress -> do
     let query = Database.all #users |> filter_ \user ->
           (user ^. #username ==. val_ (coerce username))
             ||. (user ^. #emailAddress ==. val_ (coerce emailAddress))
