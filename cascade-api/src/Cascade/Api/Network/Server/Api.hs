@@ -18,6 +18,8 @@ import qualified Cascade.Api.Effect.Database.Project
 import qualified Cascade.Api.Effect.Database.User   as Database
                                                      ( UserL )
 import           Cascade.Api.Effect.Scrypt           ( ScryptL )
+import qualified Cascade.Api.Effect.Database.Task   as Database
+                                                     ( TaskL )
 import           Cascade.Api.Network.Anatomy.Api
 import qualified Cascade.Api.Network.Server.Api.Authentication
                                                     as Api.Authentication
@@ -25,6 +27,8 @@ import qualified Cascade.Api.Network.Server.Api.Projects
                                                     as Api.Projects
 import qualified Cascade.Api.Network.Server.Api.Users
                                                     as Api.Users
+import qualified Cascade.Api.Network.Server.Api.Tasks
+                                                    as Api.Tasks
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
@@ -35,7 +39,11 @@ import           Servant.Server.Generic              ( AsServerT
                                                      , genericServerT
                                                      )
 
-type Effects = '[Database.ProjectL , Database.UserL , ScryptL , Error ServerError]
+type Effects = '[Database.ProjectL, Database.UserL, Database.TaskL, ScryptL, Error ServerError]
 
 server :: Members Effects r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { projects = Api.Projects.server, users = Api.Users.server, authentication = Api.Authentication.server }
+server = genericServerT Routes { projects       = Api.Projects.server
+                               , users          = Api.Users.server
+                               , authentication = Api.Authentication.server
+                               , tasks          = Api.Tasks.server
+                               }
