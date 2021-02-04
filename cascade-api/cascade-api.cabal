@@ -27,6 +27,7 @@ common common-options
                      , servant
                      , text
                      , uuid
+                     , word8
                      
   default-language:    Haskell2010
   -- Based on
@@ -122,9 +123,13 @@ library
                      , beam-core
                      , beam-postgres
                      , chronos
+                     , cookie
+                     , either
                      , email-validate
                      , generic-monoid
                      , http-media
+                     , http-types
+                     , libjwt-typed
                      , relude
                      , scrypt
                      , selective

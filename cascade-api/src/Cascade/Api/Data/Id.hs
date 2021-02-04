@@ -18,6 +18,7 @@ import           Control.Lens.TH                ( makeWrapped )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
+import           Libjwt.Classes                 ( JwtRep )
 import           Servant.API                    ( FromHttpApiData
                                                 , ToHttpApiData
                                                 )
@@ -25,6 +26,6 @@ import           Servant.API                    ( FromHttpApiData
 newtype Id (entity :: Type) = Id
   { unId :: UUID }
   deriving stock Generic
-  deriving newtype (Show, Eq, Ord, FromHttpApiData, ToHttpApiData, FromJSON, ToJSON)
+  deriving newtype (Show, Eq, Ord, FromHttpApiData, ToHttpApiData, FromJSON, ToJSON, JwtRep ByteString)
 
 makeWrapped ''Id
