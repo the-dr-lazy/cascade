@@ -39,6 +39,5 @@ instance Table TaskTable where
 
 type Row = TaskTable Identity
 
--- deriving stock instance Show Row
--- deriving stock instance Eq Row
-
+deriving stock instance Show Row
+deriving stock instance Eq Row

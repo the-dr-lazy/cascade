@@ -36,7 +36,7 @@ instance Table ProjectTable where
   newtype PrimaryKey ProjectTable f = PrimaryKey
     { unPrimaryKey :: Wrapped.C f Project.Id
     }
-    deriving stock Generic
+    deriving stock (Generic)
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
 
@@ -44,3 +44,6 @@ type Row = ProjectTable Identity
 
 deriving stock instance Show Row
 deriving stock instance Eq Row
+
+deriving stock instance Show (PrimaryKey ProjectTable Identity)
+deriving stock instance Eq (PrimaryKey ProjectTable Identity)

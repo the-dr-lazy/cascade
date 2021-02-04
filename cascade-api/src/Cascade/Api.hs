@@ -17,6 +17,7 @@ import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
 import qualified Cascade.Api.Effect.Database.User   as Database.User
 import qualified Cascade.Api.Effect.Scrypt          as Scrypt
+import qualified Cascade.Api.Effect.Database.Task   as Database.Task
 import           Cascade.Api.Network.Wai.Application
 import           Cascade.Api.Orphans                 ( )
 import qualified Database.PostgreSQL.Simple         as Postgres
@@ -38,4 +39,5 @@ main withDatabaseConnection = do
     . Database.runPostgres withDatabaseConnection
     . Database.Project.run
     . Database.User.run
+    . Database.Task.run
     )
