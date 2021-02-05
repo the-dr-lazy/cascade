@@ -70,8 +70,8 @@ data PrivateClaims = PrivateClaims
 
 type Jwt = Libjwt.Jwt PrivateClaimsList ( 'Libjwt.SomeNs Namespace)
 
-mk :: User.Id -> Libjwt.Encoded Jwt
-mk userId = Libjwt.sign algorithm payload
+mk :: User.Id -> (ByteString, ByteString)
+mk userId = Libjwt.sign algorithm payload |> Libjwt.getToken |> dissociate
  where
   payload = Libjwt.ClaimsSet
     { iss           = Libjwt.Iss Nothing

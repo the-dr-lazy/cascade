@@ -12,6 +12,8 @@ Portability : POSIX
 
 module Cascade.Api.Servant.Authentication
   ( Auth
+  , authorizationHeaderPrefix
+  , signatureCookieName
   , handleAuthentication
   ) where
 
@@ -38,6 +40,12 @@ type Auth = AuthProtect "JWT"
 
 type instance AuthServerData Auth = Session
 
+authorizationHeaderPrefix :: ByteString
+authorizationHeaderPrefix = "Bearer"
+
+signatureCookieName :: ByteString
+signatureCookieName = "Signature"
+
 handleAuthentication :: Wai.Request -> Handler Session
 handleAuthentication request = maybe
   (pure Session.Anonymous)
@@ -50,9 +58,9 @@ handleAuthentication request = maybe
   sig =
     (request |> requestHeaders |> List.lookup hAuthorization)
       >>= fmap W8.trim
-      .   W8.stripPrefix "Bearer"
+      .   W8.stripPrefix authorizationHeaderPrefix
   headerAndPayload =
     (request |> requestHeaders |> List.lookup hCookie)
-      >>= List.lookup "Signature"
+      >>= List.lookup signatureCookieName
       .   parseCookies
   token = Jwt.reassociate <$> headerAndPayload <*> sig

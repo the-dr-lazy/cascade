@@ -23,6 +23,8 @@ import qualified Cascade.Api.Effect.Database.User
                                                 ( UserL )
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
 import           Cascade.Api.Network.Anatomy.Api
+import qualified Cascade.Api.Network.Server.Api.Authentication
+                                               as Api.Authentication
 import qualified Cascade.Api.Network.Server.Api.Projects
                                                as Api.Projects
 import qualified Cascade.Api.Network.Server.Api.Users
@@ -30,14 +32,18 @@ import qualified Cascade.Api.Network.Server.Api.Users
 import           Polysemy                       ( Members
                                                 , Sem
                                                 )
+import           Polysemy.Error                 ( Error )
 import           Servant.API.Generic
+import           Servant.Server                 ( ServerError )
 import           Servant.Server.Generic         ( AsServerT
                                                 , genericServerT
                                                 )
 
-type Effects = '[Database.ProjectL , Database.UserL , ScryptL]
+type Effects
+  = '[Database.ProjectL , Database.UserL , ScryptL , Error ServerError]
 
 server :: Members Effects r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { projects = Api.Projects.server
-                               , users    = Api.Users.server
+server = genericServerT Routes { projects       = Api.Projects.server
+                               , users          = Api.Users.server
+                               , authentication = Api.Authentication.server
                                }
