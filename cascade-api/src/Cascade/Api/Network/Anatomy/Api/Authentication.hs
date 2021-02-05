@@ -23,7 +23,7 @@ import           Web.Cookie                     ( SetCookie )
 
 type LoginResponse
   = Headers
-      '[Header "Authorization" Text , Header "Set-Cookie" SetCookie]
+      '[Header "Set-Cookie" SetCookie , Header "Set-Cookie" SetCookie]
       NoContent
 
 data Routes route = Routes

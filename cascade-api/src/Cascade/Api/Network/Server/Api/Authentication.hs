@@ -27,7 +27,7 @@ import qualified Cascade.Api.Effect.Database.User
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Cascade.Api.Network.Anatomy.Api.Authentication
 import           Cascade.Api.Servant.Authentication
-                                                ( authorizationHeaderPrefix
+                                                ( headerAndPayloadCookieName
                                                 , signatureCookieName
                                                 )
 import           Control.Lens                   ( (^.)
@@ -73,17 +73,24 @@ server = genericServerT Routes { login = handleLogin }
 
 mkLoginResponse :: (ByteString, ByteString) -> LoginResponse
 mkLoginResponse (headerAndPayload, sig) =
-  NoContent |> addHeader setCookie |> addHeader authorization
+  NoContent
+    |> addHeader setHeaderAndPayloadCookie
+    |> addHeader setSignatureCookie
  where
-  authorization = mkAuthorizationHeader headerAndPayload
-  setCookie     = mkSetCookieHeader sig
+  setHeaderAndPayloadCookie = mkSetHeaderAndPayloadCookie headerAndPayload
+  setSignatureCookie        = mkSetSignatureCookie sig
 
-mkAuthorizationHeader :: ByteString -> Text
-mkAuthorizationHeader headerAndPayload =
-  W8.intercalate " " [authorizationHeaderPrefix, headerAndPayload] |> decodeUtf8
+mkSetHeaderAndPayloadCookie :: ByteString -> SetCookie
+mkSetHeaderAndPayloadCookie value =
+  (defaultSetCookie { setCookieName     = headerAndPayloadCookieName
+                    , setCookieValue    = value
+                    , setCookieSecure   = True
+                    , setCookieSameSite = Just Cookie.sameSiteStrict
+                    }
+  )
 
-mkSetCookieHeader :: ByteString -> SetCookie
-mkSetCookieHeader value =
+mkSetSignatureCookie :: ByteString -> SetCookie
+mkSetSignatureCookie value =
   (defaultSetCookie { setCookieName     = signatureCookieName
                     , setCookieValue    = value
                     , setCookieHttpOnly = True
