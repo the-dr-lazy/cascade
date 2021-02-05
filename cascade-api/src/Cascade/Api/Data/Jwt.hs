@@ -21,6 +21,7 @@ module Cascade.Api.Data.Jwt
   ) where
 
 import qualified Cascade.Api.Data.User         as User
+import           Control.Exception              ( handle )
 import           Control.Lens                   ( (%~)
                                                 , _1
                                                 )
@@ -88,11 +89,10 @@ mk userId = Libjwt.sign algorithm payload |> Libjwt.getToken |> dissociate
     }
 
 decode :: ByteString -> IO (Maybe Jwt)
-decode token = do
-  fmap Libjwt.getValid
-    .   rightToMaybe
-    .   validationToEither
-    <$> Libjwt.jwtFromByteString settings mempty algorithm token
+decode token =
+  Libjwt.jwtFromByteString settings mempty algorithm token
+    |> fmap (fmap Libjwt.getValid . rightToMaybe . validationToEither)
+    |> handle @SomeException (const $ pure Nothing)
   where settings = Libjwt.Settings { leeway = 5, appName = Just "Cascade" }
 
 getPrivateClaims :: Jwt -> PrivateClaims
