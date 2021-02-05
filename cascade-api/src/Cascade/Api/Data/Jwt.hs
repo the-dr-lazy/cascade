@@ -21,6 +21,9 @@ module Cascade.Api.Data.Jwt
   ) where
 
 import qualified Cascade.Api.Data.User         as User
+import           Control.Lens                   ( (%~)
+                                                , _1
+                                                )
 import qualified Data.ByteString               as W8
 import qualified Data.ByteString.Char8         as C8
 import           Data.Either.Validation         ( validationToEither )
@@ -105,7 +108,7 @@ isSeparator = (==) separator
 {-# INLINE isSeparator #-}
 
 dissociate :: ByteString -> (ByteString, ByteString)
-dissociate = W8.breakEnd isSeparator
+dissociate jwt = W8.breakEnd isSeparator jwt |> _1 %~ W8.init
 {-# INLINE dissociate #-}
 
 reassociate :: ByteString -> ByteString -> ByteString
