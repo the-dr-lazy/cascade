@@ -13,12 +13,15 @@ Portability : POSIX
 module Cascade.Api.Network.Anatomy.Prelude
   ( module Servant.API
   , module Servant.API.Generic
+  , module Cascade.Api.Servant.Authentication
   , Get
   , Post
   , Patch
   , Delete
   ) where
 
+import           Cascade.Api.Servant.Authentication
+                                                ( Auth )
 import           Servant.API             hiding ( Delete
                                                 , Get
                                                 , Patch
