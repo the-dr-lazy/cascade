@@ -39,6 +39,19 @@ jobs:
           ghc-version: "8.8.4"
           cabal-version: "3.2"
 
+      - name: Setup environment
+        uses: knicknic/os-specific-run@v1.0.2
+        with:
+          linux: |
+            sudo apt-get update
+            sudo apt-get --yes install libjwt-dev
+
+          macos: |
+            export HOMEBREW_NO_AUTO_UPDATE=1
+            export HOMEBREW_NO_INSTALL_CLEANUP=1
+
+            brew install libjwt
+
       - name: Configure
         run: |
           cabal new-configure --disable-documentation \
