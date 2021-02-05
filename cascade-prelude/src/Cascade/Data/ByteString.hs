@@ -19,9 +19,9 @@ module Cascade.Data.ByteString
 import           Data.ByteString
 import           Data.Word8                     ( isSpace )
 import           Prelude                        ( (.)
-                                                , snd
+                                                , fst
                                                 )
 
 trim :: ByteString -> ByteString
-trim = snd . spanEnd isSpace . dropWhile isSpace
+trim = fst . spanEnd isSpace . dropWhile isSpace
 {-# INLINE trim #-}
