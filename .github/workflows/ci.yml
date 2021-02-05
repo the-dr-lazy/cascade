@@ -110,8 +110,7 @@ jobs:
             export HOMEBREW_NO_AUTO_UPDATE=1
             export HOMEBREW_NO_INSTALL_CLEANUP=1
 
-            brew install coreutils
-            brew install postgres
+            brew install coreutils libjwt postgres
 
             brew tap sqitchers/sqitch
             brew install sqitch --with-postgres-support
