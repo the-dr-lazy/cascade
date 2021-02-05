@@ -20,7 +20,9 @@ module Cascade.Api.Data.ByteString.Password
   ) where
 
 import           Control.Selective              ( ifS )
-import           Data.Aeson                     ( ToJSON )
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
 import qualified Data.ByteString               as ByteString
 import           Validation
 
@@ -36,7 +38,7 @@ data ValidationError
   = IsEmpty
   | IsShort
   deriving stock (Generic, Show)
-  deriving anyclass ToJSON
+  deriving anyclass (FromJSON, ToJSON)
 
 type ValidationErrors = NonEmpty ValidationError
 

@@ -19,12 +19,14 @@ module Cascade.Api.Data.Text.EmailAddress
   ) where
 
 import           Control.Lens.TH                ( makeWrapped )
-import           Data.Aeson                     ( ToJSON )
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
 import           Text.Email.Validate            ( canonicalizeEmail )
 
 newtype EmailAddress = Mk
   { un :: Text }
-  deriving newtype (Show, Eq, ToJSON)
+  deriving newtype (Show, Eq, FromJSON, ToJSON)
 
 makeWrapped ''EmailAddress
 
@@ -34,7 +36,7 @@ pattern EmailAddress a <- Mk a
 
 data ValidationError = IsInvalid
   deriving stock (Generic, Show)
-  deriving anyclass ToJSON
+  deriving anyclass (FromJSON, ToJSON)
 
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8

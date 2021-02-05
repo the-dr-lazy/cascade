@@ -23,13 +23,15 @@ module Cascade.Api.Data.Text.Username
 import qualified Cascade.Api.Data.Char         as Char
 import           Control.Lens.TH                ( makeWrapped )
 import           Control.Selective              ( ifS )
-import           Data.Aeson                     ( ToJSON )
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
 import qualified Data.Text                     as Text
 import           Validation
 
 newtype Username = Mk
   { un :: Text }
-  deriving newtype (Show, Eq, ToJSON)
+  deriving newtype (Show, Eq, FromJSON, ToJSON)
 
 makeWrapped ''Username
 
@@ -43,7 +45,7 @@ data ValidationError
   | IsLong
   | IsInvalid
   deriving stock (Generic, Show)
-  deriving anyclass ToJSON
+  deriving anyclass (FromJSON, ToJSON)
 
 type ValidationErrors = NonEmpty ValidationError
 

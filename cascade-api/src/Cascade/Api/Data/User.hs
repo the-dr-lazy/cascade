@@ -54,7 +54,7 @@ data Readable = Readable
   , emailAddress :: EmailAddress
   }
   deriving stock (Generic, Show, Eq)
-  deriving anyclass ToJSON
+  deriving anyclass (FromJSON, ToJSON)
 
 data RawCreatableV f = RawCreatable
   { username     :: Validatable f Text (Maybe Username.ValidationErrors)
@@ -73,6 +73,7 @@ deriving anyclass instance ToJSON RawCreatable
 type RawCreatableValidationErrors = RawCreatableV Validate
 
 deriving stock instance Show RawCreatableValidationErrors
+deriving anyclass instance FromJSON RawCreatableValidationErrors
 deriving anyclass instance ToJSON RawCreatableValidationErrors
 deriving via (GenericSemigroup RawCreatableValidationErrors) instance Semigroup RawCreatableValidationErrors
 deriving via (GenericMonoid RawCreatableValidationErrors) instance Monoid RawCreatableValidationErrors
