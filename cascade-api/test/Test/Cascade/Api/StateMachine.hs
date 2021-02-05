@@ -68,13 +68,13 @@ prop_sequential getPool = withTests 1000 . property $ do
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
-  { projects       :: Map (Var Project.Id v) Project.Creatable
-  , notExistingIds :: [Var Project.Id v]
+  { projects              :: Map (Var Project.Id v) Project.Creatable
+  , notExistingProjectIds :: [Var Project.Id v]
   }
   deriving stock Generic
 
 initialModel :: Model v
-initialModel = Model { projects = Map.empty, notExistingIds = mempty }
+initialModel = Model { projects = Map.empty, notExistingProjectIds = mempty }
 
 commands :: MonadGen g => MonadIO m => MonadTest m => [Command g m Model]
 commands =
@@ -184,9 +184,10 @@ c_addNotExistingId =
 
       execute :: AddNotExistingId Concrete -> m Project.Id
       execute (AddNotExistingId id) = pure id
-  in  Command generator
-              execute
-              [Update \model _input id -> model |> #notExistingIds %~ cons id]
+  in  Command
+        generator
+        execute
+        [Update \model _input id -> model |> #notExistingProjectIds %~ cons id]
 
 -- brittany-disable-next-binding
 newtype GetById (v :: Type -> Type) = GetById
@@ -234,7 +235,7 @@ c_getNotExistingProject :: forall g m
                         => MonadIO m => MonadTest m => Command g m Model
 c_getNotExistingProject =
   let generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
-      generator Model { notExistingIds } = case notExistingIds of
+      generator Model { notExistingProjectIds } = case notExistingProjectIds of
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
@@ -293,7 +294,7 @@ c_updateNotExistingProject :: forall g m
 c_updateNotExistingProject =
   let
     generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
-    generator Model { notExistingIds } = case notExistingIds of
+    generator Model { notExistingProjectIds } = case notExistingProjectIds of
       []  -> Nothing
       ids -> Just $ UpdateById <$> Gen.element ids <*> Gen.project
 
@@ -354,7 +355,7 @@ c_deleteNotExistingProject :: forall g m
 c_deleteNotExistingProject =
   let
     generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
-    generator Model { notExistingIds } = case notExistingIds of
+    generator Model { notExistingProjectIds } = case notExistingProjectIds of
       []  -> Nothing
       ids -> Gen.element ids |> fmap DeleteById |> Just
 
