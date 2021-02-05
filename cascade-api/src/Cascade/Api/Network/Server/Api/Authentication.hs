@@ -52,7 +52,7 @@ import qualified Web.Cookie                    as Cookie
 handleLogin :: Members '[Database.UserL , Error ServerError] r
             => Authentication.RawCredential
             -> Sem r LoginResponse
-handleLogin = validation (const $ throw err409) go . parseRawCredential
+handleLogin = validation (const $ throw err422) go . parseRawCredential
  where
   go :: Members '[Database.UserL , Error ServerError] r
      => Authentication.ParsedCredential
