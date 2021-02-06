@@ -12,7 +12,6 @@ Portability : POSIX
 
 module Test.Cascade.Api.StateMachine.Command.Project
   ( commands
-  , Model(..)
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
