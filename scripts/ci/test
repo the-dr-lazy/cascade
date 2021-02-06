@@ -25,6 +25,7 @@ EOF
 
 	cd $package
 
+	cabal new-build "$package-test"
 	cabal new-test "$package-test"
 
 	tix=$(find ../dist-newstyle -name $package-*.*.tix)

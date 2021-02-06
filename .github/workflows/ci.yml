@@ -146,10 +146,6 @@ jobs:
           path: ~/.cascade/tmp-postgres
           key: test-${{ runner.os }}-${{ hashFiles('migrations/sqitch.plan') }}
 
-      - name: Build
-        run: |
-          cabal new-build all
-
       - name: Test
         run: |
           scripts/ci/test
