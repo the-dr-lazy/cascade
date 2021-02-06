@@ -109,8 +109,7 @@ common common-options
                        -Wno-missing-local-signatures
                        -- Don’t warn if the monomorphism restriction is used
                        -Wno-monomorphism-restriction
-                       -- Enable polysemy-plugin
-                       -fplugin=Polysemy.Plugin
+                       
 
 custom-setup
   setup-depends:       base
@@ -137,6 +136,9 @@ library
                      , validation-selective
                      , wai
                      , warp
+
+  -- Enable polysemy-plugin
+  ghc-options:         -fplugin=Polysemy.Plugin
 
 test-suite cascade-api-test
   import:              common-options
