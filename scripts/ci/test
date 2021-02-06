@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+output=$(realpath -m ./coverage/reports)
+
+rm -rf $output
+mkdir -p $output
+
+packages=(
+	"cascade-api"
+	"cascade-prelude"
+)
+
+configuration=$(cat cabal.project.local 2>&1 || echo "")
+
+for package in "${packages[@]}"; do
+	cat <<EOF >cabal.project.local
+$configuration
+
+package $package
+  coverage: True
+  library-coverage: True
+EOF
+
+	cd $package
+
+	cabal new-test "$package-test"
+
+	tix=$(find ../dist-newstyle -name $package-*.*.tix)
+
+	mixes=""
+	for mix in $(find ../dist-newstyle -name vanilla -print -quit)/mix/$package*; do
+		mixes+="--mix $mix "
+	done
+
+	hpc-codecov $mixes --out=$output/$package.json $tix
+
+	cd ..
+
+	echo $configuration >cabal.project.local
+done

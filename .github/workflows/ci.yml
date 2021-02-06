@@ -126,7 +126,7 @@ jobs:
           cabal new-configure --disable-documentation \
                               --enable-optimization=2 \
                               --enable-tests \
-                              --enable-coverage \
+                              --disable-coverage \
                               --test-show-details=direct
 
       - name: Cache ~/.cabal/store
@@ -152,11 +152,7 @@ jobs:
 
       - name: Test
         run: |
-          cabal new-test all
-
-      - name: Generate coverage reports
-        run: |
-          scripts/codecov
+          scripts/ci/test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
