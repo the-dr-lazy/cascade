@@ -40,7 +40,7 @@ tests = testGroup
   ]
 
 prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 100 . property $ do
+prop_sequential getPool = withTests 1000 . property $ do
   pool    <- evalIO getPool
   actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
 
