@@ -99,6 +99,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Prelude
                        Cascade.Data.ByteString
+                       Cascade.Data.Char
   build-depends:       base-noprelude
                      , bytestring
                      , containers

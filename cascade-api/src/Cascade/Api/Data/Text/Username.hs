@@ -20,7 +20,7 @@ module Cascade.Api.Data.Text.Username
   ) where
 
 
-import qualified Cascade.Api.Data.Char         as Char
+import qualified Cascade.Data.Char             as Char
 import           Control.Lens.TH                ( makeWrapped )
 import           Control.Selective              ( ifS )
 import           Data.Aeson                     ( FromJSON
