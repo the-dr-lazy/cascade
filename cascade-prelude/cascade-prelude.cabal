@@ -8,17 +8,15 @@ license-file:        LICENSE
 author:              Mohammad Hasani
 maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
 copyright:           2021 Mohammad Hasani
-build-type:          Custom
+build-type:          Simple
 extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.8.4
-
-custom-setup
-  setup-depends:       base
-                     , autopack
 
 library
   default-language:    Haskell2010
   hs-source-dirs:      src
+  exposed-modules:     Prelude
+                       Cascade.Data.ByteString
   build-depends:       base-noprelude
                      , bytestring
                      , containers
