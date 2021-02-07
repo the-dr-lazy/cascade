@@ -144,7 +144,7 @@ jobs:
         uses: actions/cache@v2.1.3
         with:
           path: ~/.cascade/tmp-postgres
-          key: test-${{ runner.os }}-${{ hashFiles('migrations/sqitch.plan') }}
+          key: test-${{ runner.os }}-${{ hashFiles('migrations/**/*') }}
 
       - name: Test
         run: |
