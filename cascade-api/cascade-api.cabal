@@ -16,6 +16,7 @@ tested-with:         GHC == 8.8.4
 common common-options
   build-depends:       aeson
                      , base-noprelude
+                     , bytestring
                      , cascade-prelude
                      , containers
                      , generic-lens
@@ -24,7 +25,9 @@ common common-options
                      , polysemy-plugin
                      , postgresql-simple
                      , servant
+                     , text
                      , uuid
+                     , word8
                      
   default-language:    Haskell2010
   -- Based on
@@ -57,6 +60,7 @@ common common-options
                        DeriveLift
                        DeriveTraversable
                        DeriveAnyClass
+                       DerivingVia
                        DerivingStrategies
                        GeneralizedNewtypeDeriving
                        StandaloneDeriving
@@ -105,8 +109,7 @@ common common-options
                        -Wno-missing-local-signatures
                        -- Don’t warn if the monomorphism restriction is used
                        -Wno-monomorphism-restriction
-                       -- Enable polysemy-plugin
-                       -fplugin=Polysemy.Plugin
+                       
 
 custom-setup
   setup-depends:       base
@@ -115,13 +118,27 @@ custom-setup
 library
   import:              common-options
   hs-source-dirs:      src
-  build-depends:       beam-core
+  build-depends:       attoparsec
+                     , beam-core
                      , beam-postgres
+                     , chronos
+                     , cookie
+                     , either
+                     , email-validate
+                     , generic-monoid
                      , http-media
+                     , http-types
+                     , libjwt-typed
                      , relude
+                     , scrypt
+                     , selective
                      , servant-server
+                     , validation-selective
                      , wai
                      , warp
+
+  -- Enable polysemy-plugin
+  ghc-options:         -fplugin=Polysemy.Plugin
 
 test-suite cascade-api-test
   import:              common-options
@@ -156,14 +173,20 @@ test-suite cascade-api-test
   other-modules:       Cascade.Api.Hedgehog.Gen
                        Cascade.Api.Hedgehog.Gen.Api.Project
                        Cascade.Api.Hedgehog.Gen.Id
+                       Cascade.Api.Hedgehog.Gen.Prelude
+                       Cascade.Api.Hedgehog.Gen.Text
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Network.TestClient.Api.Users
                        Cascade.Api.Test.FilePath
                        Cascade.Api.Test.Prelude
                        Cascade.Api.Test.Prelude.Orphans
                        Cascade.Api.Test.Resource
                        Test.Cascade.Api.StateMachine
+                       Test.Cascade.Api.StateMachine.Command.Project
+                       Test.Cascade.Api.StateMachine.Command.User
+                       Test.Cascade.Api.StateMachine.Model
 
 benchmark cascade-api-benchmark
   import:              common-options

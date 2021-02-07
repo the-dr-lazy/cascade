@@ -14,6 +14,9 @@ module Cascade.Api.Servant.Response
   ( NotFound(..)
   , Ok(..)
   , Created(..)
+  , Unprocessable(..)
+  , Conflict(..)
+  , Forbidden(..)
   , notFound
   , ok
   , created
@@ -60,3 +63,34 @@ instance HasStatus (Created a) where
 
 created :: a -> Created a
 created = Created
+
+newtype Unprocessable a = Unprocessable a
+  deriving stock Show
+  deriving newtype (FromJSON, ToJSON)
+
+instance HasStatus (Unprocessable a) where
+  type StatusOf (Unprocessable a) = 422
+
+data Conflict = Conflict
+  deriving stock Show
+
+instance FromJSON Conflict where
+  parseJSON _ = pure Conflict
+
+instance ToJSON Conflict where
+  toJSON _ = object ["title" .= ("Conflict" :: Text)]
+
+instance HasStatus Conflict where
+  type StatusOf Conflict = 409
+
+data Forbidden = Forbidden
+  deriving stock Show
+
+instance FromJSON Forbidden where
+  parseJSON _ = pure Forbidden
+
+instance ToJSON Forbidden where
+  toJSON _ = object ["title" .= ("Forbidden" :: Text)]
+
+instance HasStatus Forbidden where
+  type StatusOf Forbidden = 403

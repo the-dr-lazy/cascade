@@ -28,6 +28,8 @@ import qualified Hedgehog.Range                as Range
 import qualified Network.Socket.Wait           as Socket
 import qualified Test.Cascade.Api.StateMachine.Command.Project
                                                as Command.Project
+import qualified Test.Cascade.Api.StateMachine.Command.User
+                                               as Command.User
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
@@ -52,5 +54,7 @@ prop_sequential getPool = withTests 1000 . property $ do
         Socket.wait "127.0.0.1" 3141
         runInBase $ executeSequential initialModel actions
 
-commands :: MonadGen g => MonadIO m => MonadTest m => [Command g m Model]
-commands = Command.Project.commands
+commands :: MonadGen g
+         => GenBase g ~ Identity
+         => MonadIO m => MonadTest m => [Command g m Model]
+commands = Command.Project.commands <> Command.User.commands

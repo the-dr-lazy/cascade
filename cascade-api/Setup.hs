@@ -1,5 +1,4 @@
-import Autopack (defaultMainAutoModules)
-
+import           Autopack                       ( defaultMainAutoModules )
 
 main :: IO ()
 main = defaultMainAutoModules

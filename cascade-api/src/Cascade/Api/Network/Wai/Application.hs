@@ -14,22 +14,22 @@ module Cascade.Api.Network.Wai.Application
   ( application
   ) where
 
-import qualified Cascade.Api.Effect.Database.Project
-                                               as Database
 import           Cascade.Api.Network.Server
+import           Cascade.Api.Servant.Authentication
 import qualified Network.Wai                   as Wai
 import           Polysemy                       ( Members
                                                 , Sem
                                                 )
 import           Polysemy.Error                 ( Error )
-import           Servant.Server                 ( Handler
+import           Servant.Server                 ( Context(..)
+                                                , Handler
                                                 , ServerError
                                                 )
-import           Servant.Server.Generic         ( genericServeT )
+import           Servant.Server.Experimental.Auth
+import           Servant.Server.Generic         ( genericServeTWithContext )
 
-type Effects = '[Database.ProjectL , Error ServerError]
-
-application :: Members Effects r
+application :: Members (Error ServerError ': Effects) r
             => (forall a . Sem r a -> Handler a)
             -> Wai.Application
-application nt = genericServeT nt server
+application nt = genericServeTWithContext nt server context
+  where context = mkAuthHandler handleAuthentication :. EmptyContext
