@@ -43,5 +43,5 @@ data ParsedCredential = ParsedCredential
 parseRawCredential :: RawCredential -> Validation () ParsedCredential
 parseRawCredential RawCredential {..} =
   let validateUsername = Username.mk username |> first mempty
-      validatePassword = password |> encodeUtf8 |> Password.mk |> first mempty
+      validatePassword = Password.mk password |> first mempty
   in  ParsedCredential <$> validateUsername <*> validatePassword

@@ -90,15 +90,16 @@ parseRawCreatableUser :: RawCreatable
                            RawCreatableValidationErrors
                            ParsedCreatable
 parseRawCreatableUser RawCreatable {..} =
-  let validateUsername = Username.mk username |> first \e ->
-        mempty { username = Just e } :: RawCreatableValidationErrors
-      validateEmailAddress = EmailAddress.mk emailAddress |> maybeToSuccess
-        (mempty { emailAddress = coerce $ Just EmailAddress.IsInvalid } :: RawCreatableValidationErrors
-        )
-      validatePassword =
-        password |> encodeUtf8 |> Password.mk |> first \e ->
-          mempty { password = Just e } :: RawCreatableValidationErrors
-  in  ParsedCreatable
-        <$> validateUsername
-        <*> validateEmailAddress
-        <*> validatePassword
+  let
+    validateUsername = Username.mk username |> first \e ->
+      mempty { username = Just e } :: RawCreatableValidationErrors
+    validateEmailAddress = EmailAddress.mk emailAddress |> maybeToSuccess
+      (mempty { emailAddress = coerce $ Just EmailAddress.IsInvalid } :: RawCreatableValidationErrors
+      )
+    validatePassword = Password.mk password |> first \e ->
+      mempty { password = Just e } :: RawCreatableValidationErrors
+  in
+    ParsedCreatable
+    <$> validateUsername
+    <*> validateEmailAddress
+    <*> validatePassword

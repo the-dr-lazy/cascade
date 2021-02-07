@@ -23,7 +23,7 @@ import           Control.Selective              ( ifS )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
-import qualified Data.ByteString               as ByteString
+import qualified Data.Text                     as Text
 import           Validation
 
 newtype Password = Mk
@@ -42,10 +42,10 @@ data ValidationError
 
 type ValidationErrors = NonEmpty ValidationError
 
-mk :: ByteString -> Validation ValidationErrors Password
-mk input = Mk input <$ validate input
+mk :: Text -> Validation ValidationErrors Password
+mk input = Mk (encodeUtf8 input) <$ validate input
 
-validate :: ByteString -> Validation ValidationErrors ()
-validate input = ifS (pure $ ByteString.null input)
+validate :: Text -> Validation ValidationErrors ()
+validate input = ifS (pure $ Text.null input)
                      (failure IsEmpty)
-                     (failureIf (ByteString.length input < 8) IsShort)
+                     (failureIf (Text.length input < 8) IsShort)
