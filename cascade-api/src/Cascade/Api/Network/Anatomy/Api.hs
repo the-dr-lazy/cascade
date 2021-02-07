@@ -15,19 +15,22 @@ module Cascade.Api.Network.Anatomy.Api
   ) where
 
 import qualified Cascade.Api.Network.Anatomy.Api.Authentication
-                                               as Api.Authentication
+                                               as Authentication
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
-                                               as Api.Projects
+                                               as Projects
+import qualified Cascade.Api.Network.Anatomy.Api.User
+                                               as User
 import qualified Cascade.Api.Network.Anatomy.Api.Users
-                                               as Api.Users
+                                               as Users
 import           Data.Generics.Labels           ( )
 import           Servant
 import           Servant.API.Generic
 
 data Routes route = Routes
-  { projects :: route :- "projects" :> ToServantApi Api.Projects.Routes
-  , users    :: route :- "users" :> ToServantApi Api.Users.Routes
+  { projects :: route :- "projects" :> ToServantApi Projects.Routes
+  , users    :: route :- "users" :> ToServantApi Users.Routes
   , authentication
-      :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
+      :: route :- "authentication" :> ToServantApi Authentication.Routes
+  , user :: route :- "user" :> ToServantApi User.Routes
   }
   deriving stock Generic
