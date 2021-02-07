@@ -5,8 +5,9 @@ module Cascade.Api.Effect.Database.Task
   , run
   ) where
 
-import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Data.Task         as Task
+import qualified Cascade.Api.Data.Project        as Project
+import qualified Cascade.Api.Data.Task           as Task
+import           Cascade.Api.Data.OffsetDatetime ( FormattedOffsetDatetime(..) )
 import           Cascade.Api.Data.WrappedC
 import           Cascade.Api.Database.Task      ( TaskTable )
 import qualified Cascade.Api.Database.Task     as Database.Task
@@ -85,7 +86,7 @@ run = interpret \case
 
 toReadableTask :: Database.Task.Row -> Task.Readable
 toReadableTask Database.Task.Row {..} =
-  Task.Readable { id = coerce id, title, deadlineAt = Task.FormattedOffsetDatetime deadlineAt, projectId = unWrappedC (Database.Project.unPrimaryKey projectId) }
+  Task.Readable { id = coerce id, title, deadlineAt = FormattedOffsetDatetime deadlineAt, projectId = coerce projectId }
 
 fromCreatableTask :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
@@ -95,4 +96,4 @@ fromCreatableTask :: BeamSqlBackend backend
                      -> Project.Id
                      -> TaskTable (Beam.QExpr backend s)
 fromCreatableTask Task.Creatable {..} projectId =
-  Database.Task.Row { id = default_, title = val_ title, deadlineAt = val_ $ Task.unFormattedOffsetDatetime deadlineAt, projectId = val_ $ Database.Project.PrimaryKey (WrappedC projectId)   }
+  Database.Task.Row { id = default_, title = val_ title, deadlineAt = val_ $ unFormattedOffsetDatetime deadlineAt, projectId = val_ $ Database.Project.PrimaryKey (WrappedC projectId)   }
