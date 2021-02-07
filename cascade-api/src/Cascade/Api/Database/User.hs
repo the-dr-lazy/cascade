@@ -43,6 +43,9 @@ instance Table UserTable where
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
 
+deriving newtype instance Show (PrimaryKey UserTable Identity)
+deriving newtype instance Eq (PrimaryKey UserTable Identity)
+
 type Row = UserTable Identity
 
 deriving stock instance Show Row

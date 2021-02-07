@@ -18,9 +18,6 @@ module Cascade.Api.Database.Project
 
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Data.WrappedC     as Wrapped
-import           Control.Lens                   ( _Wrapped'
-                                                , view
-                                                )
 import           Data.Generics.Labels           ( )
 import           Database.Beam                  ( Beamable
                                                 , C
@@ -43,6 +40,9 @@ instance Table ProjectTable where
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
+
+deriving newtype instance Show (PrimaryKey ProjectTable Identity)
+deriving newtype instance Eq (PrimaryKey ProjectTable Identity)
 
 type Row = ProjectTable Identity
 
