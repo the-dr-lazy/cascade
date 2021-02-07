@@ -16,12 +16,15 @@ module Cascade.Api.Database
   ) where
 
 import           Cascade.Api.Database.Project   ( ProjectTable )
+import qualified Cascade.Api.Database.Project  as ProjectTable
 import           Cascade.Api.Database.User      ( UserTable(..) )
+import qualified Cascade.Api.Database.User     as UserTable
+import           Cascade.Api.Database.UserProjectTable
+                                                ( UserProjectTable(..) )
 import           Data.Generics.Labels           ( )
 import           Database.Beam                  ( DatabaseSettings
                                                 , TableEntity
                                                 , dbModification
-                                                , fieldNamed
                                                 , modifyTableFields
                                                 , tableModification
                                                 , withDbModification
@@ -32,16 +35,23 @@ import qualified Database.Beam                 as Beam
 data Database (f :: Type -> Type) = Database
   { projects :: f (TableEntity ProjectTable)
   , users    :: f (TableEntity UserTable)
+  , userProjects :: f (TableEntity UserProjectTable)
   }
   deriving stock Generic
   deriving anyclass (Beam.Database backend)
 
 database :: DatabaseSettings backend Database
 database = Beam.defaultDbSettings `withDbModification` dbModification
-  { users = modifyTableFields tableModification
-              { emailAddress      = fieldNamed "email_address"
-              , encryptedPassword = fieldNamed "encrypted_password"
-              , createdAt         = fieldNamed "created_at"
-              , updatedAt         = fieldNamed "updated_at"
-              }
+  { users        = modifyTableFields tableModification
+                     { emailAddress      = "email_address"
+                     , encryptedPassword = "encrypted_password"
+                     , createdAt         = "created_at"
+                     , updatedAt         = "updated_at"
+                     }
+  , userProjects = modifyTableFields tableModification
+                     { userId    = UserTable.PrimaryKey "user_id"
+                     , projectId = ProjectTable.PrimaryKey "project_id"
+                     , createdAt = "created_at"
+                     , updatedAt = "updated_at"
+                     }
   }

@@ -12,6 +12,7 @@ Portability : POSIX
 
 module Cascade.Api.Database.User
   ( UserTable(..)
+  , PrimaryKey(..)
   , Row
   ) where
 
