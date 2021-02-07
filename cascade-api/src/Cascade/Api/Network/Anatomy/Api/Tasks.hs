@@ -1,10 +1,7 @@
 module Cascade.Api.Network.Anatomy.Api.Tasks
   ( Routes(..)
   , CreateResponse
-  , GetAllResponse
-  -- , GetByIdResponse
-  -- , UpdateByIdResponse
-  -- , DeleteByIdResponse
+  , FindByProjectIdResponse
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
@@ -15,22 +12,10 @@ import           Data.Generics.Labels           ( )
 
 type CreateResponse = '[Response.Created Task.Readable]
 
-type GetAllResponse = '[Response.Ok [Task.Readable]]
-
--- type GetByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
-
--- type UpdateByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
-
--- type DeleteByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
+type FindByProjectIdResponse = '[Response.Ok [Task.Readable]]
 
 data Routes route = Routes
-  { create
-      :: route :- "projects" :> Capture "id" Project.Id :> "tasks" :> ReqBody '[JSON] Task.Creatable :> Post '[JSON] CreateResponse
-  , getAll  :: route :- "projects" :> Capture "id" Project.Id :> "tasks" :> Get '[JSON] GetAllResponse
-  -- , getById :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
-  -- , updateById
-  --     :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
-  -- , deleteById
-  --     :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
+  { create :: route :- "projects" :> Capture "id" Project.Id :> "tasks" :> ReqBody '[JSON] Task.Creatable :> Post '[JSON] CreateResponse
+  , findByProjectId :: route :- "projects" :> Capture "id" Project.Id :> "tasks" :> Get '[JSON] FindByProjectIdResponse
   }
   deriving stock Generic
