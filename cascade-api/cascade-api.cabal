@@ -173,14 +173,20 @@ test-suite cascade-api-test
   other-modules:       Cascade.Api.Hedgehog.Gen
                        Cascade.Api.Hedgehog.Gen.Api.Project
                        Cascade.Api.Hedgehog.Gen.Id
+                       Cascade.Api.Hedgehog.Gen.Prelude
+                       Cascade.Api.Hedgehog.Gen.Text
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Network.TestClient.Api.Users
                        Cascade.Api.Test.FilePath
                        Cascade.Api.Test.Prelude
                        Cascade.Api.Test.Prelude.Orphans
                        Cascade.Api.Test.Resource
                        Test.Cascade.Api.StateMachine
+                       Test.Cascade.Api.StateMachine.Command.Project
+                       Test.Cascade.Api.StateMachine.Command.User
+                       Test.Cascade.Api.StateMachine.Model
 
 benchmark cascade-api-benchmark
   import:              common-options
