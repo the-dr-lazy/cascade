@@ -49,10 +49,6 @@ data TaskL m a where
 
 makeSem ''TaskL
 
-
--- type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) =
---   (constraint (WrappedC Task.Id), constraint (WrappedC Project.Id), constraint Text, constraint Time)
-
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
@@ -70,11 +66,10 @@ run :: forall backend r a
     -> Sem r a
 run = interpret \case
   FindByProjectId projectId ->
-    -- (do
-    --   task <- Database.all #tasks
-    --   -- guard_ (task ^. #projectId ==. val_ projectId)
-    --   pure task)
-    Database.all #tasks
+    (do
+      task <- Database.all #tasks
+      guard_ (task ^. #projectId ==. val_ (Database.Project.PrimaryKey (WrappedC projectId)))
+      pure task)
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableTask
@@ -90,7 +85,7 @@ run = interpret \case
 
 toReadableTask :: Database.Task.Row -> Task.Readable
 toReadableTask Database.Task.Row {..} =
-  Task.Readable { id = coerce id, title, deadlineAt, projectId = unWrappedC (Database.Project.unPrimaryKey projectId) }
+  Task.Readable { id = coerce id, title, deadlineAt = Task.FormattedOffsetDatetime deadlineAt, projectId = unWrappedC (Database.Project.unPrimaryKey projectId) }
 
 fromCreatableTask :: BeamSqlBackend backend
                      => Database.TableFieldsFulfillConstraint
@@ -100,4 +95,4 @@ fromCreatableTask :: BeamSqlBackend backend
                      -> Project.Id
                      -> TaskTable (Beam.QExpr backend s)
 fromCreatableTask Task.Creatable {..} projectId =
-  Database.Task.Row { id = default_, title = val_ title, deadlineAt = val_ deadlineAt, projectId = val_ $ Database.Project.PrimaryKey (WrappedC projectId)   }
+  Database.Task.Row { id = default_, title = val_ title, deadlineAt = val_ $ Task.unFormattedOffsetDatetime deadlineAt, projectId = val_ $ Database.Project.PrimaryKey (WrappedC projectId)   }
