@@ -4,7 +4,6 @@ module Cascade.Api.Data.Task
   , Readable(..)
   , Creatable(..)
   , Updatable(..)
-  , FormattedOffsetDatetime(..)
   ) where
 
 import qualified Cascade.Api.Data.Id           as Data
@@ -13,18 +12,7 @@ import           Data.Aeson                     ( FromJSON(..)
                                                 )
 import           Data.Generics.Labels           ( )
 import qualified Cascade.Api.Data.Project      as Project
-import           Chronos                        ( OffsetDatetime )
-
-newtype FormattedOffsetDatetime = FormattedOffsetDatetime
-  { unFormattedOffsetDatetime :: OffsetDatetime }
-  deriving stock (Generic)
-  deriving newtype (Show, Eq)
-
-instance FromJSON FormattedOffsetDatetime where
-  parseJSON = undefined
-
-instance ToJSON FormattedOffsetDatetime where
-  toJSON = undefined
+import           Cascade.Api.Data.OffsetDatetime ( FormattedOffsetDatetime )
 
 data Task
 
