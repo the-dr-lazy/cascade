@@ -29,19 +29,15 @@ import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
+import qualified Cascade.Api.Query             as Query
+import qualified Cascade.Api.Query.User        as User
 import           Control.Lens                   ( (^.)
                                                 , to
                                                 )
-import           Database.Beam                  ( SqlEq((==.))
-                                                , default_
-                                                , exists_
-                                                , filter_
-                                                , guard_
+import           Database.Beam                  ( default_
                                                 , insertExpressions
                                                 , select
-                                                , subselect_
                                                 , val_
-                                                , (||.)
                                                 )
 import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
@@ -61,34 +57,22 @@ data UserL m a where
 
 makeSem ''UserL
 
-run :: BeamSqlBackend backend
-    => Beam.HasQBuilder backend
+run :: Beam.HasQBuilder backend
     => Beam.FromBackendRow backend Bool
-    => Database.TableFieldsFulfillConstraint
-         (Beam.FromBackendRow backend)
-         UserTable
-    => Database.TableFieldsFulfillConstraint
-         (Beam.HasSqlEqualityCheck backend)
-         UserTable
-    => Database.TableFieldsFulfillConstraint
-         (BeamSqlBackendCanSerialize backend)
+    => Query.TableFieldsFulfillConstraints
+         '[ Beam.FromBackendRow backend
+          , Beam.HasSqlEqualityCheck backend
+          , BeamSqlBackendCanSerialize backend
+          ]
          UserTable
     => Members '[ScryptL , DatabaseL backend] r
     => Sem (UserL ': r) a
     -> Sem r a
 run = interpret \case
   FindByUsername username ->
-    Database.all #users
-      |> filter_ (\user -> user ^. #username ==. val_ (coerce username))
-      |> select
-      |> Database.runSelectReturningOne
+    User.queryByUsername username |> select |> Database.runSelectReturningOne
   DoesExistsByUsernameOrEmailAddress username emailAddress -> do
-    let query = Database.all #users |> filter_ \user ->
-          (user ^. #username ==. val_ (coerce username))
-            ||. (user ^. #emailAddress ==. val_ (coerce emailAddress))
-
-    exists_ query
-      |> pure
+    User.queryExistanceByUsernameOrEmailAddress username emailAddress
       |> select
       |> Database.runSelectReturningOne
       -- Only @Just@ is acceptable.
@@ -96,14 +80,14 @@ run = interpret \case
   Create creatable -> do
     encryptedPassword <- creatable ^. #password |> Scrypt.encryptPassword
     insertExpressions [fromParsedCreatableUser encryptedPassword creatable]
-      |> Database.insert #users
+      |> Query.insert #users
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableUser
 
 fromParsedCreatableUser :: BeamSqlBackend backend
-                        => Database.TableFieldsFulfillConstraint
+                        => Query.TableFieldsFulfillConstraint
                              (BeamSqlBackendCanSerialize backend)
                              UserTable
                         => Scrypt.Encrypted Password

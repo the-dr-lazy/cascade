@@ -13,6 +13,7 @@ Portability : POSIX
 module Cascade.Api.Effect.Database.Project
   ( ProjectL(..)
   , findAll
+  , findAllByUserId
   , findById
   , create
   , updateById
@@ -21,6 +22,7 @@ module Cascade.Api.Effect.Database.Project
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
+import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.WrappedC
 import           Cascade.Api.Database.ProjectTable
                                                 ( ProjectTable )
@@ -28,6 +30,9 @@ import qualified Cascade.Api.Database.ProjectTable
                                                as ProjectTable
 import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
+import qualified Cascade.Api.Query             as Query
+import qualified Cascade.Api.Query.Project     as Project
+import qualified Cascade.Api.Query.User        as User
 import           Control.Lens                   ( (^.) )
 import           Database.Beam                  ( (<-.)
                                                 , (==.)
@@ -49,42 +54,43 @@ import qualified Relude.Unsafe                 as Unsafe
                                                 ( fromJust )
 
 data ProjectL m a where
-  FindAll    ::ProjectL m [Project.Readable]
-  FindById   ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  Create     ::Project.Creatable -> ProjectL m Project.Readable
-  UpdateById ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
-  DeleteById ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  FindAll         ::ProjectL m [Project.Readable]
+  FindAllByUserId ::User.Id -> ProjectL m [Project.Readable]
+  FindById        ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  Create          ::Project.Creatable -> User.Id -> ProjectL m Project.Readable
+  UpdateById      ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
+  DeleteById      ::Project.Id -> ProjectL m (Maybe Project.Readable)
 
 makeSem ''ProjectL
 
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
-    => Database.TableFieldsFulfillConstraint
-         (Beam.FromBackendRow backend)
+    => Query.TableFieldsFulfillConstraints
+         '[ Beam.FromBackendRow backend
+          , Beam.HasSqlEqualityCheck backend
+          , BeamSqlBackendCanSerialize backend
+          ]
          ProjectTable
-    => Database.TableFieldsFulfillConstraint
-         (Beam.HasSqlEqualityCheck backend)
-         ProjectTable
-    => Database.TableFieldsFulfillConstraint
-         (BeamSqlBackendCanSerialize backend)
-         ProjectTable
-    => Member (DatabaseL backend) r
-    => Sem (ProjectL ': r) a
-    -> Sem r a
+    => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
   FindAll ->
-    Database.all #projects
+    Project.queryAll
+      |> select
+      |> Database.runSelectReturningList
+      |> (fmap . fmap) toReadableProject
+  FindAllByUserId userId ->
+    User.queryAllRelatedProjectsById userId
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindById id ->
-    Database.lookup #projects (ProjectTable.PrimaryKey $ coerce id)
+    Query.lookup #projects (ProjectTable.PrimaryKey $ coerce id)
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableProject
-  Create creatable ->
+  Create creatable userId ->
     insertExpressions [fromCreatableProject creatable]
-      |> Database.insert #projects
+      |> Query.insert #projects
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
@@ -92,13 +98,13 @@ run = interpret \case
   UpdateById id updatable -> case updatable of
     Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
-      Database.update #projects
-                      (fromUpdatableProject updatable)
-                      (\project -> project ^. #id ==. val_ (coerce id))
+      Query.update #projects
+                   (fromUpdatableProject updatable)
+                   (\project -> project ^. #id ==. val_ (coerce id))
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableProject
   DeleteById id ->
-    Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
+    Query.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
 
@@ -107,7 +113,7 @@ toReadableProject ProjectTable.Row {..} =
   Project.Readable { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
-                     => Database.TableFieldsFulfillConstraint
+                     => Query.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
                      => Project.Creatable
@@ -116,7 +122,7 @@ fromCreatableProject Project.Creatable {..} =
   ProjectTable.Row { id = default_, name = val_ name }
 
 fromUpdatableProject :: BeamSqlBackend backend
-                     => Database.TableFieldsFulfillConstraint
+                     => Query.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
                      => Project.Updatable
