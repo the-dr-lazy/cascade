@@ -22,8 +22,9 @@ import           Cascade.Api.Data.ByteString.Password
                                                 ( Password )
 import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.WrappedC
-import qualified Cascade.Api.Database.User     as Database.User
-import           Cascade.Api.Database.User      ( UserTable )
+import qualified Cascade.Api.Database.UserTable
+                                               as UserTable
+import           Cascade.Api.Database.UserTable ( UserTable )
 import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
@@ -54,7 +55,7 @@ import           Polysemy                       ( Members
 import qualified Relude.Unsafe                 as Unsafe
 
 data UserL m a where
-  FindByUsername ::User.Username -> UserL m (Maybe Database.User.Row)
+  FindByUsername ::User.Username -> UserL m (Maybe UserTable.Row)
   DoesExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
   Create ::User.ParsedCreatable -> UserL m User.Readable
 
@@ -108,7 +109,7 @@ fromParsedCreatableUser :: BeamSqlBackend backend
                         => Scrypt.Encrypted Password
                         -> User.ParsedCreatable
                         -> UserTable (Beam.QExpr backend s)
-fromParsedCreatableUser encryptedPassword creatable = Database.User.Row
+fromParsedCreatableUser encryptedPassword creatable = UserTable.Row
   { id                = default_
   , username          = creatable ^. #username . to WrappedC . to val_
   , emailAddress      = creatable ^. #emailAddress . to WrappedC . to val_
@@ -117,8 +118,8 @@ fromParsedCreatableUser encryptedPassword creatable = Database.User.Row
   , updatedAt         = default_
   }
 
-toReadableUser :: Database.User.Row -> User.Readable
-toReadableUser Database.User.Row {..} = User.Readable
+toReadableUser :: UserTable.Row -> User.Readable
+toReadableUser UserTable.Row {..} = User.Readable
   { id           = coerce id
   , username     = coerce username
   , emailAddress = coerce emailAddress

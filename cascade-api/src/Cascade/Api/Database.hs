@@ -15,12 +15,15 @@ module Cascade.Api.Database
   , database
   ) where
 
-import           Cascade.Api.Database.Project   ( ProjectTable )
-import qualified Cascade.Api.Database.Project  as ProjectTable
-import           Cascade.Api.Database.User      ( UserTable(..) )
-import qualified Cascade.Api.Database.User     as UserTable
+import           Cascade.Api.Database.ProjectTable
+                                                ( ProjectTable )
+import qualified Cascade.Api.Database.ProjectTable
+                                               as ProjectTable
 import           Cascade.Api.Database.UserProjectTable
                                                 ( UserProjectTable(..) )
+import           Cascade.Api.Database.UserTable ( UserTable(..) )
+import qualified Cascade.Api.Database.UserTable
+                                               as UserTable
 import           Data.Generics.Labels           ( )
 import           Database.Beam                  ( DatabaseSettings
                                                 , TableEntity

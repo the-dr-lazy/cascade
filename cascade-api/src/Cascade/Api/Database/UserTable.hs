@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.User
+module Cascade.Api.Database.UserTable
   ( UserTable(..)
   , PrimaryKey(..)
   , Row

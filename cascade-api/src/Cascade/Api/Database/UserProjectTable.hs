@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.UserProject
+Module      : Cascade.Api.Database.UserProjectTable
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -16,8 +16,9 @@ module Cascade.Api.Database.UserProjectTable
   , Row
   ) where
 
-import           Cascade.Api.Database.Project   ( ProjectTable )
-import           Cascade.Api.Database.User      ( UserTable )
+import           Cascade.Api.Database.ProjectTable
+                                                ( ProjectTable )
+import           Cascade.Api.Database.UserTable ( UserTable )
 import           Chronos                        ( OffsetDatetime )
 import           Database.Beam                  ( Beamable
                                                 , C

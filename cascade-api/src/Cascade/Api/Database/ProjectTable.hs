@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.Project
+module Cascade.Api.Database.ProjectTable
   ( ProjectTable(..)
   , PrimaryKey(..)
   , Row
