@@ -29,6 +29,7 @@ import           Database.Beam                  ( DatabaseSettings
                                                 , TableEntity
                                                 , dbModification
                                                 , modifyTableFields
+                                                , setEntityName
                                                 , tableModification
                                                 , withDbModification
                                                 )
@@ -51,10 +52,11 @@ database = Beam.defaultDbSettings `withDbModification` dbModification
                      , createdAt         = "created_at"
                      , updatedAt         = "updated_at"
                      }
-  , userProjects = modifyTableFields tableModification
-                     { userId    = UserTable.PrimaryKey "user_id"
-                     , projectId = ProjectTable.PrimaryKey "project_id"
-                     , createdAt = "created_at"
-                     , updatedAt = "updated_at"
-                     }
+  , userProjects = setEntityName "user_projects" <> modifyTableFields
+                     tableModification
+                       { userId    = UserTable.PrimaryKey "user_id"
+                       , projectId = ProjectTable.PrimaryKey "project_id"
+                       , createdAt = "created_at"
+                       , updatedAt = "updated_at"
+                       }
   }
