@@ -30,15 +30,6 @@ import           Servant.Server.Generic         ( AsServerT
                                                 , genericServerT
                                                 )
 
-handleCreate :: Member ProjectL r
-             => Project.Creatable
-             -> Sem r (Union CreateResponse)
-handleCreate creatable =
-  Database.Project.create creatable >>= respond . Response.created
-
-handleGetAll :: Member ProjectL r => Sem r (Union GetAllResponse)
-handleGetAll = Database.Project.findAll >>= respond . Response.ok
-
 handleGetById :: Member ProjectL r
               => Project.Id
               -> Sem r (Union GetByIdResponse)
@@ -60,9 +51,7 @@ handleDeleteById id = Database.Project.deleteById id
   >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 server :: Member ProjectL r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { getAll     = handleGetAll
-                               , getById    = handleGetById
-                               , create     = handleCreate
+server = genericServerT Routes { getById    = handleGetById
                                , updateById = handleUpdateById
                                , deleteById = handleDeleteById
                                }
