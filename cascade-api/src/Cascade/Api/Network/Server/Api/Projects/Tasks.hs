@@ -1,4 +1,4 @@
-module Cascade.Api.Network.Server.Api.Tasks
+module Cascade.Api.Network.Server.Api.Projects.Tasks
   ( server
   )
 where
@@ -9,7 +9,7 @@ import qualified Cascade.Api.Effect.Database.Task
                                                as Database.Task
 import           Cascade.Api.Effect.Database.Task
                                                 ( TaskL )
-import           Cascade.Api.Network.Anatomy.Api.Tasks
+import           Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response  as Response
 import           Polysemy                       ( Member
                                                 , Sem
@@ -20,8 +20,20 @@ import           Servant.Server.Generic         ( AsServerT
                                                 , genericServerT
                                                 )
 
-handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
-handleGetById id = undefined
+handleCreate
+  :: Member TaskL r
+  => Project.Id
+  -> Task.Creatable
+  -> Sem r (Union CreateResponse)
+handleCreate projectId creatable =
+  Database.Task.create creatable projectId >>= respond . Response.created
+
+handleFindByProjectId
+  :: Member TaskL r => Project.Id -> Sem r (Union FindByProjectIdResponse)
+handleFindByProjectId projectId =
+  Database.Task.findByProjectId projectId >>= respond . Response.ok
 
 server :: Member TaskL r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { getById = handleGetById }
+server = genericServerT Routes { findByProjectId = handleFindByProjectId
+                               , create          = handleCreate
+                               }

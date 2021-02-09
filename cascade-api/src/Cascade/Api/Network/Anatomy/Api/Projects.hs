@@ -17,28 +17,35 @@ module Cascade.Api.Network.Anatomy.Api.Projects
   , GetByIdResponse
   , UpdateByIdResponse
   , DeleteByIdResponse
-  ) where
+  )
+where
 
 import qualified Cascade.Api.Data.Project           as Project
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import           Data.Generics.Labels                ( )
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 
 type CreateResponse = '[Response.Created Project.Readable]
 
 type GetAllResponse = '[Response.Ok [Project.Readable]]
 
-type GetByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
+type GetByIdResponse = '[Response.Ok Project.Readable, Response.NotFound]
 
-type UpdateByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
+type UpdateByIdResponse = '[Response.Ok Project.Readable, Response.NotFound]
 
-type DeleteByIdResponse = '[Response.Ok Project.Readable , Response.NotFound]
+type DeleteByIdResponse = '[Response.Ok Project.Readable, Response.NotFound]
 
 data Routes route = Routes
-  { create     :: route :- ReqBody '[JSON] Project.Creatable :> Post '[JSON] CreateResponse
-  , getAll     :: route :- Get '[JSON] GetAllResponse
-  , getById    :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
-  , updateById :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
-  , deleteById :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
+  { create
+      :: route :- ReqBody '[JSON] Project.Creatable :> Post '[JSON] CreateResponse
+  , getAll  :: route :- Get '[JSON] GetAllResponse
+  , getById :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
+  , updateById
+      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
+  , deleteById
+      :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
+  , tasks :: route :- ToServantApi Api.Projects.Tasks.Routes
   }
   deriving stock Generic

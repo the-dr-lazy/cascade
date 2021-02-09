@@ -4,7 +4,8 @@ module Cascade.Api.Data.Task
   , Readable(..)
   , Creatable(..)
   , Updatable(..)
-  ) where
+  )
+where
 
 import qualified Cascade.Api.Data.Id           as Data
 import           Data.Aeson                     ( FromJSON(..)
@@ -12,7 +13,8 @@ import           Data.Aeson                     ( FromJSON(..)
                                                 )
 import           Data.Generics.Labels           ( )
 import qualified Cascade.Api.Data.Project      as Project
-import           Cascade.Api.Data.OffsetDatetime ( FormattedOffsetDatetime )
+import           Cascade.Api.Data.OffsetDatetime
+                                                ( FormattedOffsetDatetime )
 
 data Task
 
