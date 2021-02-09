@@ -9,6 +9,7 @@ wtest-api:
 	$(MAKE) wtest dir=cascade-api
 
 clean:
+	cabal new-clean
 	git clean -Xdf
 
 .PHONY: wtest wtest-api clean
