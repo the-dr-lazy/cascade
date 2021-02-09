@@ -3,11 +3,13 @@ module Cascade.Api.Effect.Database.Task
   , findByProjectId
   , create
   , run
-  ) where
+  )
+where
 
-import qualified Cascade.Api.Data.Project        as Project
-import qualified Cascade.Api.Data.Task           as Task
-import           Cascade.Api.Data.OffsetDatetime ( FormattedOffsetDatetime(..) )
+import qualified Cascade.Api.Data.Project      as Project
+import qualified Cascade.Api.Data.Task         as Task
+import           Cascade.Api.Data.OffsetDatetime
+                                                ( FormattedOffsetDatetime(..) )
 import           Cascade.Api.Data.WrappedC
 import           Cascade.Api.Database.Task      ( TaskTable )
 import qualified Cascade.Api.Database.Task     as Database.Task
@@ -45,32 +47,37 @@ import           Database.Beam                  ( Beamable
 
 
 data TaskL m a where
-  FindByProjectId :: Project.Id -> TaskL m [Task.Readable]
-  Create          :: Task.Creatable -> Project.Id -> TaskL m Task.Readable
+  FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
+  Create          ::Task.Creatable -> Project.Id -> TaskL m Task.Readable
 
 makeSem ''TaskL
 
-run :: forall backend r a
-     . BeamSqlBackend backend
-    => Beam.HasQBuilder backend
-    => Database.TableFieldsFulfillConstraint
-        (Beam.FromBackendRow backend)
-        TaskTable
-    => Database.TableFieldsFulfillConstraint
-        (Beam.HasSqlEqualityCheck backend)
-        TaskTable
-    => Database.TableFieldsFulfillConstraint
-        (BeamSqlBackendCanSerialize backend)
-        TaskTable
-    => Member (DatabaseL backend) r
-    => Sem (TaskL ': r) a
-    -> Sem r a
+run
+  :: forall backend r a
+   . BeamSqlBackend backend
+  => Beam.HasQBuilder backend
+  => Database.TableFieldsFulfillConstraint
+       (Beam.FromBackendRow backend)
+       TaskTable
+  => Database.TableFieldsFulfillConstraint
+       (Beam.HasSqlEqualityCheck backend)
+       TaskTable
+  => Database.TableFieldsFulfillConstraint
+       (BeamSqlBackendCanSerialize backend)
+       TaskTable
+  => Member (DatabaseL backend) r
+  => Sem (TaskL ': r) a
+  -> Sem r a
 run = interpret \case
   FindByProjectId projectId ->
     (do
-      task <- Database.all #tasks
-      guard_ (task ^. #projectId ==. val_ (Database.Project.PrimaryKey (WrappedC projectId)))
-      pure task)
+        task <- Database.all #tasks
+        guard_
+          (task ^. #projectId ==. val_
+            (Database.Project.PrimaryKey (WrappedC projectId))
+          )
+        pure task
+      )
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableTask
@@ -85,15 +92,24 @@ run = interpret \case
 
 
 toReadableTask :: Database.Task.Row -> Task.Readable
-toReadableTask Database.Task.Row {..} =
-  Task.Readable { id = coerce id, title, deadlineAt = FormattedOffsetDatetime deadlineAt, projectId = coerce projectId }
+toReadableTask Database.Task.Row {..} = Task.Readable
+  { id         = coerce id
+  , title
+  , deadlineAt = FormattedOffsetDatetime deadlineAt
+  , projectId  = coerce projectId
+  }
 
-fromCreatableTask :: BeamSqlBackend backend
-                     => Database.TableFieldsFulfillConstraint
-                          (BeamSqlBackendCanSerialize backend)
-                          TaskTable
-                     => Task.Creatable
-                     -> Project.Id
-                     -> TaskTable (Beam.QExpr backend s)
-fromCreatableTask Task.Creatable {..} projectId =
-  Database.Task.Row { id = default_, title = val_ title, deadlineAt = val_ $ unFormattedOffsetDatetime deadlineAt, projectId = val_ $ Database.Project.PrimaryKey (WrappedC projectId)   }
+fromCreatableTask
+  :: BeamSqlBackend backend
+  => Database.TableFieldsFulfillConstraint
+       (BeamSqlBackendCanSerialize backend)
+       TaskTable
+  => Task.Creatable
+  -> Project.Id
+  -> TaskTable (Beam.QExpr backend s)
+fromCreatableTask Task.Creatable {..} projectId = Database.Task.Row
+  { id         = default_
+  , title      = val_ title
+  , deadlineAt = val_ $ unFormattedOffsetDatetime deadlineAt
+  , projectId  = val_ $ Database.Project.PrimaryKey (WrappedC projectId)
+  }

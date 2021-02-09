@@ -29,6 +29,6 @@ data Routes route = Routes
   , users    :: route :- "users" :> ToServantApi Api.Users.Routes
   , authentication
       :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
-  , tasks :: route :- ToServantApi Api.Tasks.Routes
+  , tasks :: route :- "tasks" :> ToServantApi Api.Tasks.Routes
   }
   deriving stock Generic

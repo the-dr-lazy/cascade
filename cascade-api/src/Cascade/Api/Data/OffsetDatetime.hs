@@ -1,6 +1,7 @@
 module Cascade.Api.Data.OffsetDatetime
   ( FormattedOffsetDatetime(..)
-  ) where
+  )
+where
 
 import           Data.Aeson                     ( FromJSON(..)
                                                 , ToJSON(..)
