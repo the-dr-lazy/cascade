@@ -14,6 +14,7 @@ module Main
   ( main
   ) where
 
+import qualified Test.Cascade.Data.ByteString
 import qualified Test.Cascade.Data.Char
 import           Test.Tasty
 
@@ -21,4 +22,4 @@ main :: IO ()
 main = defaultMain $ testGroup "Tests" tests
 
 tests :: [TestTree]
-tests = [Test.Cascade.Data.Char.tests]
+tests = [Test.Cascade.Data.Char.tests, Test.Cascade.Data.ByteString.tests]
