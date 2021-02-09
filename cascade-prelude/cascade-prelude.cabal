@@ -113,7 +113,8 @@ test-suite cascade-prelude-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Main.hs
-  build-depends:       cascade-prelude
+  build-depends:       base-noprelude
+                     , cascade-prelude
                      , hedgehog
                      , tasty
                      , tasty-hedgehog

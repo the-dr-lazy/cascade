@@ -14,6 +14,11 @@ module Main
   ( main
   ) where
 
+import qualified Test.Cascade.Data.Char
+import           Test.Tasty
 
 main :: IO ()
-main = putStrLn ("Test suite is not implemented" :: String)
+main = defaultMain $ testGroup "Tests" tests
+
+tests :: [TestTree]
+tests = [Test.Cascade.Data.Char.tests]
