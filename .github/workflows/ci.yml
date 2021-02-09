@@ -127,6 +127,7 @@ jobs:
                               --enable-optimization=2 \
                               --enable-tests \
                               --disable-coverage \
+                              --disable-per-component \
                               --test-show-details=direct
 
       - name: Cache ~/.cabal/store
