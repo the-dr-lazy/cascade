@@ -19,7 +19,9 @@ common common-options
                      , bytestring
                      , cascade-prelude
                      , containers
+                     , cookie
                      , generic-lens
+                     , http-types
                      , lens
                      , polysemy
                      , polysemy-plugin
@@ -122,12 +124,10 @@ library
                      , beam-core
                      , beam-postgres
                      , chronos
-                     , cookie
                      , either
                      , email-validate
                      , generic-monoid
                      , http-media
-                     , http-types
                      , libjwt-typed
                      , relude
                      , scrypt
@@ -145,7 +145,8 @@ test-suite cascade-api-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Main.hs
-  build-depends:       cascade-api
+  build-depends:       binary
+                     , cascade-api
                      , directory
                      , filepath
                      , free
@@ -178,6 +179,8 @@ test-suite cascade-api-test
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Network.TestClient.Api.User
+                       Cascade.Api.Network.TestClient.Api.User.Projects
                        Cascade.Api.Network.TestClient.Api.Users
                        Cascade.Api.Test.FilePath
                        Cascade.Api.Test.Prelude

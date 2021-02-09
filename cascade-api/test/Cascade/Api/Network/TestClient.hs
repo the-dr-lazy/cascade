@@ -13,14 +13,21 @@ Portability : POSIX
 module Cascade.Api.Network.TestClient
   ( api
   , interpret
+  , authenticated
   ) where
 
+import           Cascade.Api.Data.Jwt           ( JwtSections )
 import           Cascade.Api.Network.Anatomy    ( Routes )
 import qualified Cascade.Api.Network.Anatomy.Api
                                                as Api
+import           Cascade.Api.Servant.Authentication
 import           Control.Lens                   ( (^.) )
 import           Control.Monad.Free
+import qualified Data.Binary.Builder           as Builder
+import qualified Data.ByteString.Lazy          as LW8
+import qualified Data.Sequence                 as Seq
 import qualified Network.HTTP.Client           as Http
+import           Network.HTTP.Types             ( hCookie )
 import           Servant.API.Generic            ( fromServant )
 import           Servant.Client.Core
 import           Servant.Client.Free            ( ClientF(..) )
@@ -32,6 +39,7 @@ import qualified Servant.Client.Internal.HttpClient
                                                 ( clientResponseToResponse
                                                 , defaultMakeClientRequest
                                                 )
+import           Web.Cookie                     ( renderCookies )
 
 client :: Routes (AsClientT (Free ClientF))
 client = genericClient
@@ -53,3 +61,20 @@ interpret x = case x of
       Pure body                -> pure $ response $> body
       Free (Throw clientError) -> error $ "ERROR: " <> show clientError
       _                        -> error "ERROR: didn't got response."
+
+type instance AuthClientData Auth = JwtSections
+
+authenticated :: JwtSections -> AuthenticatedRequest Auth
+authenticated sections@(headerAndPayload, sig) = mkAuthenticatedRequest
+  sections
+  \_ request -> request
+    { requestHeaders = request |> requestHeaders |> (Seq.|> (hCookie, cookie))
+    }
+ where
+  cookie =
+    renderCookies
+        [ (headerAndPayloadCookieName, headerAndPayload)
+        , (signatureCookieName       , sig)
+        ]
+      |> Builder.toLazyByteString
+      |> LW8.toStrict

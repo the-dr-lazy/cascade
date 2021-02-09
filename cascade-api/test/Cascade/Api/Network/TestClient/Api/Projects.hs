@@ -11,13 +11,9 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.TestClient.Api.Projects
-  ( CreateResponse
-  , GetAllResponse
-  , GetByIdResponse
+  ( GetByIdResponse
   , UpdateByIdResponse
   , DeleteByIdResponse
-  , create
-  , getAll
   , getById
   , updateById
   , deleteById
@@ -31,32 +27,21 @@ import qualified Cascade.Api.Network.TestClient.Api
                                                as Client.Api
 import           Control.Lens                   ( (^.) )
 import           Data.Generics.Labels           ( )
-import           Prelude                 hiding ( getAll )
 import           Servant.API                    ( Union )
 import           Servant.Client.Free            ( ResponseF )
 
-type CreateResponse = (ResponseF (Union Api.Projects.CreateResponse))
-
-type GetAllResponse = (ResponseF (Union Api.Projects.GetAllResponse))
-
 type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
-
-type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
-
-type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
-
-create :: Project.Creatable -> IO CreateResponse
-create = interpret . go where go = Client.Api.projects ^. #create
-
-getAll :: IO GetAllResponse
-getAll = interpret go where go = Client.Api.projects ^. #getAll
 
 getById :: Project.Id -> IO GetByIdResponse
 getById = interpret . go where go = Client.Api.projects ^. #getById
 
+type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
+
 updateById :: Project.Id -> Project.Updatable -> IO UpdateByIdResponse
 updateById id updatable = interpret $ go id updatable
   where go = Client.Api.projects ^. #updateById
+
+type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
 
 deleteById :: Project.Id -> IO DeleteByIdResponse
 deleteById = interpret . go where go = Client.Api.projects ^. #deleteById
