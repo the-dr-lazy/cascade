@@ -12,7 +12,7 @@ packages=(
 	"cascade-prelude"
 )
 configuration=$(cat cabal.project.local 2>&1 || echo "")
-exitcode=1
+exitcode=0
 
 for package in "${packages[@]}"; do
 	cat <<EOF >cabal.project.local
