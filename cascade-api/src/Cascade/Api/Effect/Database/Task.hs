@@ -1,6 +1,7 @@
 module Cascade.Api.Effect.Database.Task
   ( TaskL(..)
   , findByProjectId
+  , findById
   , create
   , run
   )
@@ -16,7 +17,9 @@ import qualified Cascade.Api.Database.Task     as Database.Task
 import qualified Cascade.Api.Database.Project  as Database.Project
 import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
-import           Control.Lens                   ( (^.) )
+import           Control.Lens                   ( (^.)
+                                                , to
+                                                )
 import           Database.Beam                  ( (<-.)
                                                 , (==.)
                                                 , default_
@@ -24,6 +27,7 @@ import           Database.Beam                  ( (<-.)
                                                 , select
                                                 , val_
                                                 , guard_
+                                                , filter_
                                                 )
 import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
@@ -48,6 +52,7 @@ import           Database.Beam                  ( Beamable
 
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
+  FindById ::Task.Id -> TaskL m (Maybe Task.Readable)
   Create          ::Task.Creatable -> Project.Id -> TaskL m Task.Readable
 
 makeSem ''TaskL
@@ -70,32 +75,28 @@ run
   -> Sem r a
 run = interpret \case
   FindByProjectId projectId ->
-    (do
-        task <- Database.all #tasks
-        guard_
-          (task ^. #projectId ==. val_
-            (Database.Project.PrimaryKey (WrappedC projectId))
-          )
-        pure task
-      )
+    Database.all #tasks
+      |> filter_ (\task -> task ^. #projectId ==. val_ (coerce projectId))
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableTask
+  FindById id ->
+    Database.lookup #tasks (Database.Task.PrimaryKey $ coerce id)
+      |> Database.runSelectReturningOne
+      |> (fmap . fmap) toReadableTask
   Create creatable projectId ->
-    insertExpressions [fromCreatableTask creatable projectId]
+    insertExpressions [fromCreatableTask projectId creatable]
       |> Database.insert #tasks
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableTask
 
-
-
 toReadableTask :: Database.Task.Row -> Task.Readable
 toReadableTask Database.Task.Row {..} = Task.Readable
   { id         = coerce id
   , title
-  , deadlineAt = FormattedOffsetDatetime deadlineAt
+  , deadlineAt = coerce deadlineAt
   , projectId  = coerce projectId
   }
 
@@ -104,12 +105,15 @@ fromCreatableTask
   => Database.TableFieldsFulfillConstraint
        (BeamSqlBackendCanSerialize backend)
        TaskTable
-  => Task.Creatable
-  -> Project.Id
+  => Project.Id
+  -> Task.Creatable
   -> TaskTable (Beam.QExpr backend s)
-fromCreatableTask Task.Creatable {..} projectId = Database.Task.Row
+fromCreatableTask projectId creatable = Database.Task.Row
   { id         = default_
-  , title      = val_ title
-  , deadlineAt = val_ $ unFormattedOffsetDatetime deadlineAt
-  , projectId  = val_ $ Database.Project.PrimaryKey (WrappedC projectId)
+  , title      = creatable ^. #title . to val_
+  , deadlineAt = creatable
+                 ^. #deadlineAt
+                 .  to unFormattedOffsetDatetime
+                 .  to val_
+  , projectId  = projectId |> WrappedC |> Database.Project.PrimaryKey |> val_
   }
