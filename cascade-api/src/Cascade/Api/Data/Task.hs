@@ -2,8 +2,11 @@ module Cascade.Api.Data.Task
   ( Task
   , Id
   , Readable(..)
-  , Creatable(..)
+  , RawCreatable(..)
+  , ParsedCreatable(..)
   , Updatable(..)
+  , RawCreatableValidationErrors(..)
+  , parseRawCreatableTask
   )
 where
 
@@ -14,7 +17,12 @@ import           Data.Aeson                     ( FromJSON(..)
 import           Data.Generics.Labels           ( )
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.OffsetDatetime
-                                                ( FormattedOffsetDatetime )
+                                                ( FormattedOffsetDatetime
+                                                , isPast
+                                                )
+import qualified Data.Text                     as Text
+import           Chronos                        ( Time )
+import           Validation
 
 data Task
 
@@ -29,12 +37,41 @@ data Readable = Readable
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data Creatable = Creatable
+data RawCreatable = RawCreatable
   { title      :: Text
   , deadlineAt :: FormattedOffsetDatetime
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
+
+data ParsedCreatable = ParsedCreatable
+  { title      :: Text
+  , deadlineAt :: FormattedOffsetDatetime
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
+
+data RawCreatableValidationErrors = TitleEmpty | DateNotFuture
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
+
+parseRawCreatableTask
+  :: RawCreatable
+  -> Time
+  -> Validation (NonEmpty RawCreatableValidationErrors) ParsedCreatable
+parseRawCreatableTask RawCreatable {..} now =
+  ParsedCreatable <$> validateTitle <*> validateDeadlineAt
+ where
+  validateTitle :: Validation (NonEmpty RawCreatableValidationErrors) Text
+  validateTitle = title <$ failureIf (Text.null title) TitleEmpty
+
+  validateDeadlineAt
+    :: Validation
+         (NonEmpty RawCreatableValidationErrors)
+         FormattedOffsetDatetime
+  validateDeadlineAt =
+    deadlineAt <$ failureIf (isPast deadlineAt now) DateNotFuture
+
 
 data Updatable = Updatable
   { title      :: Maybe Text

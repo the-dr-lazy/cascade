@@ -53,7 +53,7 @@ import           Database.Beam                  ( Beamable
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
   FindById ::Task.Id -> TaskL m (Maybe Task.Readable)
-  Create          ::Task.Creatable -> Project.Id -> TaskL m Task.Readable
+  Create          ::Task.ParsedCreatable -> Project.Id -> TaskL m Task.Readable
 
 makeSem ''TaskL
 
@@ -106,7 +106,7 @@ fromCreatableTask
        (BeamSqlBackendCanSerialize backend)
        TaskTable
   => Project.Id
-  -> Task.Creatable
+  -> Task.ParsedCreatable
   -> TaskTable (Beam.QExpr backend s)
 fromCreatableTask projectId creatable = Database.Task.Row
   { id         = default_
