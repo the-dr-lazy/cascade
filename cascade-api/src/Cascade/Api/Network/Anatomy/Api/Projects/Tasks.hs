@@ -11,12 +11,14 @@ import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response  as Response
 import           Data.Generics.Labels           ( )
 
-type CreateResponse = '[Response.Created Task.Readable]
+type CreateResponse
+  = '[Response.Created Task.Readable, Response.Unprocessable
+    (NonEmpty Task.RawCreatableValidationErrors)]
 
 type FindByProjectIdResponse = '[Response.Ok [Task.Readable]]
 
 data Routes route = Routes
-  { create :: route :- Capture "id" Project.Id :> "tasks" :> ReqBody '[JSON] Task.Creatable :> Post '[JSON] CreateResponse
+  { create :: route :- Capture "id" Project.Id :> "tasks" :> ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
   , findByProjectId :: route :- Capture "id" Project.Id :> "tasks" :> Get '[JSON] FindByProjectIdResponse
   }
   deriving stock Generic

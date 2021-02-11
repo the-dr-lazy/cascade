@@ -10,7 +10,7 @@ import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response  as Response
 import           Data.Generics.Labels           ( )
 
-type GetByIdResponse = '[Response.Ok Project.Readable, Response.NotFound]
+type GetByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 
 data Routes route = Routes
   { getById :: route :- Capture "id" Task.Id :> Get '[JSON] GetByIdResponse
