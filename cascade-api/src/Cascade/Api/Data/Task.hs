@@ -4,9 +4,12 @@ module Cascade.Api.Data.Task
   , Readable(..)
   , RawCreatable(..)
   , ParsedCreatable(..)
-  , Updatable(..)
+  , RawUpdatable(..)
+  , ParsedUpdatable(..)
   , RawCreatableValidationErrors(..)
+  , RawUpdatableValidationErrors(..)
   , parseRawCreatableTask
+  , parseRawUpdatableTask
   )
 where
 
@@ -73,9 +76,42 @@ parseRawCreatableTask RawCreatable {..} now =
     deadlineAt <$ failureIf (isPast deadlineAt now) DateNotFuture
 
 
-data Updatable = Updatable
+data RawUpdatable = RawUpdatable
   { title      :: Maybe Text
   , deadlineAt :: Maybe FormattedOffsetDatetime
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
+
+data ParsedUpdatable = ParsedUpdatable
+  { title      :: Maybe Text
+  , deadlineAt :: Maybe FormattedOffsetDatetime
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
+
+
+data RawUpdatableValidationErrors = TitleEmptyU | DateNotFutureU
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
+
+parseRawUpdatableTask
+  :: RawUpdatable
+  -> Time
+  -> Validation (NonEmpty RawUpdatableValidationErrors) ParsedUpdatable
+parseRawUpdatableTask RawUpdatable {..} now =
+  ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
+ where
+  validateTitle
+    :: Validation (NonEmpty RawUpdatableValidationErrors) (Maybe Text)
+  validateTitle = case title of
+    Just t  -> Just t <$ failureIf (Text.null t) TitleEmptyU
+    Nothing -> Success Nothing
+
+  validateDeadlineAt
+    :: Validation
+         (NonEmpty RawUpdatableValidationErrors)
+         (Maybe FormattedOffsetDatetime)
+  validateDeadlineAt = case deadlineAt of
+    Just date -> Just date <$ failureIf (isPast date now) DateNotFutureU
+    Nothing   -> Success Nothing

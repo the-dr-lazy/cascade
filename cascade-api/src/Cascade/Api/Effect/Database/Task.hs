@@ -3,6 +3,7 @@ module Cascade.Api.Effect.Database.Task
   , findByProjectId
   , findById
   , create
+  , updateById
   , deleteById
   , run
   )
@@ -27,7 +28,6 @@ import           Database.Beam                  ( (<-.)
                                                 , insertExpressions
                                                 , select
                                                 , val_
-                                                , guard_
                                                 , filter_
                                                 )
 import qualified Database.Beam                 as Beam
@@ -55,6 +55,7 @@ data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
   FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
   Create          ::Task.ParsedCreatable -> Project.Id -> TaskL m Task.Readable
+  UpdateById      ::Task.Id -> Task.ParsedUpdatable -> TaskL m (Maybe Task.Readable)
   DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
@@ -93,6 +94,16 @@ run = interpret \case
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableTask
+  UpdateById id updatable -> case updatable of
+    Task.ParsedUpdatable { title = Nothing, deadlineAt = Nothing } ->
+      run $ findById id
+    _ ->
+      Database.update #tasks
+                      (fromUpdatableTask updatable)
+                      (\task -> task ^. #id ==. val_ (coerce id))
+        |> Database.runUpdateReturningOne
+        |> (fmap . fmap) toReadableTask
+
   DeleteById id ->
     Database.delete #tasks (\task -> task ^. #id ==. val_ (coerce id))
       |> Database.runDeleteReturningOne
@@ -123,3 +134,23 @@ fromCreatableTask projectId creatable = Database.Task.Row
                  .  to val_
   , projectId  = projectId |> WrappedC |> Database.Project.PrimaryKey |> val_
   }
+
+fromUpdatableTask
+  :: BeamSqlBackend backend
+  => Database.TableFieldsFulfillConstraint
+       (BeamSqlBackendCanSerialize backend)
+       TaskTable
+  => Task.ParsedUpdatable
+  -> (  forall s
+      . TaskTable (Beam.QField s)
+     -> Beam.QAssignment backend s
+     )
+fromUpdatableTask updatable task =
+  mconcat
+    . catMaybes
+    $ [ (task ^. #title <-.) . val_ <$> updatable ^. #title
+      , (task ^. #deadlineAt <-.)
+      .   (val_ . unFormattedOffsetDatetime)
+      <$> updatable
+      ^.  #deadlineAt
+      ]
