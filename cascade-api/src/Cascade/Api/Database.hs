@@ -13,8 +13,9 @@ Portability : POSIX
 module Cascade.Api.Database (Database, database) where
 
 import           Cascade.Api.Database.Project        ( ProjectTable )
+import qualified Cascade.Api.Database.Project       as Database.Project
 import           Cascade.Api.Database.User           ( UserTable(..) )
-import           Cascade.Api.Database.Task           ( TaskTable )
+import           Cascade.Api.Database.Task           ( TaskTable(..) )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( DatabaseSettings
                                                      , TableEntity
@@ -24,6 +25,7 @@ import           Database.Beam                       ( DatabaseSettings
                                                      , tableModification
                                                      , withDbModification
                                                      )
+import qualified Database.Beam                      as Beam
 
 -- brittany-disable-next-binding
 data Database (f :: Type -> Type) = Database
@@ -40,5 +42,8 @@ database = Beam.defaultDbSettings `withDbModification` dbModification
                                                 , encryptedPassword = fieldNamed "encrypted_password"
                                                 , createdAt         = fieldNamed "created_at"
                                                 , updatedAt         = fieldNamed "updated_at"
+                                                }
+  , tasks = modifyTableFields tableModification { deadlineAt = fieldNamed "deadline_at"
+                                                , projectId  = Database.Project.PrimaryKey $ fieldNamed "project_id"
                                                 }
   }
