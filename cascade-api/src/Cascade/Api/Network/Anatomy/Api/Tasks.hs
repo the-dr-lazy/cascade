@@ -1,6 +1,7 @@
 module Cascade.Api.Network.Anatomy.Api.Tasks
   ( Routes(..)
   , GetByIdResponse
+  , DeleteByIdResponse
   )
 where
 
@@ -12,7 +13,11 @@ import           Data.Generics.Labels           ( )
 
 type GetByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 
+type DeleteByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
+
 data Routes route = Routes
   { getById :: route :- Capture "id" Task.Id :> Get '[JSON] GetByIdResponse
+  , deleteById
+      :: route :- Capture "id" Task.Id :> Delete '[JSON] DeleteByIdResponse
   }
   deriving stock Generic
