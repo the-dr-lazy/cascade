@@ -24,5 +24,12 @@ handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
 handleGetById id = Database.Task.findById id
   >>= maybe (respond Response.notFound) (respond . Response.ok)
 
+handleDeleteById
+  :: Member TaskL r => Task.Id -> Sem r (Union DeleteByIdResponse)
+handleDeleteById id = Database.Task.deleteById id
+  >>= maybe (respond Response.notFound) (respond . Response.ok)
+
 server :: Member TaskL r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { getById = handleGetById }
+server = genericServerT Routes { getById    = handleGetById
+                               , deleteById = handleDeleteById
+                               }
