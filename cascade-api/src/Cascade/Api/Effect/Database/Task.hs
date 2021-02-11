@@ -3,6 +3,7 @@ module Cascade.Api.Effect.Database.Task
   , findByProjectId
   , findById
   , create
+  , deleteById
   , run
   )
 where
@@ -52,8 +53,9 @@ import           Database.Beam                  ( Beamable
 
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
-  FindById ::Task.Id -> TaskL m (Maybe Task.Readable)
+  FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
   Create          ::Task.ParsedCreatable -> Project.Id -> TaskL m Task.Readable
+  DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
 
@@ -91,6 +93,10 @@ run = interpret \case
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableTask
+  DeleteById id ->
+    Database.delete #tasks (\task -> task ^. #id ==. val_ (coerce id))
+      |> Database.runDeleteReturningOne
+      |> (fmap . fmap) toReadableTask
 
 toReadableTask :: Database.Task.Row -> Task.Readable
 toReadableTask Database.Task.Row {..} = Task.Readable
