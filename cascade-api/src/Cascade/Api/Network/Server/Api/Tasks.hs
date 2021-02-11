@@ -21,7 +21,8 @@ import           Servant.Server.Generic         ( AsServerT
                                                 )
 
 handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
-handleGetById id = undefined
+handleGetById id = Database.Task.findById id
+  >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 server :: Member TaskL r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { getById = handleGetById }
