@@ -13,7 +13,9 @@ import           Data.Generics.Labels           ( )
 
 type GetByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 
-type UpdateByIdResponse = '[Response.Ok Task.Readable, Response.NotFound, Response.Unprocessable (NonEmpty Task.RawUpdatableValidationErrors)]
+type UpdateByIdResponse
+  = '[Response.Ok Task.Readable, Response.NotFound, Response.Unprocessable
+    Task.RawUpdatableValidationErrors]
 
 type DeleteByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 

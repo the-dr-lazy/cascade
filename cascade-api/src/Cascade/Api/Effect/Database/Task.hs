@@ -40,6 +40,7 @@ import           Polysemy                       ( Member
                                                 , Sem
                                                 , interpret
                                                 , makeSem
+                                                , Embed
                                                 )
 import qualified Relude.Unsafe                 as Unsafe
                                                 ( fromJust )
@@ -49,6 +50,15 @@ import           Cascade.Api.Database.Project   ( ProjectTable )
 import           Database.Beam                  ( Beamable
                                                 , PrimaryKey
                                                 )
+import           Cascade.Api.Effect.Time        ( TimeL
+                                                , now
+                                                )
+import qualified Cascade.Api.Effect.Time       as Time
+import qualified Cascade.Api.Data.OffsetDatetime.Deadline
+                                               as Deadline
+import qualified Cascade.Api.Data.Text.NonEmpty
+                                               as Text.NonEmpty
+
 
 
 data TaskL m a where
@@ -88,7 +98,7 @@ run = interpret \case
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableTask
   Create creatable projectId ->
-    insertExpressions [fromCreatableTask projectId creatable]
+    insertExpressions [fromParsedCreatableTask projectId creatable]
       |> Database.insert #tasks
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
@@ -99,7 +109,7 @@ run = interpret \case
       run $ findById id
     _ ->
       Database.update #tasks
-                      (fromUpdatableTask updatable)
+                      (fromParsedUpdatableTask updatable)
                       (\task -> task ^. #id ==. val_ (coerce id))
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableTask
@@ -112,12 +122,12 @@ run = interpret \case
 toReadableTask :: Database.Task.Row -> Task.Readable
 toReadableTask Database.Task.Row {..} = Task.Readable
   { id         = coerce id
-  , title
+  , title      = coerce title
   , deadlineAt = coerce deadlineAt
   , projectId  = coerce projectId
   }
 
-fromCreatableTask
+fromParsedCreatableTask
   :: BeamSqlBackend backend
   => Database.TableFieldsFulfillConstraint
        (BeamSqlBackendCanSerialize backend)
@@ -125,17 +135,18 @@ fromCreatableTask
   => Project.Id
   -> Task.ParsedCreatable
   -> TaskTable (Beam.QExpr backend s)
-fromCreatableTask projectId creatable = Database.Task.Row
+fromParsedCreatableTask projectId creatable = Database.Task.Row
   { id         = default_
-  , title      = creatable ^. #title . to val_
+  , title      = creatable ^. #title . to WrappedC . to val_
   , deadlineAt = creatable
                  ^. #deadlineAt
+                 .  to Deadline.un
                  .  to unFormattedOffsetDatetime
                  .  to val_
   , projectId  = projectId |> WrappedC |> Database.Project.PrimaryKey |> val_
   }
 
-fromUpdatableTask
+fromParsedUpdatableTask
   :: BeamSqlBackend backend
   => Database.TableFieldsFulfillConstraint
        (BeamSqlBackendCanSerialize backend)
@@ -145,12 +156,12 @@ fromUpdatableTask
       . TaskTable (Beam.QField s)
      -> Beam.QAssignment backend s
      )
-fromUpdatableTask updatable task =
+fromParsedUpdatableTask updatable task =
   mconcat
     . catMaybes
-    $ [ (task ^. #title <-.) . val_ <$> updatable ^. #title
+    $ [ (task ^. #title <-.) . (val_ . WrappedC) <$> updatable ^. #title
       , (task ^. #deadlineAt <-.)
-      .   (val_ . unFormattedOffsetDatetime)
+      .   (val_ . unFormattedOffsetDatetime . Deadline.un)
       <$> updatable
       ^.  #deadlineAt
       ]
