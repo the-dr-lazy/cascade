@@ -46,6 +46,6 @@ data Routes route = Routes
       :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
   , deleteById
       :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
-  , tasks :: route :- ToServantApi Api.Projects.Tasks.Routes
+  , tasks :: route :- Capture "id" Project.Id :> "tasks" :> ToServantApi Api.Projects.Tasks.Routes
   }
   deriving stock Generic

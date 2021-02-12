@@ -49,7 +49,11 @@ handleFindByProjectId
 handleFindByProjectId projectId =
   Database.Task.findByProjectId projectId >>= respond . Response.ok
 
-server :: Members '[TaskL, TimeL] r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { findByProjectId = handleFindByProjectId
-                               , create          = handleCreate
-                               }
+server
+  :: Members '[TaskL, TimeL] r
+  => Project.Id
+  -> ToServant Routes (AsServerT (Sem r))
+server projectId = genericServerT Routes
+  { findByProjectId = handleFindByProjectId projectId
+  , create          = handleCreate projectId
+  }

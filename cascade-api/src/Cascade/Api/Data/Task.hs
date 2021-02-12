@@ -2,12 +2,14 @@ module Cascade.Api.Data.Task
   ( Task
   , Id
   , Readable(..)
-  , RawCreatable(..)
+  , RawCreatableV(..)
+  , RawCreatable
   , ParsedCreatable(..)
-  , RawUpdatable(..)
+  , RawUpdatableV(..)
+  , RawUpdatable
   , ParsedUpdatable(..)
-  , RawCreatableValidationErrors(..)
-  , RawUpdatableValidationErrors(..)
+  , RawCreatableValidationErrors
+  , RawUpdatableValidationErrors
   , parseRawCreatableTask
   , parseRawUpdatableTask
   )
@@ -23,8 +25,18 @@ import           Cascade.Api.Data.OffsetDatetime
                                                 ( FormattedOffsetDatetime
                                                 , isPast
                                                 )
+import           Cascade.Api.Data.OffsetDatetime.Deadline
+                                                ( Deadline )
+import qualified Cascade.Api.Data.OffsetDatetime.Deadline
+                                               as Deadline
+import           Cascade.Api.Data.Text.NonEmpty ( NonEmptyText )
+import qualified Cascade.Api.Data.Text.NonEmpty
+                                               as Text.NonEmpty
 import qualified Data.Text                     as Text
 import           Chronos                        ( Time )
+import           Cascade.Api.Data.Prelude
+import           Data.Generics.Labels           ( )
+import           Data.Monoid.Generic
 import           Validation
 
 data Task
@@ -33,85 +45,99 @@ type Id = Data.Id Task
 
 data Readable = Readable
   { id         :: Id
-  , title      :: Text
-  , deadlineAt :: FormattedOffsetDatetime
+  , title      :: NonEmptyText
+  , deadlineAt :: Deadline
   , projectId  :: Project.Id
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data RawCreatable = RawCreatable
-  { title      :: Text
-  , deadlineAt :: FormattedOffsetDatetime
+data RawCreatableV f = RawCreatable
+  { title      :: Validatable f Text (Maybe Text.NonEmpty.ValidationErrors)
+  , deadlineAt :: Validatable f FormattedOffsetDatetime (Maybe Deadline.ValidationErrors)
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock Generic
+
+type RawCreatable = RawCreatableV Identity
+
+deriving stock instance Show RawCreatable
+deriving stock instance Eq RawCreatable
+deriving anyclass instance FromJSON RawCreatable
+deriving anyclass instance ToJSON RawCreatable
+
+type RawCreatableValidationErrors = RawCreatableV Validate
+
+deriving stock instance Show RawCreatableValidationErrors
+deriving anyclass instance FromJSON RawCreatableValidationErrors
+deriving anyclass instance ToJSON RawCreatableValidationErrors
+deriving via (GenericSemigroup RawCreatableValidationErrors) instance Semigroup RawCreatableValidationErrors
+deriving via (GenericMonoid RawCreatableValidationErrors) instance Monoid RawCreatableValidationErrors
 
 data ParsedCreatable = ParsedCreatable
-  { title      :: Text
-  , deadlineAt :: FormattedOffsetDatetime
+  { title      :: NonEmptyText
+  , deadlineAt :: Deadline
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
-
-data RawCreatableValidationErrors = TitleEmpty | DateNotFuture
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
 parseRawCreatableTask
   :: RawCreatable
   -> Time
-  -> Validation (NonEmpty RawCreatableValidationErrors) ParsedCreatable
+  -> Validation RawCreatableValidationErrors ParsedCreatable
 parseRawCreatableTask RawCreatable {..} now =
   ParsedCreatable <$> validateTitle <*> validateDeadlineAt
  where
-  validateTitle :: Validation (NonEmpty RawCreatableValidationErrors) Text
-  validateTitle = title <$ failureIf (Text.null title) TitleEmpty
+  validateTitle :: Validation RawCreatableValidationErrors NonEmptyText
+  validateTitle = Text.NonEmpty.mk title
+    |> first \e -> mempty { title = Just e } :: RawCreatableValidationErrors
 
-  validateDeadlineAt
-    :: Validation
-         (NonEmpty RawCreatableValidationErrors)
-         FormattedOffsetDatetime
-  validateDeadlineAt =
-    deadlineAt <$ failureIf (isPast deadlineAt now) DateNotFuture
+  validateDeadlineAt :: Validation RawCreatableValidationErrors Deadline
+  validateDeadlineAt = Deadline.mk deadlineAt now |> first \e ->
+    mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
 
-
-data RawUpdatable = RawUpdatable
-  { title      :: Maybe Text
-  , deadlineAt :: Maybe FormattedOffsetDatetime
+data RawUpdatableV f = RawUpdatable
+  { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmpty.ValidationErrors)
+  , deadlineAt :: Validatable f (Maybe FormattedOffsetDatetime) (Maybe Deadline.ValidationErrors)
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock Generic
+
+type RawUpdatable = RawUpdatableV Identity
+
+deriving stock instance Show RawUpdatable
+deriving stock instance Eq RawUpdatable
+deriving anyclass instance FromJSON RawUpdatable
+deriving anyclass instance ToJSON RawUpdatable
+
+type RawUpdatableValidationErrors = RawUpdatableV Validate
+
+deriving stock instance Show RawUpdatableValidationErrors
+deriving anyclass instance FromJSON RawUpdatableValidationErrors
+deriving anyclass instance ToJSON RawUpdatableValidationErrors
+deriving via (GenericSemigroup RawUpdatableValidationErrors) instance Semigroup RawUpdatableValidationErrors
+deriving via (GenericMonoid RawUpdatableValidationErrors) instance Monoid RawUpdatableValidationErrors
 
 data ParsedUpdatable = ParsedUpdatable
-  { title      :: Maybe Text
-  , deadlineAt :: Maybe FormattedOffsetDatetime
+  { title      :: Maybe NonEmptyText
+  , deadlineAt :: Maybe Deadline
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
-
-
-data RawUpdatableValidationErrors = TitleEmptyU | DateNotFutureU
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
 parseRawUpdatableTask
   :: RawUpdatable
   -> Time
-  -> Validation (NonEmpty RawUpdatableValidationErrors) ParsedUpdatable
+  -> Validation RawUpdatableValidationErrors ParsedUpdatable
 parseRawUpdatableTask RawUpdatable {..} now =
   ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
  where
-  validateTitle
-    :: Validation (NonEmpty RawUpdatableValidationErrors) (Maybe Text)
+  validateTitle :: Validation RawUpdatableValidationErrors (Maybe NonEmptyText)
   validateTitle = case title of
-    Just t  -> Just t <$ failureIf (Text.null t) TitleEmptyU
+    Just t -> Just <$> Text.NonEmpty.mk t |> first \e ->
+      mempty { title = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing
 
-  validateDeadlineAt
-    :: Validation
-         (NonEmpty RawUpdatableValidationErrors)
-         (Maybe FormattedOffsetDatetime)
+  validateDeadlineAt :: Validation RawUpdatableValidationErrors (Maybe Deadline)
   validateDeadlineAt = case deadlineAt of
-    Just date -> Just date <$ failureIf (isPast date now) DateNotFutureU
-    Nothing   -> Success Nothing
+    Just date -> Just <$> Deadline.mk date now |> first \e ->
+      mempty { deadlineAt = Just e } :: RawUpdatableValidationErrors
+    Nothing -> Success Nothing

@@ -13,12 +13,12 @@ import           Data.Generics.Labels           ( )
 
 type CreateResponse
   = '[Response.Created Task.Readable, Response.Unprocessable
-    (NonEmpty Task.RawCreatableValidationErrors)]
+    Task.RawCreatableValidationErrors]
 
 type FindByProjectIdResponse = '[Response.Ok [Task.Readable]]
 
 data Routes route = Routes
-  { create :: route :- Capture "id" Project.Id :> "tasks" :> ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
-  , findByProjectId :: route :- Capture "id" Project.Id :> "tasks" :> Get '[JSON] FindByProjectIdResponse
+  { create :: route :- ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
+  , findByProjectId :: route :- Get '[JSON] FindByProjectIdResponse
   }
   deriving stock Generic

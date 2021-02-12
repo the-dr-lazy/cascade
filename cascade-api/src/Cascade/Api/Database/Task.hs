@@ -14,11 +14,13 @@ import           Database.Beam                  ( Beamable
                                                 )
 import           Cascade.Api.Database.Project   ( ProjectTable )
 import           Chronos                        ( OffsetDatetime )
+import           Cascade.Api.Data.Text.NonEmpty
+                                                ( NonEmptyText )
 
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
   { id         :: Wrapped.C f Task.Id
-  , title      :: C f Text
+  , title      :: Wrapped.C f NonEmptyText
   , deadlineAt :: C f OffsetDatetime
   , projectId  :: PrimaryKey ProjectTable f
   }
@@ -32,7 +34,6 @@ instance Table TaskTable where
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
-
 
 type Row = TaskTable Identity
 
