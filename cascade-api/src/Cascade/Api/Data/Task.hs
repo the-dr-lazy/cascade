@@ -19,20 +19,16 @@ import qualified Cascade.Api.Data.Id           as Data
 import           Data.Aeson                     ( FromJSON(..)
                                                 , ToJSON(..)
                                                 )
-import           Data.Generics.Labels           ( )
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.OffsetDatetime
                                                 ( FormattedOffsetDatetime
-                                                , isPast
+                                                , unFormattedOffsetDatetime
                                                 )
 import           Cascade.Api.Data.OffsetDatetime.Deadline
                                                 ( Deadline )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                as Deadline
-import           Cascade.Api.Data.Text.NonEmpty ( NonEmptyText )
-import qualified Cascade.Api.Data.Text.NonEmpty
-                                               as Text.NonEmpty
-import qualified Data.Text                     as Text
+import qualified Cascade.Data.Text             as Text
 import           Chronos                        ( Time )
 import           Cascade.Api.Data.Prelude
 import           Data.Generics.Labels           ( )
@@ -45,15 +41,15 @@ type Id = Data.Id Task
 
 data Readable = Readable
   { id         :: Id
-  , title      :: NonEmptyText
-  , deadlineAt :: Deadline
+  , title      :: Text.NonEmpty
+  , deadlineAt :: FormattedOffsetDatetime
   , projectId  :: Project.Id
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
 data RawCreatableV f = RawCreatable
-  { title      :: Validatable f Text (Maybe Text.NonEmpty.ValidationErrors)
+  { title      :: Validatable f Text (Maybe Text.NonEmptyValidationErrors)
   , deadlineAt :: Validatable f FormattedOffsetDatetime (Maybe Deadline.ValidationErrors)
   }
   deriving stock Generic
@@ -74,11 +70,10 @@ deriving via (GenericSemigroup RawCreatableValidationErrors) instance Semigroup 
 deriving via (GenericMonoid RawCreatableValidationErrors) instance Monoid RawCreatableValidationErrors
 
 data ParsedCreatable = ParsedCreatable
-  { title      :: NonEmptyText
+  { title      :: Text.NonEmpty
   , deadlineAt :: Deadline
   }
   deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
 
 parseRawCreatableTask
   :: RawCreatable
@@ -87,16 +82,17 @@ parseRawCreatableTask
 parseRawCreatableTask RawCreatable {..} now =
   ParsedCreatable <$> validateTitle <*> validateDeadlineAt
  where
-  validateTitle :: Validation RawCreatableValidationErrors NonEmptyText
-  validateTitle = Text.NonEmpty.mk title
+  validateTitle :: Validation RawCreatableValidationErrors Text.NonEmpty
+  validateTitle = Text.mkNonEmpty title
     |> first \e -> mempty { title = Just e } :: RawCreatableValidationErrors
 
   validateDeadlineAt :: Validation RawCreatableValidationErrors Deadline
-  validateDeadlineAt = Deadline.mk deadlineAt now |> first \e ->
-    mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
+  validateDeadlineAt =
+    Deadline.mk (unFormattedOffsetDatetime deadlineAt) now |> first \e ->
+      mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
 
 data RawUpdatableV f = RawUpdatable
-  { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmpty.ValidationErrors)
+  { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmptyValidationErrors)
   , deadlineAt :: Validatable f (Maybe FormattedOffsetDatetime) (Maybe Deadline.ValidationErrors)
   }
   deriving stock Generic
@@ -117,11 +113,10 @@ deriving via (GenericSemigroup RawUpdatableValidationErrors) instance Semigroup 
 deriving via (GenericMonoid RawUpdatableValidationErrors) instance Monoid RawUpdatableValidationErrors
 
 data ParsedUpdatable = ParsedUpdatable
-  { title      :: Maybe NonEmptyText
+  { title      :: Maybe Text.NonEmpty
   , deadlineAt :: Maybe Deadline
   }
   deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
 
 parseRawUpdatableTask
   :: RawUpdatable
@@ -130,14 +125,15 @@ parseRawUpdatableTask
 parseRawUpdatableTask RawUpdatable {..} now =
   ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
  where
-  validateTitle :: Validation RawUpdatableValidationErrors (Maybe NonEmptyText)
+  validateTitle :: Validation RawUpdatableValidationErrors (Maybe Text.NonEmpty)
   validateTitle = case title of
-    Just t -> Just <$> Text.NonEmpty.mk t |> first \e ->
+    Just t -> Just <$> Text.mkNonEmpty t |> first \e ->
       mempty { title = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing
 
   validateDeadlineAt :: Validation RawUpdatableValidationErrors (Maybe Deadline)
   validateDeadlineAt = case deadlineAt of
-    Just date -> Just <$> Deadline.mk date now |> first \e ->
-      mempty { deadlineAt = Just e } :: RawUpdatableValidationErrors
+    Just date ->
+      Just <$> Deadline.mk (unFormattedOffsetDatetime date) now |> first \e ->
+        mempty { deadlineAt = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing

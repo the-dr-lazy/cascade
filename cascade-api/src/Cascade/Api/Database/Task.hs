@@ -2,7 +2,8 @@ module Cascade.Api.Database.Task
   ( TaskTable(..)
   , PrimaryKey(..)
   , Row
-  ) where
+  )
+where
 
 import qualified Cascade.Api.Data.Task         as Task
 import qualified Cascade.Api.Data.WrappedC     as Wrapped
@@ -14,13 +15,12 @@ import           Database.Beam                  ( Beamable
                                                 )
 import           Cascade.Api.Database.Project   ( ProjectTable )
 import           Chronos                        ( OffsetDatetime )
-import           Cascade.Api.Data.Text.NonEmpty
-                                                ( NonEmptyText )
+import qualified Cascade.Data.Text             as Text
 
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
   { id         :: Wrapped.C f Task.Id
-  , title      :: Wrapped.C f NonEmptyText
+  , title      :: Wrapped.C f Text.NonEmpty
   , deadlineAt :: C f OffsetDatetime
   , projectId  :: PrimaryKey ProjectTable f
   }
