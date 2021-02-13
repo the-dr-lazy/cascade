@@ -101,12 +101,19 @@ library
   exposed-modules:     Prelude
                        Cascade.Data.ByteString
                        Cascade.Data.Char
+                       Cascade.Data.Text
+                       Cascade.Data.Chronos.Future
   build-depends:       base-noprelude
                      , containers
                      , flow
                      , relude
                      , uuid
                      , word8
+                     , text
+                     , aeson
+                     , lens
+                     , validation-selective
+                     , chronos
 
 test-suite cascade-prelude-test
   import:              common-options
