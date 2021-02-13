@@ -102,6 +102,7 @@ library
                        Cascade.Data.ByteString
                        Cascade.Data.Char
                        Cascade.Data.Text
+                       Cascade.Data.Text.NonEmpty
                        Cascade.Data.Chronos.Future
   build-depends:       base-noprelude
                      , containers
