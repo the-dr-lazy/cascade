@@ -29,6 +29,7 @@ import           Cascade.Api.Data.OffsetDatetime.Deadline
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                as Deadline
 import qualified Cascade.Data.Text             as Text
+import qualified Cascade.Data.Text.NonEmpty    as Text.NonEmpty
 import           Chronos                        ( Time )
 import           Cascade.Api.Data.Prelude
 import           Data.Generics.Labels           ( )
@@ -49,7 +50,7 @@ data Readable = Readable
   deriving anyclass (FromJSON, ToJSON)
 
 data RawCreatableV f = RawCreatable
-  { title      :: Validatable f Text (Maybe Text.NonEmptyValidationErrors)
+  { title      :: Validatable f Text (Maybe Text.NonEmpty.ValidationErrors)
   , deadlineAt :: Validatable f FormattedOffsetDatetime (Maybe Deadline.ValidationErrors)
   }
   deriving stock Generic
@@ -83,7 +84,7 @@ parseRawCreatableTask RawCreatable {..} now =
   ParsedCreatable <$> validateTitle <*> validateDeadlineAt
  where
   validateTitle :: Validation RawCreatableValidationErrors Text.NonEmpty
-  validateTitle = Text.mkNonEmpty title
+  validateTitle = Text.NonEmpty.mk title
     |> first \e -> mempty { title = Just e } :: RawCreatableValidationErrors
 
   validateDeadlineAt :: Validation RawCreatableValidationErrors Deadline
@@ -92,7 +93,7 @@ parseRawCreatableTask RawCreatable {..} now =
       mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
 
 data RawUpdatableV f = RawUpdatable
-  { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmptyValidationErrors)
+  { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmpty.ValidationErrors)
   , deadlineAt :: Validatable f (Maybe FormattedOffsetDatetime) (Maybe Deadline.ValidationErrors)
   }
   deriving stock Generic
@@ -127,7 +128,7 @@ parseRawUpdatableTask RawUpdatable {..} now =
  where
   validateTitle :: Validation RawUpdatableValidationErrors (Maybe Text.NonEmpty)
   validateTitle = case title of
-    Just t -> Just <$> Text.mkNonEmpty t |> first \e ->
+    Just t -> Just <$> Text.NonEmpty.mk t |> first \e ->
       mempty { title = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing
 
