@@ -1,6 +1,5 @@
 module Cascade.Api.Data.OffsetDatetime
   ( FormattedOffsetDatetime(..)
-  , isPast
   )
 where
 
@@ -48,6 +47,3 @@ instance ToJSON FormattedOffsetDatetime where
                                         SubsecondPrecisionAuto
                                         hyphen
                                         (unFormattedOffsetDatetime date)
-
-isPast :: FormattedOffsetDatetime -> Time -> Bool
-isPast date now = now > offsetDatetimeToTime (unFormattedOffsetDatetime date)

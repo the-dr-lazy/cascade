@@ -4,7 +4,6 @@ module Cascade.Api.Network.Server.Api.Tasks
 where
 
 import qualified Cascade.Api.Data.Task         as Task
-import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Effect.Database.Task
                                                as Database.Task
 import           Cascade.Api.Effect.Database.Task

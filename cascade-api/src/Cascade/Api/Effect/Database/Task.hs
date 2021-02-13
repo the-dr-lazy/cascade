@@ -33,31 +33,16 @@ import           Database.Beam                  ( (<-.)
 import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
                                                 , BeamSqlBackendCanSerialize
-                                                , BackendFromField
-                                                , FromBackendRow
                                                 )
 import           Polysemy                       ( Member
                                                 , Sem
                                                 , interpret
                                                 , makeSem
-                                                , Embed
                                                 )
 import qualified Relude.Unsafe                 as Unsafe
                                                 ( fromJust )
-import           Chronos                        ( Time )
-
-import           Cascade.Api.Database.Project   ( ProjectTable )
-import           Database.Beam                  ( Beamable
-                                                , PrimaryKey
-                                                )
-import           Cascade.Api.Effect.Time        ( TimeL
-                                                , now
-                                                )
-import qualified Cascade.Api.Effect.Time       as Time
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                as Deadline
-import qualified Cascade.Api.Data.Text.NonEmpty
-                                               as Text.NonEmpty
 
 
 
@@ -137,13 +122,9 @@ fromParsedCreatableTask
   -> TaskTable (Beam.QExpr backend s)
 fromParsedCreatableTask projectId creatable = Database.Task.Row
   { id         = default_
-  , title      = creatable ^. #title . to WrappedC . to val_
-  , deadlineAt = creatable
-                 ^. #deadlineAt
-                 .  to Deadline.un
-                 .  to unFormattedOffsetDatetime
-                 .  to val_
-  , projectId  = projectId |> WrappedC |> Database.Project.PrimaryKey |> val_
+  , title      = creatable ^. #title . to coerce . to val_
+  , deadlineAt = creatable ^. #deadlineAt . to Deadline.un . to val_
+  , projectId  = projectId |> coerce |> val_
   }
 
 fromParsedUpdatableTask
@@ -159,9 +140,9 @@ fromParsedUpdatableTask
 fromParsedUpdatableTask updatable task =
   mconcat
     . catMaybes
-    $ [ (task ^. #title <-.) . (val_ . WrappedC) <$> updatable ^. #title
+    $ [ (task ^. #title <-.) . (val_ . coerce) <$> updatable ^. #title
       , (task ^. #deadlineAt <-.)
-      .   (val_ . unFormattedOffsetDatetime . Deadline.un)
+      .   (val_ . Deadline.un)
       <$> updatable
       ^.  #deadlineAt
       ]
