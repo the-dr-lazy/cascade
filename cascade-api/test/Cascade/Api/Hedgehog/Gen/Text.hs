@@ -17,13 +17,25 @@ module Cascade.Api.Hedgehog.Gen.Text
   , emailAddressWithValidity
   , password
   , passwordWithValidity
-  ) where
+  , nonEmptyText
+  , nonEmptyTextWithValidity
+  )
+where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
 import qualified Data.Text                          as Text
 import           Hedgehog                            ( MonadGen(GenBase) )
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
+
+nonEmptyText :: MonadGen g => Validity -> g Text
+nonEmptyText Valid   = Gen.text (Range.linear 1 20) Gen.alphaNum
+nonEmptyText Invalid = pure ""
+
+nonEmptyTextWithValidity :: MonadGen g => g (Validity, Text)
+nonEmptyTextWithValidity = do
+  validity <- Gen.enumBounded
+  (validity, ) <$> nonEmptyText validity
 
 username :: MonadGen g => Validity -> g Text
 username Valid = Gen.text (Range.linear 8 20) $ Gen.choice [Gen.hexit, pure '_']
