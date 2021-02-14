@@ -166,6 +166,7 @@ test-suite cascade-api-test
                      , tasty-hedgehog
                      , tmp-postgres
                      , typed-process
+                     , chronos
 
   ghc-options:         -threaded
                        -rtsopts
@@ -175,6 +176,7 @@ test-suite cascade-api-test
                        Cascade.Api.Hedgehog.Gen.Id
                        Cascade.Api.Hedgehog.Gen.Prelude
                        Cascade.Api.Hedgehog.Gen.Text
+                       Cascade.Api.Hedgehog.Gen.Chronos
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
