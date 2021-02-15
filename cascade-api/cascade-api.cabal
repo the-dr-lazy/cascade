@@ -167,6 +167,7 @@ test-suite cascade-api-test
                      , tmp-postgres
                      , typed-process
                      , chronos
+                     , validation-selective
 
   ghc-options:         -threaded
                        -rtsopts
@@ -180,6 +181,7 @@ test-suite cascade-api-test
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Network.TestClient.Api.Projects.Tasks
                        Cascade.Api.Network.TestClient.Api.Users
                        Cascade.Api.Test.FilePath
                        Cascade.Api.Test.Prelude
@@ -188,6 +190,7 @@ test-suite cascade-api-test
                        Test.Cascade.Api.StateMachine
                        Test.Cascade.Api.StateMachine.Command.Project
                        Test.Cascade.Api.StateMachine.Command.User
+                       Test.Cascade.Api.StateMachine.Command.Task
                        Test.Cascade.Api.StateMachine.Model
 
 benchmark cascade-api-benchmark
