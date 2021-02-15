@@ -21,11 +21,16 @@ module Cascade.Api.Network.TestClient.Api.Projects
   , getById
   , updateById
   , deleteById
-  ) where
+  , tasks
+  )
+where
 
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                     as Api.Projects
+
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 import           Cascade.Api.Network.TestClient      ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api as Client.Api
 import           Control.Lens                        ( (^.) )
@@ -33,6 +38,10 @@ import           Data.Generics.Labels                ( )
 import           Prelude                      hiding ( getAll )
 import           Servant.API                         ( Union )
 import           Servant.Client.Free                 ( ResponseF )
+import           Servant.Client.Free                 ( ClientF )
+import           Servant.Client.Generic              ( AsClientT )
+import           Control.Monad.Free                  ( Free )
+import           Servant.API.Generic                 ( fromServant )
 
 type CreateResponse = (ResponseF (Union Api.Projects.CreateResponse))
 
@@ -58,3 +67,6 @@ updateById id updatable = interpret $ go id updatable where go = Client.Api.proj
 
 deleteById :: Project.Id -> IO DeleteByIdResponse
 deleteById = interpret . go where go = Client.Api.projects ^. #deleteById
+
+tasks :: Project.Id -> Api.Projects.Tasks.Routes (AsClientT (Free ClientF))
+tasks projectId = fromServant (Client.Api.projects ^. #tasks $ projectId)
