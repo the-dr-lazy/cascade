@@ -1,6 +1,10 @@
 module Cascade.Api.Hedgehog.Gen.Chronos
   ( time
   , offsetDateTime
+  , past
+  , future
+  , deadline
+  , deadlineWithValidity
   )
 where
 
@@ -31,3 +35,36 @@ offsetDateTime :: MonadGen g => g OffsetDatetime
 offsetDateTime = do
   offset <- Offset <$> Gen.int (Range.constant 0 5)
   timeToOffsetDatetime offset <$> time
+
+future :: MonadGen g => g OffsetDatetime
+future = do
+  year   <- Gen.int (Range.constant 2040 2060)
+  month  <- Gen.int (Range.constant 1 12)
+  day    <- Gen.int (Range.constant 1 28)
+  hour   <- Gen.int (Range.constant 0 23)
+  minute <- Gen.int (Range.constant 0 59)
+  second <- Gen.int (Range.constant 0 59)
+  offset <- Offset <$> Gen.int (Range.constant 0 5)
+  let t = timeFromYmdhms year month day hour minute second
+  pure $ timeToOffsetDatetime offset t
+
+past :: MonadGen g => g OffsetDatetime
+past = do
+  year   <- Gen.int (Range.constant 2000 2020)
+  month  <- Gen.int (Range.constant 1 12)
+  day    <- Gen.int (Range.constant 1 28)
+  hour   <- Gen.int (Range.constant 0 23)
+  minute <- Gen.int (Range.constant 0 59)
+  second <- Gen.int (Range.constant 0 59)
+  offset <- Offset <$> Gen.int (Range.constant 0 5)
+  let t = timeFromYmdhms year month day hour minute second
+  pure $ timeToOffsetDatetime offset t
+
+deadline :: MonadGen g => Validity -> g OffsetDatetime
+deadline Valid   = future
+deadline Invalid = past
+
+deadlineWithValidity :: MonadGen g => g (Validity, OffsetDatetime)
+deadlineWithValidity = do
+  validity <- Gen.enumBounded
+  (validity, ) <$> deadline validity
