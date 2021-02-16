@@ -16,91 +16,160 @@ import qualified Cascade.Api.Hedgehog.Gen.Chronos
 import qualified Cascade.Api.Network.TestClient.Api.Projects.Tasks
                                                as Cascade.Api.Projects.Tasks
 import           Cascade.Api.Test.Prelude       ( )
-import qualified Cascade.Data.Char             as Char
 import           Control.Lens                   ( (?~)
                                                 , (^.)
-                                                , _2
                                                 , at
                                                 , to
-                                                , view
                                                 )
 import           Servant.API.UVerb.Union        ( matchUnion )
 import qualified Data.Map                      as Map
 import qualified Cascade.Data.Text             as Text
 import qualified Cascade.Data.Text.NonEmpty    as Text.NonEmpty
-import qualified Cascade.Data.Chronos.Future as Future
+import qualified Cascade.Data.Chronos.Future   as Future
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import           Test.Cascade.Api.StateMachine.Model
                                                 ( Model )
 import qualified Cascade.Api.Servant.Response  as Response
-import           Cascade.Api.Servant.Response   ( Created(..) )
 import           Validation                     ( Validation(..) )
-import Chronos (now)
+import           Chronos                        ( offsetDatetimeToTime )
 
 
 commands
   :: MonadGen g
   => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
-commands = [create]
+commands = [createValid, createInvalid]
 
 -- brittany-disable-next-binding
-data Create (v :: Type -> Type) = Create
-  { titleValidity   :: Validity
+data CreateValid (v :: Type -> Type) = CreateValid
+  { projectId  :: Var Project.Id v
+  , creatable  :: Task.RawCreatable
+  }
+  deriving stock (Generic, Show)
+
+instance HTraversable CreateValid where
+  htraverse f CreateValid {..} =
+    CreateValid <$> htraverse f projectId <*> pure creatable
+
+createValid
+  :: forall g m
+   . MonadGen g
+  => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
+createValid =
+  let generator :: Model Symbolic -> Maybe (g (CreateValid Symbolic))
+      generator model = case model ^. #project . #creatables . to Map.keys of
+        []         -> Nothing
+        projectIds -> Just $ do
+          projectId  <- Gen.element projectIds
+          title      <- Gen.nonEmptyText Valid
+          deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
+          let creatable = Task.RawCreatable { .. }
+          pure $ CreateValid { .. }
+
+      execute :: CreateValid Concrete -> m Task.Id
+      execute (CreateValid projectId creatable) = do
+        label "[Task/Create Valid]"
+
+        response <- evalIO
+          $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
+
+        Response.Created task <-
+          (response ^. #responseBody)
+          |> matchUnion @(Response.Created Task.Readable)
+          |> evalMaybe
+
+        let id = task ^. #id
+
+        task ^. #title . to Text.NonEmpty.un === creatable ^. #title
+        task
+          ^.  #deadlineAt
+          .   to unFormattedOffsetDatetime
+          .   to offsetDatetimeToTime
+          === creatable
+          ^.  #deadlineAt
+          .   to unFormattedOffsetDatetime
+          .   to offsetDatetimeToTime
+
+        response ^. #responseStatusCode . #statusCode === 201
+
+        footnoteShow response
+
+        pure id
+
+      update :: Ord1 v => Model v -> CreateValid v -> Var Task.Id v -> Model v
+      update model (CreateValid _ creatable) id =
+          model |> #task . #creatables . at id ?~ creatable
+  in  Command generator execute [Update update]
+
+
+-- brittany-disable-next-binding
+data CreateInvalid (v :: Type -> Type) = CreateInvalid
+  { titleValidity :: Validity
   , projectId  :: Var Project.Id v
   , creatable  :: Task.RawCreatable
   }
   deriving stock (Generic, Show)
 
-instance HTraversable Create where
-  htraverse f Create {..} = Create <$> pure titleValidity <*> htraverse f projectId <*> pure creatable
+instance HTraversable CreateInvalid where
+  htraverse f CreateInvalid {..} =
+    CreateInvalid
+      <$> pure titleValidity
+      <*> htraverse f projectId
+      <*> pure creatable
 
-create
+createInvalid
   :: forall g m
    . MonadGen g
   => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
-create =
-  let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
-      generator model = case model ^. #project . #creatables . to Map.keys of
-        []         -> Nothing
-        projectIds -> Just $ do
-          projectId <- Gen.element projectIds
-          (titleValidity, title) <- Gen.nonEmptyTextWithValidity
-          deadlineAt <- FormattedOffsetDatetime <$> Gen.offsetDateTime
-          let creatable = Task.RawCreatable { .. }
-          pure $ Create { .. }
+createInvalid =
+  let
+    generator :: Model Symbolic -> Maybe (g (CreateInvalid Symbolic))
+    generator model = case model ^. #project . #creatables . to Map.keys of
+      []         -> Nothing
+      projectIds -> Just $ do
+        flag <- Gen.bool_
+        let boolToValidity     = bool Invalid Valid
+        let titleValidity      = boolToValidity flag
+        let deadlineAtValidity = boolToValidity $ not flag
+        projectId  <- Gen.element projectIds
+        title      <- Gen.nonEmptyText titleValidity
+        deadlineAt <- FormattedOffsetDatetime
+          <$> Gen.deadline deadlineAtValidity
+        let creatable = Task.RawCreatable { .. }
+        pure $ CreateInvalid { .. }
 
-      execute :: Create Concrete -> m ()
-      execute input@(Create titleValidity projectId creatable) = do
-        label "[Task/Create]"
-        -- coverage input
-        response <- evalIO
-          $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
 
-        -- task <-
-        --   (response ^. #responseBody)
-        --   |> matchUnion @(Response.Created Task.Readable)
-        --   |> coerce
-        --   |> evalMaybe
+    coverage :: CreateInvalid Concrete -> m ()
+    coverage (CreateInvalid titleValidity _ _) = do
+      let flag = validityToBool titleValidity
+      cover 5 "invalid deadline" flag
+      cover 5 "empty title"      (not flag)
 
-        -- let id = task ^. #id
+    execute :: CreateInvalid Concrete -> m ()
+    execute input@(CreateInvalid titleValidity projectId creatable) = do
+      label "[Task/Create Invalid]"
+      coverage input
 
-        -- footnoteShow response
+      response <- evalIO
+        $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
 
-        -- let statusCode = response ^. #responseStatusCode . #statusCode
-        -- case input of
-        --   Create Valid   _ _ -> statusCode === 201
-        --   Create Invalid _ _ -> statusCode === 422
+      (response ^. #responseBody)
+        |> matchUnion
+           @(Response.Unprocessable Task.RawCreatableValidationErrors)
+        |> evalMaybe
 
-        return ()
+      response ^. #responseStatusCode . #statusCode === 422
 
-      -- update
-      --   :: Model v
-      --   -> Create v
-      --   -> Var Task.Id v
-      --   -> Model v
-      update model (Create Invalid _ _) _ = model
-      update model (Create Valid projectId creatable) id = model
-          -- model |> #task . #creatables . at id ?~ creatable
-  in  Command generator execute [Update update]
+      footnoteShow response
 
+      pure ()
+
+    update :: Model v -> CreateInvalid v -> Var () v -> Model v
+    update model _ _ = model
+  in
+    Command generator execute [Update update]
+
+
+validityToBool :: Validity -> Bool
+validityToBool Valid   = True
+validityToBool Invalid = False
