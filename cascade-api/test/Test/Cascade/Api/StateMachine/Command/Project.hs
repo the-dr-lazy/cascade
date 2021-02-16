@@ -43,9 +43,7 @@ import           Test.Cascade.Api.StateMachine.Model
 
 commands :: MonadGen g => MonadIO m => MonadTest m => [Command g m Model]
 commands =
-  [ create
-  , getAll
-  , addNotExistingId
+  [ addNotExistingId
   , getExisting
   , getNotExisting
   , updateExisting
@@ -55,83 +53,206 @@ commands =
   ]
 
 -- brittany-disable-next-binding
-newtype Create (v :: Type -> Type) = Create
+newtype CreateAnonymously (v :: Type -> Type) = CreateAnonymously
   { creatable :: Project.Creatable
   }
   deriving stock (Generic, Show)
 
-instance HTraversable Create where
-  htraverse _ (Create creatable) = pure $ Create creatable
+instance HTraversable CreateAnonymously where
+  htraverse _ input = pure $ coerce input
 
-create :: forall g m
-        . MonadGen g
-       => MonadIO m => MonadTest m => Command g m Model
-create =
-  let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
-      generator _ = Gen.project |> fmap Create |> Just
+createAnonymously :: forall g m . MonadGen g => MonadIO m => Command g m Model
+createAnonymously =
+  let
+    generator :: Model Symbolic -> Maybe (g (CreateAnonymously Symbolic))
+    generator _ = Gen.project |> fmap CreateAnonymously |> Just
 
-      execute :: Create Concrete -> m Project.Id
-      execute (Create creatable) = do
-        response <- evalIO . Cascade.Api.Projects.create $ creatable
-        footnoteShow response
+    require :: Model Symbolic -> CreateAnonymously Symbolic -> Bool
+    require _ _ = False
+
+    execute :: CreateAnonymously Concrete
+            -> m Cascade.Api.User.Projects.CreateResponse
+    execute (CreateAnonymously creatable) = do
+      label "[Project/Create Anonymously]"
+      evalIO $ Cascade.Api.User.Projects.create creatable anonymously
+
+    ensure :: Model Concrete
+           -> Model Concrete
+           -> CreateAnonymously Concrete
+           -> Cascade.Api.User.Projects.CreateResponse
+           -> Test ()
+    ensure _ _ _ response =
+      response ^. #responseStatusCode . #statusCode === 401
+  in
+    Command generator execute [Require require, Ensure ensure]
+
+-- brittany-disable-next-binding
+data CreateAuthenticated (v :: Type -> Type) = CreateAuthenticated
+  { creatable :: Project.Creatable
+  , token     :: JwtSections
+  }
+  deriving stock (Generic, Show)
+
+instance HTraversable CreateAuthenticated where
+  htraverse f input = pure $ coerce input
+
+createAuthenticated :: forall g m
+                     . MonadGen g
+                    => MonadIO m => MonadTest m -> Command g m Model
+createAuthenticated =
+  let generator :: Model Symbolic -> Maybe (g (CreateAuthenticated Symbolic))
+      generator model =
+        case model ^. #authentication . #byUsername . to Map.values of
+          []     -> Nothing
+          tokens -> Just do
+            CreateAuthenticated <$> Gen.project <*> Gen.element tokens
+
+      execute :: CreateAuthenticated Concrete -> m Project.Id
+      execute (CreateAuthenticated creatable token) = do
+        label "[Project/Create Authenticated]"
+        response <- evalIO
+          $ Cascade.Api.User.Projects.create creatable (authenticated token)
 
         project <-
           (response ^. #responseBody)
           |> matchUnion @(Response.Created Project.Readable)
           |> coerce
           |> evalMaybe
-        let id = project ^. #id
 
-        project === mkReadableProjectFromCreatableProject id creatable
+        pure $ project ^. #id
 
-        pure id
-  in  Command
-        generator
-        execute
-        [ Update \model (Create creatable) id ->
-            model |> #project . #creatables . at id ?~ creatable
-        ]
+      update :: Model Symbolic
+             -> CreateAuthenticated Symbolic
+             -> Var Project.Id v
+             -> Model Symbolic
+      update model input id = model
+  in  Command generator execute [Update update]
 
 -- brittany-disable-next-binding
-data GetAll (v :: Type -> Type) = GetAll deriving stock Show
+data GetAllAnonymously (v :: Type -> Type) = GetAllAnonymously
+  deriving stock (Generic, Show)
 
-instance HTraversable GetAll where
-  htraverse _ _ = pure GetAll
+instance HTraversable GetAllAnonymously where
+  htraverse f input = pure $ coerce input
 
-getAll :: forall g m
-        . MonadGen g
-       => MonadIO m => MonadTest m => Command g m Model
-getAll =
-  let
-    generator :: Model Symbolic -> Maybe (g (GetAll Symbolic))
-    generator _ = Just . pure $ GetAll
+getAllAnonymously :: forall g m . MonadGen g => MonadIO m => Command g m Model
+getAllAnonymously =
+  let generator :: Model Symbolic -> Maybe (g (GetAllAnonymously Symbolic))
+      generator = undefined
 
-    execute :: GetAll Concrete -> m Cascade.Api.Projects.GetAllResponse
-    execute _ = evalIO Cascade.Api.Projects.getAll
-  in
-    Command
-      generator
-      execute
-      [ Ensure \_before after _input response -> do
-          footnoteShow response
-          output :: [Project.Readable] <-
-            (response ^. #responseBody)
-            |> matchUnion @(Response.Ok [Project.Readable])
-            |> coerce
-            |> evalMaybe
+      require :: Model Symbolic -> GetAllAnonymously Symbolic -> Bool
+      require _ _ = False
 
-          length output === Map.size (after ^. #project . #creatables)
+      execute :: GetAllAnonymously Concrete
+              -> m Cascade.Api.User.Projects.CreateResponse
+      execute = undefined
 
-          for_
-            output
-            \project -> do
-              let id = project ^. #id
-              project' <-
-                (after ^. #project . #creatables . at (Var $ Concrete id))
-                |> fmap (mkReadableProjectFromCreatableProject id)
-                |> evalMaybe
-              project === project'
-      ]
+      ensure :: Model Concrete
+             -> Model Concrete
+             -> GetAllAnonymously Concrete
+             -> Cascade.Api.User.Projects.CreateResponse
+             -> Test ()
+      ensure = undefined
+  in  Command generator execute [Require require, Ensure ensure]
+
+-- brittany-disable-next-binding
+data GetAllAuthenticated (v :: Type -> Type) = GetAllAuthenticated
+  deriving stock (Generic, Show)
+
+instance HTraversable GetAllAuthenticated where
+  htraverse f input = pure $ coerce input
+
+getAllAuthenticated :: forall g m
+                     . MonadGen g
+                    => MonadIO m => Command g m Model
+getAllAuthenticated =
+  let generator :: Model Symbolic -> Maybe (g (GetAllAuthenticated Symbolic))
+      generator = undefined
+
+      require :: Model Symbolic -> GetAllAuthenticated Symbolic -> Bool
+      require _ _ = False
+
+      execute :: GetAllAuthenticated Concrete
+              -> m Cascade.Api.User.Projects.CreateResponse
+      execute = undefined
+
+      ensure :: Model Concrete
+             -> Model Concrete
+             -> GetAllAuthenticated Concrete
+             -> Cascade.Api.User.Projects.CreateResponse
+             -> Test ()
+      ensure = undefined
+  in  Command generator execute [Require require, Ensure ensure]
+
+-- create :: forall g m
+--         . MonadGen g
+--        => MonadIO m => MonadTest m => Command g m Model
+-- create =
+--   let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
+--       generator _ = Gen.project |> fmap Create |> Just
+
+--       execute :: Create Concrete -> m Project.Id
+--       execute (Create creatable) = do
+--         response <- evalIO . Cascade.Api.Projects.create $ creatable
+--         footnoteShow response
+
+--         project <-
+--           (response ^. #responseBody)
+--           |> matchUnion @(Response.Created Project.Readable)
+--           |> coerce
+--           |> evalMaybe
+--         let id = project ^. #id
+
+--         project === mkReadableProjectFromCreatableProject id creatable
+
+--         pure id
+--   in  Command
+--         generator
+--         execute
+--         [ Update \model (Create creatable) id ->
+--             model |> #project . #creatables . at id ?~ creatable
+--         ]
+
+-- brittany-disable-next-binding
+-- data GetAll (v :: Type -> Type) = GetAll deriving stock Show
+
+-- instance HTraversable GetAll where
+--   htraverse _ _ = pure GetAll
+
+-- getAll :: forall g m
+--         . MonadGen g
+--        => MonadIO m => MonadTest m => Command g m Model
+-- getAll =
+--   let
+--     generator :: Model Symbolic -> Maybe (g (GetAll Symbolic))
+--     generator _ = Just . pure $ GetAll
+
+--     execute :: GetAll Concrete -> m Cascade.Api.Projects.GetAllResponse
+--     execute _ = evalIO Cascade.Api.Projects.getAll
+--   in
+--     Command
+--       generator
+--       execute
+--       [ Ensure \_before after _input response -> do
+--           footnoteShow response
+--           output :: [Project.Readable] <-
+--             (response ^. #responseBody)
+--             |> matchUnion @(Response.Ok [Project.Readable])
+--             |> coerce
+--             |> evalMaybe
+
+--           length output === Map.size (after ^. #project . #creatables)
+
+--           for_
+--             output
+--             \project -> do
+--               let id = project ^. #id
+--               project' <-
+--                 (after ^. #project . #creatables . at (Var $ Concrete id))
+--                 |> fmap (mkReadableProjectFromCreatableProject id)
+--                 |> evalMaybe
+--               project === project'
+--       ]
 
 -- brittany-disable-next-binding
 data AddNotExistingId (v :: Type -> Type) = AddNotExistingId

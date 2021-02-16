@@ -28,12 +28,10 @@ import           Servant.Client.Free            ( ResponseF )
 
 type CreateResponse = (ResponseF (Union Api.User.Projects.CreateResponse))
 
-create :: JwtSections -> Project.Creatable -> IO CreateResponse
-create = interpret . go . authenticated
-  where go = Client.Api.User.projects ^. #create
+create :: Authenticate -> Project.Creatable -> IO CreateResponse
+create f = interpret . go f where go = Client.Api.User.projects ^. #create
 
 type GetAllResponse = (ResponseF (Union Api.User.Projects.GetAllResponse))
 
-getAll :: JwtSections -> IO GetAllResponse
-getAll = interpret . go . authenticated
-  where go = Client.Api.User.projects ^. #getAll
+getAll :: Authenticate -> IO GetAllResponse
+getAll f = interpret . go f where go = Client.Api.User.projects ^. #getAll

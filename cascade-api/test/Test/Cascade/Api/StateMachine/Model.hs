@@ -15,6 +15,7 @@ module Test.Cascade.Api.StateMachine.Model
   , initialModel
   ) where
 
+import           Cascade.Api.Data.Jwt           ( JwtSections )
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Data.User         as User
 import           Data.Generics.Labels           ( )
@@ -23,8 +24,9 @@ import           Hedgehog.Internal.State        ( Var )
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
-  { project :: ProjectModel v
-  , user    :: UserModel v
+  { project        :: ProjectModel v
+  , user           :: UserModel v
+  , authentication :: AuthenticationModel v
   }
   deriving stock Generic
 
@@ -45,5 +47,11 @@ data ProjectModel (v :: Type -> Type) = ProjectModel
 data UserModel (v :: Type -> Type) = UserModel
   { byUsername     :: Map Text User.RawCreatable
   , byEmailAddress :: Map Text User.RawCreatable
+  }
+  deriving stock Generic
+
+-- brittany-disable-next-binding
+data AuthenticationModel (v :: Type -> Type) = AuthenticationModel
+  { byUsername :: Map Text (Var v JwtSections)
   }
   deriving stock Generic

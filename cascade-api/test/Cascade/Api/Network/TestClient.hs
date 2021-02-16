@@ -14,6 +14,7 @@ module Cascade.Api.Network.TestClient
   ( api
   , interpret
   , authenticated
+  , anonymously
   ) where
 
 import           Cascade.Api.Data.Jwt           ( JwtSections )
@@ -78,3 +79,6 @@ authenticated sections@(headerAndPayload, sig) = mkAuthenticatedRequest
         ]
       |> Builder.toLazyByteString
       |> LW8.toStrict
+
+anonymously :: AuthenticatedRequest a
+anonymously = mkAuthenticatedRequest undefined $ const identity
