@@ -181,6 +181,7 @@ test-suite cascade-api-test
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
                        Cascade.Api.Network.TestClient.Api.Projects
+                       Cascade.Api.Network.TestClient.Api.Tasks
                        Cascade.Api.Network.TestClient.Api.Projects.Tasks
                        Cascade.Api.Network.TestClient.Api.Users
                        Cascade.Api.Test.FilePath
