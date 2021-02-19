@@ -15,6 +15,10 @@ tested-with:         GHC == 8.8.4
 common common-options
   default-language:    Haskell2010
   build-depends:       bytestring
+                     , polysemy
+                     , validation-selective
+                     , typerep-map
+                     , generic-data
   -- Based on
   -- https://lexi-lambda.github.io/blog/2018/02/10/an-opinionated-guide-to-haskell-in-2018/
   --
@@ -104,6 +108,8 @@ library
                        Cascade.Data.Text
                        Cascade.Data.Text.NonEmpty
                        Cascade.Data.Chronos.Future
+                       Cascade.Data.Validation
+                       Cascade.Polysemy
   build-depends:       base-noprelude
                      , containers
                      , flow

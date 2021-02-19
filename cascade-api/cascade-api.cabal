@@ -133,6 +133,7 @@ library
                      , scrypt
                      , selective
                      , servant-server
+                     , typerep-map
                      , validation-selective
                      , wai
                      , warp
