@@ -22,12 +22,15 @@ import qualified Cascade.Api.Network.TestClient.Api.Tasks
 import           Cascade.Api.Test.Prelude       ( )
 import           Control.Lens                   ( (?~)
                                                 , (^.)
+                                                , (^..)
                                                 , (%~)
                                                 , at
                                                 , to
-                                                , filtered
                                                 , folded
+                                                , traversed
                                                 , cons
+                                                , sans
+                                                , _Just
                                                 )
 import           Servant.API.UVerb.Union        ( matchUnion )
 import qualified Data.Map                      as Map
@@ -41,30 +44,41 @@ import           Test.Cascade.Api.StateMachine.Model
 import qualified Cascade.Api.Servant.Response  as Response
 import           Validation                     ( Validation(..) )
 import           Chronos                        ( offsetDatetimeToTime )
-
+import           Data.Maybe                     ( fromMaybe )
 
 commands
   :: MonadGen g
   => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
-commands = [createValid, createInvalid, findByProjectId, addNotExistingId, getExisting]
+commands =
+  [ createValid
+  , createInvalid
+  , findByProjectId
+  , addNotExistingId
+  , getExisting
+  , getNotExisting
+  , updateExisting
+  , updateExistingInvalid
+  , updateNotExisting
+  , deleteExisting
+  , deleteNotExisting
+  ]
 
 -- brittany-disable-next-binding
-data CreateValid (v :: Type -> Type) = CreateValid
+data Create (v :: Type -> Type) = Create
   { projectId  :: Var Project.Id v
   , creatable  :: Task.RawCreatable
   }
   deriving stock (Generic, Show)
 
-instance HTraversable CreateValid where
-  htraverse f CreateValid {..} =
-    CreateValid <$> htraverse f projectId <*> pure creatable
+instance HTraversable Create where
+  htraverse f Create {..} = Create <$> htraverse f projectId <*> pure creatable
 
 createValid
   :: forall g m
    . MonadGen g
   => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createValid =
-  let generator :: Model Symbolic -> Maybe (g (CreateValid Symbolic))
+  let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
       generator model = case model ^. #project . #creatables . to Map.keys of
         []         -> Nothing
         projectIds -> Just $ do
@@ -72,10 +86,10 @@ createValid =
           title      <- Gen.nonEmptyText Valid
           deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
           let creatable = Task.RawCreatable { .. }
-          pure $ CreateValid { .. }
+          pure $ Create { .. }
 
-      execute :: CreateValid Concrete -> m Task.Id
-      execute (CreateValid projectId creatable) = do
+      execute :: Create Concrete -> m Task.Id
+      execute (Create projectId creatable) = do
         label "[Task/Create Valid]"
 
         response <- evalIO
@@ -88,15 +102,7 @@ createValid =
 
         let id = task ^. #id
 
-        task ^. #title . to Text.NonEmpty.un === creatable ^. #title
-        task
-          ^.  #deadlineAt
-          .   to unFormattedOffsetDatetime
-          .   to offsetDatetimeToTime
-          === creatable
-          ^.  #deadlineAt
-          .   to unFormattedOffsetDatetime
-          .   to offsetDatetimeToTime
+        checkEqReadableRawCreatableTask task creatable
 
         response ^. #responseStatusCode . #statusCode === 201
 
@@ -104,39 +110,14 @@ createValid =
 
         pure id
 
-      update :: Ord1 v => Model v -> CreateValid v -> Var Task.Id v -> Model v
-      update model (CreateValid projectId creatable) id =
-          model
-            |> #task
-            .  #creatables
-            .  at id
-            ?~ creatable
-            |> #task
-            .  #byProjectId
-            .  at projectId
-            %~ updateCreatables
+      update :: Ord1 v => Model v -> Create v -> Var Task.Id v -> Model v
+      update model (Create projectId creatable) id =
+          model |> #task . #creatables . at projectId ?~ newByProjectId
          where
-          updateCreatables
-            :: Maybe [Task.RawCreatable] -> Maybe [Task.RawCreatable]
-          updateCreatables Nothing           = Just [creatable]
-          updateCreatables (Just creatables) = Just $ creatables <> [creatable]
+          byProjectId =
+            model ^. #task . #creatables . at projectId |> fromMaybe Map.empty
+          newByProjectId = byProjectId |> at id ?~ creatable
   in  Command generator execute [Update update]
-
-
--- brittany-disable-next-binding
-data CreateInvalid (v :: Type -> Type) = CreateInvalid
-  { titleValidity :: Validity
-  , projectId  :: Var Project.Id v
-  , creatable  :: Task.RawCreatable
-  }
-  deriving stock (Generic, Show)
-
-instance HTraversable CreateInvalid where
-  htraverse f CreateInvalid {..} =
-    CreateInvalid
-      <$> pure titleValidity
-      <*> htraverse f projectId
-      <*> pure creatable
 
 createInvalid
   :: forall g m
@@ -144,7 +125,7 @@ createInvalid
   => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createInvalid =
   let
-    generator :: Model Symbolic -> Maybe (g (CreateInvalid Symbolic))
+    generator :: Model Symbolic -> Maybe (g (Create Symbolic))
     generator model = case model ^. #project . #creatables . to Map.keys of
       []         -> Nothing
       projectIds -> Just $ do
@@ -157,22 +138,29 @@ createInvalid =
         deadlineAt <- FormattedOffsetDatetime
           <$> Gen.deadline deadlineAtValidity
         let creatable = Task.RawCreatable { .. }
-        pure $ CreateInvalid { .. }
+        pure $ Create { .. }
 
-
-    coverage :: CreateInvalid Concrete -> m ()
-    coverage (CreateInvalid titleValidity _ _) = do
-      let flag = validityToBool titleValidity
+    coverage :: Create Concrete -> m ()
+    coverage (Create _ creatable) = do
+      let flag = creatable ^. #title . to Text.null
       cover 5 "invalid deadline" flag
       cover 5 "empty title"      (not flag)
 
-    execute :: CreateInvalid Concrete -> m ()
-    execute input@(CreateInvalid titleValidity projectId creatable) = do
+    execute :: Create Concrete -> m Cascade.Api.Projects.Tasks.CreateResponse
+    execute input@(Create projectId creatable) = do
       label "[Task/Create Invalid]"
       coverage input
 
-      response <- evalIO
-        $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
+      evalIO $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
+
+    ensure
+      :: Model Concrete
+      -> Model Concrete
+      -> Create Concrete
+      -> Cascade.Api.Projects.Tasks.CreateResponse
+      -> Test ()
+    ensure _before _after _input response = do
+      footnoteShow response
 
       (response ^. #responseBody)
         |> matchUnion
@@ -180,21 +168,8 @@ createInvalid =
         |> evalMaybe
 
       response ^. #responseStatusCode . #statusCode === 422
-
-      footnoteShow response
-
-      pure ()
-
-    update :: Model v -> CreateInvalid v -> Var () v -> Model v
-    update model _ _ = model
   in
-    Command generator execute [Update update]
-
-
-validityToBool :: Validity -> Bool
-validityToBool Valid   = True
-validityToBool Invalid = False
-
+    Command generator execute [Ensure ensure]
 
 -- brittany-disable-next-binding
 data FindByProjectId (v :: Type -> Type) = FindByProjectId
@@ -208,59 +183,62 @@ instance HTraversable FindByProjectId where
 findByProjectId
   :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 findByProjectId =
-  let
-    generator :: Model Symbolic -> Maybe (g (FindByProjectId Symbolic))
-    generator model = case model ^. #project . #creatables . to Map.keys of
-      []         -> Nothing
-      projectIds -> Just $ do
-        projectId <- Gen.element projectIds
-        pure $ FindByProjectId { .. }
+  let generator :: Model Symbolic -> Maybe (g (FindByProjectId Symbolic))
+      generator model = case model ^. #project . #creatables . to Map.keys of
+        []         -> Nothing
+        projectIds -> Just $ do
+          projectId <- Gen.element projectIds
+          pure $ FindByProjectId { .. }
 
-    execute
-      :: FindByProjectId Concrete
-      -> m Cascade.Api.Projects.Tasks.FindByProjectIdResponse
-    execute (FindByProjectId projectId) = evalIO
-      $ Cascade.Api.Projects.Tasks.findByProjectId (concrete projectId)
+      execute
+        :: FindByProjectId Concrete
+        -> m Cascade.Api.Projects.Tasks.FindByProjectIdResponse
+      execute (FindByProjectId projectId) = evalIO
+        $ Cascade.Api.Projects.Tasks.findByProjectId (concrete projectId)
 
-    ensure
-      :: Model Concrete
-      -> Model Concrete
-      -> FindByProjectId Concrete
-      -> Cascade.Api.Projects.Tasks.FindByProjectIdResponse
-      -> Test ()
-    ensure _before after (FindByProjectId projectId) response = do
-      footnoteShow response
+      ensure
+        :: Model Concrete
+        -> Model Concrete
+        -> FindByProjectId Concrete
+        -> Cascade.Api.Projects.Tasks.FindByProjectIdResponse
+        -> Test ()
+      ensure _before after (FindByProjectId projectId) response = do
+        footnoteShow response
 
-      output :: [Task.Readable] <-
-        (response ^. #responseBody)
-        |> matchUnion @(Response.Ok [Task.Readable])
-        |> coerce
-        |> evalMaybe
+        output :: [Task.Readable] <-
+          (response ^. #responseBody)
+          |> matchUnion @(Response.Ok [Task.Readable])
+          |> coerce
+          |> evalMaybe
 
-      length output
-        === maybe 0 length (after ^. #task . #byProjectId . at projectId)
+        let projectIdCreatables =
+              after ^.. #task . #creatables . at projectId . _Just . folded
 
-      for_
-        output
-        \task -> do
-          let id = task ^. #id
+        length output === length projectIdCreatables
 
-          task' :: Task.RawCreatable <-
-            (after ^. #task . #creatables . at (Var $ Concrete id))
-              |> evalMaybe
+        for_
+          output
+          \task -> do
+            let id = task ^. #id
 
-          task ^. #title . to Text.NonEmpty.un === task' ^. #title
-          task
-            ^.  #deadlineAt
-            .   to unFormattedOffsetDatetime
-            .   to offsetDatetimeToTime
-            === task'
-            ^.  #deadlineAt
-            .   to unFormattedOffsetDatetime
-            .   to offsetDatetimeToTime
-  in
-    Command generator execute [Ensure ensure]
+            task' :: Task.RawCreatable <-
+              after
+              ^.. #task
+              .   #creatables
+              .   folded
+              .   at (Var $ Concrete id)
+              .   _Just
+              |>  listToMaybe
+              |>  evalMaybe
 
+            checkEqReadableRawCreatableTask task task'
+
+      require :: Model Symbolic -> FindByProjectId Symbolic -> Bool
+      require model (FindByProjectId projectId) =
+          case model ^. #task . #creatables . at projectId of
+            Nothing -> False
+            Just _  -> True
+  in  Command generator execute [Require require, Ensure ensure]
 
 -- brittany-disable-next-binding
 data AddNotExistingId (v :: Type -> Type) = AddNotExistingId
@@ -296,15 +274,74 @@ instance HTraversable GetById where
 getExisting
   :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getExisting =
+  let generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
+      generator model =
+          case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+            []  -> Nothing
+            ids -> Gen.element ids |> fmap GetById |> Just
+
+      execute :: GetById Concrete -> m Cascade.Api.Tasks.GetByIdResponse
+      execute (GetById id) = evalIO . Cascade.Api.Tasks.getById $ concrete id
+
+      ensure
+        :: Model Concrete
+        -> Model Concrete
+        -> GetById Concrete
+        -> Cascade.Api.Tasks.GetByIdResponse
+        -> Test ()
+      ensure before _after (GetById taskId) response = do
+        footnoteShow response
+
+        task :: Task.Readable <-
+          (response ^. #responseBody)
+          |> matchUnion @(Response.Ok Task.Readable)
+          |> coerce
+          |> evalMaybe
+
+        let id = task ^. #id
+
+        concrete taskId === id
+
+        task' :: Task.RawCreatable <-
+          before
+          ^.. #task
+          .   #creatables
+          .   folded
+          .   at (Var $ Concrete id)
+          .   _Just
+          |>  listToMaybe
+          |>  evalMaybe
+
+        checkEqReadableRawCreatableTask task task'
+
+      require :: Model Symbolic -> GetById Symbolic -> Bool
+      require model (GetById id) =
+          case
+              model
+              ^.. #task
+              .   #creatables
+              .   folded
+              .   at id
+              .   _Just
+              |>  listToMaybe
+            of
+              Nothing -> False
+              Just _  -> True
+  in  Command generator execute [Require require, Ensure ensure]
+
+
+getNotExisting
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+getNotExisting =
   let
     generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
-    generator model = case model ^. #task . #creatables . to Map.keys of
+    generator model = case model ^. #task . #notExistingIds of
       []  -> Nothing
       ids -> Gen.element ids |> fmap GetById |> Just
 
     execute :: GetById Concrete -> m Cascade.Api.Tasks.GetByIdResponse
-    execute (GetById id) =
-      evalIO . Cascade.Api.Tasks.getById $ concrete id
+    execute input =
+      evalIO . Cascade.Api.Tasks.getById $ input ^. #id . concreted
 
     ensure
       :: Model Concrete
@@ -312,36 +349,262 @@ getExisting =
       -> GetById Concrete
       -> Cascade.Api.Tasks.GetByIdResponse
       -> Test ()
-    ensure before _after (GetById taskId) response = do
-      footnoteShow "Hello from get by id"
+    ensure _before _after _input response = do
       footnoteShow response
-      footnoteShow taskId
-      footnoteShow $ before ^. #task . #creatables
-      footnoteShow $ before ^. #task . #byProjectId
+      response ^. #responseStatusCode . #statusCode === 404
+  in
+    Command generator execute [Ensure ensure]
 
+-- brittany-disable-next-binding
+data UpdateById (v :: Type -> Type) = UpdateById
+  { id :: Var Task.Id v
+  , updatable :: Task.RawUpdatable
+  }
+  deriving stock (Generic, Show)
+
+instance HTraversable UpdateById where
+  htraverse f (UpdateById {..}) =
+    UpdateById <$> htraverse f id <*> pure updatable
+
+updateExisting
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+updateExisting =
+  let
+    generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
+    generator model =
+      case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+        []  -> Nothing
+        ids -> Just $ do
+          id         <- Gen.element ids
+          title      <- Just <$> Gen.nonEmptyText Valid
+          deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
+          let updatable = Task.RawUpdatable { .. }
+          pure $ UpdateById { .. }
+
+    execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
+    execute UpdateById { id, updatable } =
+      evalIO $ Cascade.Api.Tasks.updateById (concrete id) updatable
+
+    ensure
+      :: Model Concrete
+      -> Model Concrete
+      -> UpdateById Concrete
+      -> Cascade.Api.Tasks.UpdateByIdResponse
+      -> Test ()
+    ensure _before _after input response = do
+      footnoteShow response
+
+      let id = input ^. #id . concreted
       task :: Task.Readable <-
         (response ^. #responseBody)
         |> matchUnion @(Response.Ok Task.Readable)
         |> coerce
         |> evalMaybe
+      task ^. #id === id
 
-      pure ()
+      response ^. #responseStatusCode . #statusCode === 200
 
-      -- let id = task ^. #id
+    update
+      :: Ord1 v
+      => Model v
+      -> UpdateById v
+      -> Var Cascade.Api.Tasks.UpdateByIdResponse v
+      -> Model v
+    update model (UpdateById id updatable) _response =
+      let creatable = updateCreatableTask updatable
+      in  model |> #task . #creatables . traversed %~ Map.adjust creatable id
 
-      -- concrete tasksId === id
+    require :: Model Symbolic -> UpdateById Symbolic -> Bool
+    require model (UpdateById id _) =
+      case
+          model ^.. #task . #creatables . folded . at id . _Just |> listToMaybe
+        of
+          Nothing -> False
+          Just _  -> True
+  in
+    Command generator execute [Require require, Update update, Ensure ensure]
 
-      -- task' :: Task.RawCreatable <-
-      --   (before ^. #task . #creatables . at (Var $ Concrete id)) |> evalMaybe
+updateExistingInvalid
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+updateExistingInvalid =
+  let
+    generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
+    generator model =
+      case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+        []  -> Nothing
+        ids -> Just $ do
+          flag <- Gen.bool_
+          let boolToValidity     = bool Invalid Valid
+          let titleValidity      = boolToValidity flag
+          let deadlineAtValidity = boolToValidity $ not flag
+          id         <- Gen.element ids
+          title      <- Just <$> Gen.nonEmptyText titleValidity
+          deadlineAt <-
+            Just . FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          let updatable = Task.RawUpdatable { .. }
+          pure $ UpdateById { .. }
 
-      -- task ^. #title . to Text.NonEmpty.un === task' ^. #title
-      -- task
-      --   ^.  #deadlineAt
-      --   .   to unFormattedOffsetDatetime
-      --   .   to offsetDatetimeToTime
-      --   === task'
-      --   ^.  #deadlineAt
-      --   .   to unFormattedOffsetDatetime
-      --   .   to offsetDatetimeToTime
+    execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
+    execute UpdateById { id, updatable } =
+      evalIO $ Cascade.Api.Tasks.updateById (concrete id) updatable
+
+    ensure
+      :: Model Concrete
+      -> Model Concrete
+      -> UpdateById Concrete
+      -> Cascade.Api.Tasks.UpdateByIdResponse
+      -> Test ()
+    ensure _before _after _input response = do
+      footnoteShow response
+
+      (response ^. #responseBody)
+        |> matchUnion
+           @(Response.Unprocessable Task.RawUpdatableValidationErrors)
+        |> evalMaybe
+
+      response ^. #responseStatusCode . #statusCode === 422
+
+    require :: Model Symbolic -> UpdateById Symbolic -> Bool
+    require model (UpdateById id _) =
+      case
+          model ^.. #task . #creatables . folded . at id . _Just |> listToMaybe
+        of
+          Nothing -> False
+          Just _  -> True
+  in
+    Command generator execute [Require require, Ensure ensure]
+
+updateNotExisting
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+updateNotExisting =
+  let
+    generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
+    generator model = case model ^. #task . #notExistingIds of
+      []  -> Nothing
+      ids -> Just $ do
+        id         <- Gen.element ids
+        title      <- Just <$> Gen.nonEmptyText Valid
+        deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
+        let updatable = Task.RawUpdatable { .. }
+        pure $ UpdateById { .. }
+
+    execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
+    execute input@UpdateById { updatable } =
+      evalIO $ Cascade.Api.Tasks.updateById id updatable
+      where id = input ^. #id . concreted
+
+    ensure
+      :: Model Concrete
+      -> Model Concrete
+      -> UpdateById Concrete
+      -> Cascade.Api.Tasks.UpdateByIdResponse
+      -> Test ()
+    ensure _before _after _input response = do
+      footnoteShow response
+      response ^. #responseStatusCode . #statusCode === 404
   in
     Command generator execute [Ensure ensure]
+
+-- brittany-disable-next-binding
+newtype DeleteById (v :: Type -> Type) = DeleteById
+  { id :: Var Task.Id v
+  }
+  deriving stock (Generic, Show)
+
+instance HTraversable DeleteById where
+  htraverse f (DeleteById id) = DeleteById <$> htraverse f id
+
+deleteExisting
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+deleteExisting =
+  let generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
+      generator model =
+          case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+            []  -> Nothing
+            ids -> Gen.element ids |> fmap DeleteById |> Just
+
+      execute :: DeleteById Concrete -> m Cascade.Api.Tasks.DeleteByIdResponse
+      execute input = evalIO . Cascade.Api.Tasks.deleteById $ id
+          where id = input ^. #id . concreted
+
+      ensure
+        :: Model Concrete
+        -> Model Concrete
+        -> DeleteById Concrete
+        -> Cascade.Api.Tasks.DeleteByIdResponse
+        -> Test ()
+      ensure _before _after input response = do
+        footnoteShow response
+        task :: Task.Readable <-
+          (response ^. #responseBody)
+          |> matchUnion @(Response.Ok Task.Readable)
+          |> coerce
+          |> evalMaybe
+        task ^. #id === input ^. #id . concreted
+
+      update
+        :: Ord1 v
+        => Model v
+        -> DeleteById v
+        -> Var Cascade.Api.Tasks.DeleteByIdResponse v
+        -> Model v
+      update model (DeleteById id) _response =
+          model |> #task . #creatables . traversed %~ sans id
+
+      require :: Model Symbolic -> DeleteById Symbolic -> Bool
+      require model (DeleteById id) =
+          case
+              model
+              ^.. #task
+              .   #creatables
+              .   folded
+              .   at id
+              .   _Just
+              |>  listToMaybe
+            of
+              Nothing -> False
+              Just _  -> True
+  in  Command generator execute [Require require, Update update, Ensure ensure]
+
+deleteNotExisting
+  :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+deleteNotExisting =
+  let generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
+      generator model = case model ^. #task . #notExistingIds of
+        []  -> Nothing
+        ids -> Gen.element ids |> fmap DeleteById |> Just
+
+      execute :: DeleteById Concrete -> m Cascade.Api.Tasks.DeleteByIdResponse
+      execute input = evalIO . Cascade.Api.Tasks.deleteById $ id
+          where id = input ^. #id . concreted
+
+      ensure
+        :: Model Concrete
+        -> Model Concrete
+        -> DeleteById Concrete
+        -> Cascade.Api.Tasks.DeleteByIdResponse
+        -> Test ()
+      ensure _before _after _input response = do
+        footnoteShow response
+        response ^. #responseStatusCode . #statusCode === 404
+  in  Command generator execute [Ensure ensure]
+
+updateCreatableTask
+  :: Task.RawUpdatable -> Task.RawCreatable -> Task.RawCreatable
+updateCreatableTask updatable Task.RawCreatable {..} = Task.RawCreatable
+  { title      = fromMaybe title $ updatable ^. #title
+  , deadlineAt = fromMaybe deadlineAt $ updatable ^. #deadlineAt
+  }
+
+checkEqReadableRawCreatableTask
+  :: (MonadTest m, HasCallStack) => Task.Readable -> Task.RawCreatable -> m ()
+checkEqReadableRawCreatableTask task creatable = do
+  task ^. #title . to Text.NonEmpty.un === creatable ^. #title
+  task
+    ^.  #deadlineAt
+    .   to unFormattedOffsetDatetime
+    .   to offsetDatetimeToTime
+    === creatable
+    ^.  #deadlineAt
+    .   to unFormattedOffsetDatetime
+    .   to offsetDatetimeToTime
