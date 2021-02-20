@@ -14,11 +14,13 @@ tested-with:         GHC == 8.8.4
 
 common common-options
   default-language:    Haskell2010
-  build-depends:       bytestring
-                     , polysemy
-                     , validation-selective
-                     , typerep-map
+  build-depends:       aeson
+                     , bytestring
                      , generic-data
+                     , polysemy
+                     , text
+                     , typerep-map
+                     , validation-selective
   -- Based on
   -- https://lexi-lambda.github.io/blog/2018/02/10/an-opinionated-guide-to-haskell-in-2018/
   --

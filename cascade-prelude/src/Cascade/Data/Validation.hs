@@ -14,16 +14,25 @@ Portability : POSIX
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Cascade.Data.Validation
-  ( module Validation
+  ( Validatable(..)
+  , GenericValidationErrors
+  , FieldValidationError
   , Validity(Parsed, Raw)
-  , Validatable(..)
   , Validate
+  , ApiErrorFormat(..)
+  , ToMessage(..)
+  , module Validation
   ) where
 
 import           Cascade.Polysemy               ( constraint )
 import           Cascade.Type.Monoid
+import qualified Data.Aeson                    as Aeson
+import           Data.Aeson                     ( (.=) )
+import qualified Data.Aeson.Types              as Aeson
+import           Data.Data
 import qualified Data.TMap                     as TMap
 import           Data.TMap                      ( TMap )
+import qualified Data.Text                     as Text
 import           GHC.Generics
 import           GHC.TypeLits
 import           Polysemy                       ( EffectRow
@@ -49,6 +58,28 @@ class Validatable (a :: Type) where
 newtype GenericValidationErrors (errors :: [Type]) = GenericValidationErrors TMap
   deriving stock Show
   deriving newtype (Semigroup, Monoid)
+
+instance GenericValidationErrorsToJSON errors => Aeson.ToJSON (GenericValidationErrors errors) where
+  toJSON errors = Aeson.object $ genericValidationErrorsToJSON errors
+
+class GenericValidationErrorsToJSON (errors :: [Type]) where
+  genericValidationErrorsToJSON :: GenericValidationErrors errors -> [Aeson.Pair]
+
+instance GenericValidationErrorsToJSON '[] where
+  genericValidationErrorsToJSON _ = []
+
+instance ( Aeson.ToJSON error
+         , KnownSymbol fieldName
+         , GenericValidationErrorsToJSON errors
+         , Typeable error
+         ) => GenericValidationErrorsToJSON (FieldValidationError fieldName error ': errors) where
+  genericValidationErrorsToJSON (GenericValidationErrors tmap) =
+    case TMap.lookup @(FieldValidationError fieldName error) tmap of
+      Nothing -> next
+      Just (FieldValidationError e) ->
+        (Text.pack $ symbolVal (Proxy @fieldName), Aeson.toJSON e) : next
+   where
+    next = genericValidationErrorsToJSON (GenericValidationErrors @errors tmap)
 
 newtype FieldValidationError (fieldName :: Symbol) (error :: Type) = FieldValidationError error
 
@@ -151,3 +182,12 @@ type GValidatableConstraints (a :: Validity -> Type)
         (GenericFieldValidationErrors (Rep (a 'Mark)))
         (GenericEffects (Rep (a 'Mark)))
     )
+
+newtype ApiErrorFormat (error :: Type) = ApiErrorFormat error
+
+instance (Data error, ToMessage error) => Aeson.ToJSON (ApiErrorFormat error) where
+  toJSON (ApiErrorFormat e) = Aeson.object
+    ["tag" .= (show @String $ toConstr e), "message" .= toMessage e]
+
+class ToMessage (error :: Type) where
+  toMessage :: error -> Text
