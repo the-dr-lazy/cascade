@@ -131,7 +131,7 @@ type family ToFieldValidationErrors (a :: (Symbol, Type)) :: Type where
 
 type family GenericFieldValidationErrors' (as :: [(Symbol, Type)]) :: [Type] where
   GenericFieldValidationErrors' '[] = '[]
-  GenericFieldValidationErrors' ('(_, a) ': as) = Errors a ': GenericFieldValidationErrors' as
+  GenericFieldValidationErrors' ('(fieldName, a) ': as) = FieldValidationError fieldName (Errors a) ': GenericFieldValidationErrors' as
 
 type GenericFieldValidationErrors a
   = GenericFieldValidationErrors' (ValidatableFieldsAList a)
