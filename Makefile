@@ -15,4 +15,4 @@ clean:
 setup:
 	git config core.hooksPath .githooks
 
-.PHONY: wtest wtest-api clean
+.PHONY: wtest wtest-api clean setup
