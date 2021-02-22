@@ -83,7 +83,7 @@ instance ( Aeson.ToJSON error
 
 newtype FieldValidationError (fieldName :: Symbol) (error :: Type) = FieldValidationError error
 
-instance GValidatableConstraints a => Validatable (Generically (a (v :: Validity))) where
+instance GenericValidatableConstraints a => Validatable (Generically (a (v :: Validity))) where
   type Raw (Generically (a _)) = a 'Raw
   type Parsed (Generically (a _)) = a 'Parsed
   type Errors (Generically (a _))
@@ -92,50 +92,49 @@ instance GValidatableConstraints a => Validatable (Generically (a (v :: Validity
 
   validate =
     (fmap . fmap) (unsafeCoerce @(a ( 'MarkR 'Parsed)) . to)
-      . gvalidate
+      . genericValidate
       . from
       . unsafeCoerce @_ @(a ( 'MarkR 'Raw))
 
-class GValidatable (raw :: Type -> Type) (parsed :: Type -> Type) (errors :: [Type]) (effects :: EffectRow) where
-  gvalidate :: raw p -> Sem effects (Validation (GenericValidationErrors errors) (parsed p))
+class GenericValidatable (raw :: Type -> Type) (parsed :: Type -> Type) (errors :: [Type]) (effects :: EffectRow) where
+  genericValidate :: raw p -> Sem effects (Validation (GenericValidationErrors errors) (parsed p))
 
 instance
   ( KnownSymbol fieldName
   , Validatable a
   , Typeable (Errors a)
   , effects ~ Effects a
-  ) => GValidatable (S1 ('MetaSel ('Just fieldName) _t1 _t2 _t3) (Rec0 (MarkedR a 'Raw)))
+  ) => GenericValidatable (S1 ('MetaSel ('Just fieldName) _t1 _t2 _t3) (Rec0 (MarkedR a 'Raw)))
                     (S1 ('MetaSel ('Just fieldName) _t1 _t2 _t3) (Rec0 (MarkedR a 'Parsed)))
                     _errors
                     effects
   where
-  gvalidate (M1 (K1 (MarkedR x))) = validate @a x <&> bimap
+  genericValidate (M1 (K1 (MarkedR x))) = validate @a x <&> bimap
     (GenericValidationErrors . TMap.one . FieldValidationError @fieldName)
     (M1 . K1 . MarkedR)
 
 instance
-  ( GValidatable a c errors effects1
-  , Members effects1 r1
-  , GValidatable b d errors effects2
+  ( GenericValidatable a c errors effects1
+  , GenericValidatable b d errors effects2
   , Members effects1 effects3
   , Members effects2 effects3
-  ) => GValidatable (a :*: b) (c :*: d) errors effects3 where
-  gvalidate (l :*: r) = do
-    lresult <- constraint $ gvalidate @a @c @errors @effects1 l
-    rresult <- constraint $ gvalidate @b @d @errors @effects2 r
+  ) => GenericValidatable (a :*: b) (c :*: d) errors effects3 where
+  genericValidate (l :*: r) = do
+    lresult <- constraint $ genericValidate @a @c @errors @effects1 l
+    rresult <- constraint $ genericValidate @b @d @errors @effects2 r
     pure $ (:*:) <$> lresult <*> rresult
 
-instance (GValidatable a b errors effects) => GValidatable (D1 _m1 a) (D1 _m2 b) errors effects where
-  gvalidate (M1 x) = fmap M1 <$> gvalidate x
+instance (GenericValidatable a b errors effects) => GenericValidatable (D1 _m1 a) (D1 _m2 b) errors effects where
+  genericValidate (M1 x) = fmap M1 <$> genericValidate x
 
-instance (GValidatable a b errors effects) => GValidatable (C1 _m1 a) (C1 _m2 b) errors effects where
-  gvalidate (M1 x) = fmap M1 <$> gvalidate x
+instance (GenericValidatable a b errors effects) => GenericValidatable (C1 _m1 a) (C1 _m2 b) errors effects where
+  genericValidate (M1 x) = fmap M1 <$> genericValidate x
 
-instance {-# OVERLAPPABLE #-} (GValidatable a b errors effects) => GValidatable (S1 _m1 a) (S1 _m2 b) errors effects where
-  gvalidate (M1 x) = fmap M1 <$> gvalidate x
+instance {-# OVERLAPPABLE #-} (GenericValidatable a b errors effects) => GenericValidatable (S1 _m1 a) (S1 _m2 b) errors effects where
+  genericValidate (M1 x) = fmap M1 <$> genericValidate x
 
-instance {-# OVERLAPPABLE #-} GValidatable (Rec0 a) (Rec0 a) errors effects where
-  gvalidate (K1 x) = pure $ pure (K1 x)
+instance {-# OVERLAPPABLE #-} GenericValidatable (Rec0 a) (Rec0 a) errors effects where
+  genericValidate (K1 x) = pure $ pure (K1 x)
 
 data Validity = Raw | Parsed | Mark | MarkR Validity
 
@@ -173,10 +172,10 @@ type family GenericEffects' (as :: [(Symbol, Type)]) :: EffectRow where
 
 type GenericEffects a = GenericEffects' (ValidatableFieldsAList a)
 
-type GValidatableConstraints (a :: Validity -> Type)
+type GenericValidatableConstraints (a :: Validity -> Type)
   = ( Generic (a ( 'MarkR 'Raw))
     , Generic (a ( 'MarkR 'Parsed))
-    , GValidatable
+    , GenericValidatable
         (Rep (a ( 'MarkR 'Raw)))
         (Rep (a ( 'MarkR 'Parsed)))
         (GenericFieldValidationErrors (Rep (a 'Mark)))
