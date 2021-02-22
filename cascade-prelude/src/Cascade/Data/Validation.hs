@@ -17,7 +17,7 @@ module Cascade.Data.Validation
   ( Validatable(..)
   , GenericValidationErrors
   , FieldValidationError
-  , Validity(Parsed, Raw)
+  , Phase(Parsed, Raw)
   , Validate
   , ApiErrorFormat(..)
   , ToMessage(..)
@@ -81,7 +81,7 @@ instance ( Aeson.ToJSON error
 
 newtype FieldValidationError (fieldName :: Symbol) (error :: Type) = FieldValidationError error
 
-instance GenericValidatableConstraints a => Validatable (Generically (a (v :: Validity))) where
+instance GenericValidatableConstraints a => Validatable (Generically (a (v :: Phase))) where
   type Raw (Generically (a _)) = a 'Raw
   type Parsed (Generically (a _)) = a 'Parsed
   type Errors (Generically (a _))
@@ -133,12 +133,12 @@ instance {-# OVERLAPPABLE #-} (GenericValidatable a b errors effects) => Generic
 instance {-# OVERLAPPABLE #-} GenericValidatable (Rec0 a) (Rec0 a) errors effects where
   genericValidate (K1 x) = pure $ pure (K1 x)
 
-data Validity = Raw | Parsed | Mark | MarkR Validity
+data Phase = Raw | Parsed | Mark | MarkR Phase
 
 newtype Marked (a :: Type) = Marked a
-newtype MarkedR (a :: Type) (v :: Validity) = MarkedR (Validate v a)
+newtype MarkedR (a :: Type) (v :: Phase) = MarkedR (Validate v a)
 
-type family Validate (v :: Validity) (a :: Type) where
+type family Validate (v :: Phase) (a :: Type) where
   Validate 'Raw a    = Raw a
   Validate 'Parsed a = Parsed a
   Validate 'Mark a = Marked a
@@ -169,7 +169,7 @@ type family GenericEffects' (as :: [(Symbol, Type)]) :: EffectRow where
 
 type GenericEffects a = GenericEffects' (ValidatableFieldsAList a)
 
-type GenericValidatableConstraints (a :: Validity -> Type)
+type GenericValidatableConstraints (a :: Phase -> Type)
   = ( Generic (a ( 'MarkR 'Raw))
     , Generic (a ( 'MarkR 'Parsed))
     , GenericValidatable
