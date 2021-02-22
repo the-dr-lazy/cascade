@@ -24,7 +24,6 @@ module Cascade.Data.Validation
   , module Validation
   ) where
 
-import           Cascade.Polysemy               ( constraint )
 import           Cascade.Type.Monoid
 import qualified Data.Aeson                    as Aeson
 import           Data.Aeson                     ( (.=) )
@@ -36,7 +35,6 @@ import qualified Data.Text                     as Text
 import           GHC.Generics
 import           GHC.TypeLits
 import           Polysemy                       ( EffectRow
-                                                , Members
                                                 , Sem
                                                 )
 import           Unsafe.Coerce
@@ -116,12 +114,11 @@ instance
 instance
   ( GenericValidatable a c errors effects1
   , GenericValidatable b d errors effects2
-  , Members effects1 effects3
-  , Members effects2 effects3
+  , effects4 ~ (effects1 <> effects2)
   ) => GenericValidatable (a :*: b) (c :*: d) errors effects3 where
   genericValidate (l :*: r) = do
-    lresult <- constraint $ genericValidate @a @c @errors @effects1 l
-    rresult <- constraint $ genericValidate @b @d @errors @effects2 r
+    lresult <- unsafeCoerce $ genericValidate @a @c @errors @effects1 l
+    rresult <- unsafeCoerce $ genericValidate @b @d @errors @effects2 r
     pure $ (:*:) <$> lresult <*> rresult
 
 instance (GenericValidatable a b errors effects) => GenericValidatable (D1 _m1 a) (D1 _m2 b) errors effects where
