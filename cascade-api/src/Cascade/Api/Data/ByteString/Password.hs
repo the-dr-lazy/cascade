@@ -10,20 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.ByteString.Password
-  ( Password
-  , pattern Password
-  , ValidationError(..)
-  , ValidationErrors
-  , mk
-  , un
-  ) where
+module Cascade.Api.Data.ByteString.Password (Password, pattern Password, ValidationError(..), ValidationErrors, mk, un) where
 
-import           Control.Selective              ( ifS )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import qualified Data.Text                     as Text
+import           Control.Selective                   ( ifS )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import qualified Data.Text                          as Text
 import           Validation
 
 newtype Password = Mk
@@ -46,6 +39,4 @@ mk :: Text -> Validation ValidationErrors Password
 mk input = Mk (encodeUtf8 input) <$ validate input
 
 validate :: Text -> Validation ValidationErrors ()
-validate input = ifS (pure $ Text.null input)
-                     (failure IsEmpty)
-                     (failureIf (Text.length input < 8) IsShort)
+validate input = ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)

@@ -10,19 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.EmailAddress
-  ( EmailAddress
-  , pattern EmailAddress
-  , ValidationError(..)
-  , un
-  , mk
-  ) where
+module Cascade.Api.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, ValidationError(..), un, mk) where
 
-import           Control.Lens.TH                ( makeWrapped )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import           Text.Email.Validate            ( canonicalizeEmail )
+import           Control.Lens.TH                     ( makeWrapped )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import           Text.Email.Validate                 ( canonicalizeEmail )
 
 newtype EmailAddress = Mk
   { un :: Text }
@@ -35,8 +29,8 @@ pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
 
 data ValidationError = IsInvalid
-  deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
+    deriving stock (Generic, Show)
+    deriving anyclass (FromJSON, ToJSON)
 
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8

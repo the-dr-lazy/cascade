@@ -12,25 +12,22 @@ Portability : POSIX
 
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cascade.Api.Data.WrappedC
-  ( WrappedC(..)
-  , C
-  ) where
+module Cascade.Api.Data.WrappedC (WrappedC(..), C) where
 
-import           Control.Lens                   ( Unwrapped
-                                                , Wrapped
-                                                , _Wrapped'
-                                                , review
-                                                , view
-                                                )
-import qualified Database.Beam                 as Beam
-import           Database.Beam.Backend          ( BackendFromField
-                                                , BeamSqlBackend
-                                                )
-import qualified Database.Beam.Backend         as Beam
+import           Control.Lens                        ( Unwrapped
+                                                     , Wrapped
+                                                     , _Wrapped'
+                                                     , review
+                                                     , view
+                                                     )
+import qualified Database.Beam                      as Beam
+import           Database.Beam.Backend               ( BackendFromField
+                                                     , BeamSqlBackend
+                                                     )
+import qualified Database.Beam.Backend              as Beam
 import qualified Database.PostgreSQL.Simple.FromField
-                                               as Postgres
-                                                ( FromField(fromField) )
+                                                    as Postgres
+                                                     ( FromField(fromField) )
 
 newtype WrappedC a = WrappedC
   { unWrappedC :: a }
@@ -54,11 +51,11 @@ instance ( Wrapped a
          Beam.HasSqlEqualityCheck backend (WrappedC a)
 
 instance (Wrapped a, Postgres.FromField (Unwrapped a)) => Postgres.FromField (WrappedC a) where
-  fromField a b = review (_Wrapped' . _Wrapped') <$> Postgres.fromField a b
+    fromField a b = review (_Wrapped' . _Wrapped') <$> Postgres.fromField a b
 
 instance (Wrapped a, Beam.HasSqlValueSyntax backend (Unwrapped a)) =>
          Beam.HasSqlValueSyntax backend (WrappedC a) where
-  sqlValueSyntax = Beam.sqlValueSyntax . view (_Wrapped' . _Wrapped')
+    sqlValueSyntax = Beam.sqlValueSyntax . view (_Wrapped' . _Wrapped')
 
 type family C (f :: Type -> Type) (a :: Type) :: Type where
   C f x = Beam.C f (WrappedC x)

@@ -10,39 +10,33 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Project
-  ( Project
-  , Id
-  , Readable(..)
-  , Creatable(..)
-  , Updatable(..)
-  ) where
+module Cascade.Api.Data.Project (Project, Id, Readable(..), Creatable(..), Updatable(..)) where
 
-import qualified Cascade.Api.Data.Id           as Data
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Data.Id                as Data
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import           Data.Generics.Labels                ( )
 
 data Project
 
 type Id = Data.Id Project
 
 data Readable = Readable
-  { id   :: Id
-  , name :: Text
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+    { id   :: Id
+    , name :: Text
+    }
+    deriving stock (Generic, Show, Eq)
+    deriving anyclass (FromJSON, ToJSON)
 
 data Creatable = Creatable
-  { name :: Text
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+    { name :: Text
+    }
+    deriving stock (Generic, Show, Eq)
+    deriving anyclass (FromJSON, ToJSON)
 
 data Updatable = Updatable
-  { name :: Maybe Text
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+    { name :: Maybe Text
+    }
+    deriving stock (Generic, Show, Eq)
+    deriving anyclass (FromJSON, ToJSON)

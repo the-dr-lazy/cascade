@@ -10,20 +10,15 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Authentication
-  ( RawCredential(..)
-  , ParsedCredential
-  , parseRawCredential
-  ) where
+module Cascade.Api.Data.Authentication (RawCredential(..), ParsedCredential, parseRawCredential) where
 
 import qualified Cascade.Api.Data.ByteString.Password
-                                               as Password
-import qualified Cascade.Api.Data.Text.Username
-                                               as Username
-import qualified Cascade.Api.Data.User         as User
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
+                                                    as Password
+import qualified Cascade.Api.Data.Text.Username     as Username
+import qualified Cascade.Api.Data.User              as User
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
 import           Validation
 
 -- brittany-disable-next-binding
@@ -35,13 +30,13 @@ data RawCredential = RawCredential
   deriving anyclass (FromJSON, ToJSON)
 
 data ParsedCredential = ParsedCredential
-  { username :: User.Username
-  , password :: User.Password
-  }
-  deriving stock (Generic, Show, Eq)
+    { username :: User.Username
+    , password :: User.Password
+    }
+    deriving stock (Generic, Show, Eq)
 
 parseRawCredential :: RawCredential -> Validation () ParsedCredential
 parseRawCredential RawCredential {..} =
-  let validateUsername = Username.mk username |> first mempty
-      validatePassword = Password.mk password |> first mempty
-  in  ParsedCredential <$> validateUsername <*> validatePassword
+    let validateUsername = Username.mk username |> first mempty
+        validatePassword = Password.mk password |> first mempty
+    in  ParsedCredential <$> validateUsername <*> validatePassword

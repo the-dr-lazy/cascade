@@ -10,25 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.Users
-  ( Routes(..)
-  , CreateResponse
-  ) where
+module Cascade.Api.Network.Anatomy.Api.Users (Routes(..), CreateResponse) where
 
-import qualified Cascade.Api.Data.User         as User
+import qualified Cascade.Api.Data.User              as User
 import           Cascade.Api.Network.Anatomy.Prelude
-import qualified Cascade.Api.Servant.Response  as Response
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Servant.Response       as Response
+import           Data.Generics.Labels                ( )
 
-type CreateResponse
-  = '[ Response.Created User.Readable
-     , Response.Conflict
-     , Response.Unprocessable User.RawCreatableValidationErrors
-     ]
+type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable User.RawCreatableValidationErrors]
 
-data Routes route
-  = Routes
-    { create
-        :: route :- ReqBody '[JSON] User.RawCreatable :> Post '[JSON] CreateResponse
+data Routes route = Routes
+    { create :: route :- ReqBody '[JSON] User.RawCreatable :> Post '[JSON] CreateResponse
     }
-  deriving stock Generic
+    deriving stock Generic

@@ -10,23 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.Project
-  ( ProjectTable(..)
-  , PrimaryKey(..)
-  , Row
-  ) where
+module Cascade.Api.Database.Project (ProjectTable(..), PrimaryKey(..), Row) where
 
-import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Data.WrappedC     as Wrapped
-import           Control.Lens                   ( _Wrapped'
-                                                , view
-                                                )
-import           Data.Generics.Labels           ( )
-import           Database.Beam                  ( Beamable
-                                                , C
-                                                , PrimaryKey
-                                                , Table(..)
-                                                )
+import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.WrappedC          as Wrapped
+import           Control.Lens                        ( _Wrapped'
+                                                     , view
+                                                     )
+import           Data.Generics.Labels                ( )
+import           Database.Beam                       ( Beamable
+                                                     , C
+                                                     , PrimaryKey
+                                                     , Table(..)
+                                                     )
 
 -- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row
@@ -37,12 +33,12 @@ data ProjectTable (f :: Type -> Type) = Row
   deriving anyclass Beamable
 
 instance Table ProjectTable where
-  newtype PrimaryKey ProjectTable f = PrimaryKey
-    { unPrimaryKey :: Wrapped.C f Project.Id
-    }
-    deriving stock Generic
-    deriving anyclass Beamable
-  primaryKey = PrimaryKey . id
+    newtype PrimaryKey ProjectTable f = PrimaryKey
+      { unPrimaryKey :: Wrapped.C f Project.Id
+      }
+      deriving stock Generic
+      deriving anyclass Beamable
+    primaryKey = PrimaryKey . id
 
 type Row = ProjectTable Identity
 

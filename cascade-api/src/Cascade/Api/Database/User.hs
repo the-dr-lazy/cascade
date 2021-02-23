@@ -10,19 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.User
-  ( UserTable(..)
-  , Row
-  ) where
+module Cascade.Api.Database.User (UserTable(..), Row) where
 
-import qualified Cascade.Api.Data.User         as User
-import qualified Cascade.Api.Data.WrappedC     as Wrapped
-import qualified Cascade.Api.Effect.Scrypt     as Scrypt
-import           Chronos                        ( OffsetDatetime )
-import           Database.Beam                  ( Beamable
-                                                , C
-                                                , Table(..)
-                                                )
+import qualified Cascade.Api.Data.User              as User
+import qualified Cascade.Api.Data.WrappedC          as Wrapped
+import qualified Cascade.Api.Effect.Scrypt          as Scrypt
+import           Chronos                             ( OffsetDatetime )
+import           Database.Beam                       ( Beamable
+                                                     , C
+                                                     , Table(..)
+                                                     )
 
 -- brittany-disable-next-binding
 data UserTable (f :: Type -> Type) = Row
@@ -37,11 +34,11 @@ data UserTable (f :: Type -> Type) = Row
   deriving anyclass Beamable
 
 instance Table UserTable where
-  newtype PrimaryKey UserTable f = PrimaryKey
-    { unPrimaryKey :: Wrapped.C f User.Id }
-    deriving stock Generic
-    deriving anyclass Beamable
-  primaryKey = PrimaryKey . id
+    newtype PrimaryKey UserTable f = PrimaryKey
+      { unPrimaryKey :: Wrapped.C f User.Id }
+      deriving stock Generic
+      deriving anyclass Beamable
+    primaryKey = PrimaryKey . id
 
 type Row = UserTable Identity
 

@@ -10,23 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.Username
-  ( Username
-  , ValidationError(..)
-  , ValidationErrors
-  , pattern Username
-  , un
-  , mk
-  ) where
+module Cascade.Api.Data.Text.Username (Username, ValidationError(..), ValidationErrors, pattern Username, un, mk) where
 
 
-import qualified Cascade.Data.Char             as Char
-import           Control.Lens.TH                ( makeWrapped )
-import           Control.Selective              ( ifS )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import qualified Data.Text                     as Text
+import qualified Cascade.Data.Char                  as Char
+import           Control.Lens.TH                     ( makeWrapped )
+import           Control.Selective                   ( ifS )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import qualified Data.Text                          as Text
 import           Validation
 
 newtype Username = Mk
@@ -54,10 +47,7 @@ mk input = Mk input <$ validate input
 
 validate :: Text -> Validation ValidationErrors ()
 validate input = ifS
-  (pure $ Text.null input)
-  (failure IsEmpty)
-  (  failureIf (l > 20) IsLong
-  *> failureIf (l < 8)  IsShort
-  *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid
-  )
-  where l = Text.length input
+    (pure $ Text.null input)
+    (failure IsEmpty)
+    (failureIf (l > 20) IsLong *> failureIf (l < 8) IsShort *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid)
+    where l = Text.length input
