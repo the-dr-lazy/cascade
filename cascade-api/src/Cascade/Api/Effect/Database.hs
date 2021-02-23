@@ -58,7 +58,6 @@ import qualified Database.PostgreSQL.Simple    as Postgres
 import           GHC.Generics
 import           Polysemy                       ( Embed
                                                 , Member
-                                                , Members
                                                 , Sem
                                                 , embed
                                                 , interpret
