@@ -10,32 +10,26 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Authentication (RawCredential(..), ParsedCredential, parseRawCredential) where
+{-# LANGUAGE UndecidableInstances #-}
+module Cascade.Api.Data.Authentication (Credential(..), parseRawCredential) where
 
-import qualified Cascade.Api.Data.ByteString.Password
-                                                    as Password
-import qualified Cascade.Api.Data.Text.Username     as Username
 import qualified Cascade.Api.Data.User              as User
+import           Cascade.Data.Validation
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Validation
+import qualified Polysemy
 
-data RawCredential = RawCredential
-  { username :: Text
-  , password :: Text
+-- brittany-disable-next-binding
+data Credential (v :: Phase) = Credential
+  { username :: Validate v User.Username
+  , password :: Validate v User.Password
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock (Generic)
+  deriving Validatable via (Generically (Credential v))
 
-data ParsedCredential = ParsedCredential
-  { username :: User.Username
-  , password :: User.Password
-  }
-  deriving stock (Generic, Show, Eq)
+deriving anyclass instance ToJSON (Credential 'Raw)
+deriving anyclass instance FromJSON (Credential 'Raw)
 
-parseRawCredential :: RawCredential -> Validation () ParsedCredential
-parseRawCredential RawCredential {..} =
-  let validateUsername = Username.mk username |> first mempty
-      validatePassword = Password.mk password |> first mempty
-  in  ParsedCredential <$> validateUsername <*> validatePassword
+parseRawCredential :: Credential 'Raw -> Validation () (Credential 'Parsed)
+parseRawCredential = first mempty . Polysemy.run . validate @(Credential 'Raw)
