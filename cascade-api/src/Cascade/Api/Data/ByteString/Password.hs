@@ -12,12 +12,13 @@ Portability : POSIX
 
 module Cascade.Api.Data.ByteString.Password (Password, pattern Password, ValidationError(..), ValidationErrors, mk, un) where
 
+import           Cascade.Data.Validation
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Selective                   ( ifS )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
+import           Data.Aeson                          ( ToJSON )
+import           Data.Data                           ( Data )
 import qualified Data.Text                          as Text
-import           Validation
+import qualified Polysemy
 
 newtype Password = Mk
   { un :: ByteString }
@@ -30,13 +31,21 @@ pattern Password a <- Mk a
 data ValidationError
   = IsEmpty
   | IsShort
-  deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock (Generic, Data, Show)
+  deriving ToJSON via (ApiErrorFormat ValidationError)
+
+instance Validation.ToMessage ValidationError where
+  toMessage = \case
+    IsEmpty -> "can't be empty"
+    IsShort -> "should have at least 8 characters"
 
 type ValidationErrors = NonEmpty ValidationError
 
 mk :: Text -> Validation ValidationErrors Password
-mk input = Mk (encodeUtf8 input) <$ validate input
+mk = Polysemy.run . validate @Password
 
-validate :: Text -> Validation ValidationErrors ()
-validate input = ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)
+instance Validatable Password where
+  type Raw Password = Text
+  type Errors Password = ValidationErrors
+
+  validate input = pure $ Mk (encodeUtf8 input) <$ ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)
