@@ -60,6 +60,11 @@ newtype GenericValidationErrors (errors :: [Type]) = GenericValidationErrors TMa
 instance GenericValidationErrorsToJSON errors => Aeson.ToJSON (GenericValidationErrors errors) where
   toJSON errors = Aeson.object $ genericValidationErrorsToJSON errors
 
+-- | An arbitrary instance just for Servant client satisfication.
+-- DO NOT RELY ON IT
+instance Aeson.FromJSON (GenericValidationErrors errors) where
+  parseJSON _ = pure . GenericValidationErrors $ TMap.empty
+
 class GenericValidationErrorsToJSON (errors :: [Type]) where
   genericValidationErrorsToJSON :: GenericValidationErrors errors -> [Aeson.Pair]
 
