@@ -154,12 +154,12 @@ jobs:
                               --enable-optimization=2 \
                               --enable-tests \
                               --disable-coverage \
+                              --test-show-details=direct
                               # Due to some cabal issues with internal components
                               # we are not able to disable per-component build
                               # thus we will not be able to generate code coverages
                               # TODO: Enable code coverage when it's possible!
-                              # --disable-per-component \
-                              --test-show-details=direct
+                              # --disable-per-component
 
       - name: Cache ~/.cabal/store
         uses: actions/cache@v2.1.3
