@@ -22,6 +22,7 @@ import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
 import qualified Cascade.Api.Effect.Scrypt          as Scrypt
 import           Cascade.Api.Effect.Scrypt           ( ScryptL )
+import           Cascade.Data.Validation             ( Phase(..) )
 import           Control.Lens                        ( (^.)
                                                      , to
                                                      )
@@ -50,7 +51,7 @@ import qualified Relude.Unsafe                      as Unsafe
 data UserL m a where
   FindByUsername ::User.Username -> UserL m (Maybe Database.User.Row)
   DoesExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
-  Create ::User.ParsedCreatable -> UserL m User.Readable
+  Create ::User.Creatable 'Parsed -> UserL m User.Readable
 
 makeSem ''UserL
 
@@ -86,7 +87,7 @@ run = interpret \case
 fromParsedCreatableUser :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) UserTable
                         => Scrypt.Encrypted Password
-                        -> User.ParsedCreatable
+                        -> User.Creatable 'Parsed
                         -> UserTable (Beam.QExpr backend s)
 fromParsedCreatableUser encryptedPassword creatable = Database.User.Row { id                = default_
                                                                         , username          = creatable ^. #username . to WrappedC . to val_

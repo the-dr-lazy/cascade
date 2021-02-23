@@ -19,6 +19,7 @@ import qualified Cascade.Api.Network.TestClient.Api.Users
                                                     as Cascade.Api.Users
 import           Cascade.Api.Test.Prelude            ( )
 import qualified Cascade.Data.Char                  as Char
+import           Cascade.Data.Validation             ( Phase(..) )
 import           Control.Lens                        ( (?~)
                                                      , (^.)
                                                      , _2
@@ -37,8 +38,8 @@ commands = [createNotExisting, createExisting]
 
 -- brittany-disable-next-binding
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
-  { validity :: Validity
-  , creatable :: User.RawCreatable
+  { validity  :: Validity
+  , creatable :: User.Creatable 'Raw
   }
   deriving stock (Generic, Show)
 
@@ -55,7 +56,7 @@ createNotExisting =
         (emailAddressValidity, emailAddress) <- Gen.filter (flip Map.notMember emailAddresses . view _2) Gen.emailAddressWithValidity
         (passwordValidity    , password    ) <- Gen.passwordWithValidity
         let validity  = [usernameValidity, emailAddressValidity, passwordValidity] |> all (== Valid) |> bool Invalid Valid
-            creatable = User.RawCreatable { .. }
+            creatable = User.Creatable { .. }
 
         pure $ CreateNotExisting { .. }
 
@@ -102,8 +103,7 @@ createNotExisting =
 
 -- brittany-disable-next-binding
 newtype CreateExisting (v :: Type -> Type) = CreateExisting
-  { creatable :: User.RawCreatable
-  }
+  { creatable :: User.Creatable 'Raw }
   deriving stock Show
 
 instance HTraversable CreateExisting where
@@ -117,7 +117,7 @@ createExisting =
          where
           usernames      = model ^. #user . #byUsername . to Map.keys
           emailAddresses = model ^. #user . #byEmailAddress . to Map.keys
-          creatable      = User.RawCreatable <$> Gen.element usernames <*> Gen.element emailAddresses <*> Gen.password Valid
+          creatable      = User.Creatable <$> Gen.element usernames <*> Gen.element emailAddresses <*> Gen.password Valid
 
       execute :: CreateExisting Concrete -> m Cascade.Api.Users.CreateResponse
       execute (CreateExisting creatable) = do

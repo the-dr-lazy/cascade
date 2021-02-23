@@ -13,8 +13,9 @@ Portability : POSIX
 module Test.Cascade.Api.StateMachine.Model (Model, initialModel) where
 
 import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Data.User              as User
+import           Cascade.Data.Validation             ( Phase(..) )
 import           Data.Generics.Labels                ( )
 import qualified Data.Map.Strict                    as Map
 import           Hedgehog.Internal.State             ( Var )
@@ -42,8 +43,8 @@ data ProjectModel (v :: Type -> Type) = ProjectModel
 
 -- brittany-disable-next-binding
 data UserModel (v :: Type -> Type) = UserModel
-  { byUsername     :: Map Text User.RawCreatable
-  , byEmailAddress :: Map Text User.RawCreatable
+  { byUsername     :: Map Text (User.Creatable 'Raw)
+  , byEmailAddress :: Map Text (User.Creatable 'Raw)
   }
   deriving stock Generic
 
