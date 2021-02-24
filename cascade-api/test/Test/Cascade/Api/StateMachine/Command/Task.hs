@@ -64,7 +64,7 @@ commands
 commands =
   [ createValid
   , createInvalid
-  , findByProjectId
+  , getByProjectId
   , addNotExistingId
   , getExisting
   , getNotExisting
@@ -184,37 +184,37 @@ createInvalid =
     Command generator execute [Ensure ensure]
 
 -- brittany-disable-next-binding
-data FindByProjectId (v :: Type -> Type) = FindByProjectId
+data GetByProjectId (v :: Type -> Type) = GetByProjectId
   { projectId  :: Var Project.Id v
   }
   deriving stock (Generic, Show)
 
-instance HTraversable FindByProjectId where
-  htraverse f (FindByProjectId id) = FindByProjectId <$> htraverse f id
+instance HTraversable GetByProjectId where
+  htraverse f (GetByProjectId id) = GetByProjectId <$> htraverse f id
 
-findByProjectId
+getByProjectId
   :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
-findByProjectId =
-  let generator :: Model Symbolic -> Maybe (g (FindByProjectId Symbolic))
+getByProjectId =
+  let generator :: Model Symbolic -> Maybe (g (GetByProjectId Symbolic))
       generator model = case model ^. #project . #creatables . to Map.keys of
         []         -> Nothing
         projectIds -> Just $ do
           projectId <- Gen.element projectIds
-          pure $ FindByProjectId { .. }
+          pure $ GetByProjectId { .. }
 
       execute
-        :: FindByProjectId Concrete
-        -> m Cascade.Api.Projects.Tasks.FindByProjectIdResponse
-      execute (FindByProjectId projectId) = evalIO
-        $ Cascade.Api.Projects.Tasks.findByProjectId (concrete projectId)
+        :: GetByProjectId Concrete
+        -> m Cascade.Api.Projects.Tasks.GetByProjectIdResponse
+      execute (GetByProjectId projectId) = evalIO
+        $ Cascade.Api.Projects.Tasks.getByProjectId (concrete projectId)
 
       ensure
         :: Model Concrete
         -> Model Concrete
-        -> FindByProjectId Concrete
-        -> Cascade.Api.Projects.Tasks.FindByProjectIdResponse
+        -> GetByProjectId Concrete
+        -> Cascade.Api.Projects.Tasks.GetByProjectIdResponse
         -> Test ()
-      ensure _before after (FindByProjectId projectId) response = do
+      ensure _before after (GetByProjectId projectId) response = do
         footnoteShow response
 
         output :: [Task.Readable] <-
@@ -245,8 +245,8 @@ findByProjectId =
 
             checkEqReadableRawCreatableTask task task'
 
-      require :: Model Symbolic -> FindByProjectId Symbolic -> Bool
-      require model (FindByProjectId projectId) =
+      require :: Model Symbolic -> GetByProjectId Symbolic -> Bool
+      require model (GetByProjectId projectId) =
           case model ^. #task . #creatables . at projectId of
             Nothing -> False
             Just _  -> True

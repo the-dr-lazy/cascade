@@ -13,7 +13,7 @@ Portability : POSIX
 module Cascade.Api.Network.Anatomy.Api.Projects.Tasks
   ( Routes(..)
   , CreateResponse
-  , FindByProjectIdResponse
+  , GetByProjectIdResponse
   )
 where
 
@@ -26,10 +26,10 @@ type CreateResponse
   = '[Response.Created Task.Readable, Response.Unprocessable
     Task.RawCreatableValidationErrors]
 
-type FindByProjectIdResponse = '[Response.Ok [Task.Readable]]
+type GetByProjectIdResponse = '[Response.Ok [Task.Readable]]
 
 data Routes route = Routes
   { create :: route :- ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
-  , findByProjectId :: route :- Get '[JSON] FindByProjectIdResponse
+  , getByProjectId :: route :- Get '[JSON] GetByProjectIdResponse
   }
   deriving stock Generic
