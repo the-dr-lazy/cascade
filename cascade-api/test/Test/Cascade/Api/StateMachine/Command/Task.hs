@@ -95,7 +95,7 @@ createValid =
         []         -> Nothing
         projectIds -> Just $ do
           projectId  <- Gen.element projectIds
-          title      <- Gen.nonEmptyText Valid
+          title      <- Gen.nonEmptyText 30 Valid
           deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
@@ -146,7 +146,7 @@ createInvalid =
         let titleValidity      = boolToValidity flag
         let deadlineAtValidity = boolToValidity $ not flag
         projectId  <- Gen.element projectIds
-        title      <- Gen.nonEmptyText titleValidity
+        title      <- Gen.nonEmptyText 30 titleValidity
         deadlineAt <- FormattedOffsetDatetime
           <$> Gen.deadline deadlineAtValidity
         let creatable = Task.RawCreatable { .. }
@@ -388,7 +388,7 @@ updateExisting =
         []  -> Nothing
         ids -> Just $ do
           id         <- Gen.element ids
-          title      <- Just <$> Gen.nonEmptyText Valid
+          title      <- Just <$> Gen.nonEmptyText 30 Valid
           deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
           let updatable = Task.RawUpdatable { .. }
           pure $ UpdateById { .. }
@@ -450,7 +450,7 @@ updateExistingInvalid =
           let titleValidity      = boolToValidity flag
           let deadlineAtValidity = boolToValidity $ not flag
           id         <- Gen.element ids
-          title      <- Just <$> Gen.nonEmptyText titleValidity
+          title      <- Just <$> Gen.nonEmptyText 30 titleValidity
           deadlineAt <-
             Just . FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
           let updatable = Task.RawUpdatable { .. }
@@ -495,7 +495,7 @@ updateNotExisting =
       []  -> Nothing
       ids -> Just $ do
         id         <- Gen.element ids
-        title      <- Just <$> Gen.nonEmptyText Valid
+        title      <- Just <$> Gen.nonEmptyText 30 Valid
         deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
         let updatable = Task.RawUpdatable { .. }
         pure $ UpdateById { .. }
