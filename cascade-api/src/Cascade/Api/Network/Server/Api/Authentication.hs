@@ -19,11 +19,9 @@ import qualified Cascade.Api.Data.Authentication
 import           Cascade.Api.Data.Authentication
                                                 ( parseRawCredential )
 import qualified Cascade.Api.Data.Jwt          as Jwt
-import qualified Cascade.Api.Effect.Database.User
-                                               as Database
-                                                ( UserL )
-import qualified Cascade.Api.Effect.Database.User
-                                               as Database.User
+import qualified Cascade.Api.Effect.Depository as Depository
+import qualified Cascade.Api.Effect.Depository.User
+                                               as Depository.User
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Cascade.Api.Network.Anatomy.Api.Authentication
 import           Cascade.Api.Servant.Authentication
@@ -49,16 +47,16 @@ import           Validation                     ( validation )
 import           Web.Cookie
 import qualified Web.Cookie                    as Cookie
 
-handleLogin :: Members '[Database.UserL , Error ServerError] r
+handleLogin :: Members '[Depository.UserL , Error ServerError] r
             => Authentication.RawCredential
             -> Sem r LoginResponse
 handleLogin = validation (const $ throw err422) go . parseRawCredential
  where
-  go :: Members '[Database.UserL , Error ServerError] r
+  go :: Members '[Depository.UserL , Error ServerError] r
      => Authentication.ParsedCredential
      -> Sem r LoginResponse
   go credential =
-    Database.User.findByUsername (credential ^. #username) >>= maybe
+    Depository.User.findByUsername (credential ^. #username) >>= maybe
       (throw err401)
       \user -> do
         let doesPasswordsMatch = Scrypt.verifyPassword
@@ -67,7 +65,7 @@ handleLogin = validation (const $ throw err422) go . parseRawCredential
         unless doesPasswordsMatch $ throw err401
         pure $ mkLoginResponse (Jwt.mk $ user ^. #id . _Wrapped')
 
-server :: Members '[Database.UserL , Error ServerError] r
+server :: Members '[Depository.UserL , Error ServerError] r
        => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { login = handleLogin }
 
