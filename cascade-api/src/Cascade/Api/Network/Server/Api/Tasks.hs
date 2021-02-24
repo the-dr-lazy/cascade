@@ -20,9 +20,8 @@ import qualified Cascade.Api.Effect.Database.Task
                                                as Database.Task
 import           Cascade.Api.Effect.Database.Task
                                                 ( TaskL )
-import           Cascade.Api.Effect.Time        ( TimeL
-                                                , now
-                                                )
+import qualified Cascade.Api.Effect.Time       as Time
+import           Cascade.Api.Effect.Time        ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Tasks
 import qualified Cascade.Api.Servant.Response  as Response
 import           Polysemy                       ( Member
@@ -46,7 +45,7 @@ handleUpdateById
   -> Task.RawUpdatable
   -> Sem r (Union UpdateByIdResponse)
 handleUpdateById id updatable =
-  now
+  Time.now
     >>= validation (respond . Response.Unprocessable) go
     .   Task.parseRawUpdatableTask updatable
  where
