@@ -28,14 +28,15 @@ import           Hedgehog                            ( MonadGen(GenBase) )
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
 
-nonEmptyText :: MonadGen g => Validity -> g Text
-nonEmptyText Valid   = Gen.text (Range.linear 1 20) Gen.alphaNum
-nonEmptyText Invalid = pure ""
+nonEmptyText :: MonadGen g => Int -> Validity -> g Text
+nonEmptyText upperLimit Valid =
+  Gen.text (Range.linear 1 upperLimit) Gen.alphaNum
+nonEmptyText _ Invalid = pure ""
 
-nonEmptyTextWithValidity :: MonadGen g => g (Validity, Text)
-nonEmptyTextWithValidity = do
+nonEmptyTextWithValidity :: MonadGen g => Int -> g (Validity, Text)
+nonEmptyTextWithValidity upperLimit = do
   validity <- Gen.enumBounded
-  (validity, ) <$> nonEmptyText validity
+  (validity, ) <$> nonEmptyText upperLimit validity
 
 username :: MonadGen g => Validity -> g Text
 username Valid = Gen.text (Range.linear 8 20) $ Gen.choice [Gen.hexit, pure '_']
