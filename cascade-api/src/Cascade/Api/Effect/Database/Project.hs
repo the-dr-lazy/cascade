@@ -24,15 +24,16 @@ module Cascade.Api.Effect.Database.Project
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.WrappedC
+import qualified Cascade.Api.Data.WrappedC     as WrappedC
 import           Cascade.Api.Database.ProjectTable
                                                 ( ProjectTable )
 import qualified Cascade.Api.Database.ProjectTable
                                                as ProjectTable
+import qualified Cascade.Api.Database.Query    as Query
+import qualified Cascade.Api.Database.Query.Project
+                                               as Query.Project
 import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
-import qualified Cascade.Api.Query             as Query
-import qualified Cascade.Api.Query.Project     as Project
-import qualified Cascade.Api.Query.User        as User
 import           Control.Lens                   ( (^.) )
 import           Database.Beam                  ( (<-.)
                                                 , (==.)
@@ -75,20 +76,21 @@ run :: forall backend r a
     => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
   FindAll ->
-    Project.queryAll
+    Query.all #projects
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindAllByUserId userId ->
-    User.queryAllRelatedProjectsById userId
+    Query.Project.byUserId userId
       |> select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindById id ->
-    Query.lookup #projects (ProjectTable.PrimaryKey $ coerce id)
+    Query.Project.byId id
+      |> select
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableProject
-  Create creatable userId ->
+  Create creatable _ ->
     insertExpressions [fromCreatableProject creatable]
       |> Query.insert #projects
       |> Database.runInsertReturningOne
@@ -100,11 +102,11 @@ run = interpret \case
     _ ->
       Query.update #projects
                    (fromUpdatableProject updatable)
-                   (\project -> project ^. #id ==. val_ (coerce id))
+                   (\project -> project ^. #id ==. WrappedC.val id)
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableProject
   DeleteById id ->
-    Query.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
+    Query.delete #projects (\project -> project ^. #id ==. WrappedC.val id)
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
 

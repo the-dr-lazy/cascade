@@ -11,7 +11,8 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
-module Cascade.Api.Query
+
+module Cascade.Api.Database.Query
   ( Q
   , TableFieldsFulfillConstraint
   , TableFieldsFulfillConstraints

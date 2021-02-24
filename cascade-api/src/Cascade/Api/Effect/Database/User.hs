@@ -21,7 +21,11 @@ module Cascade.Api.Effect.Database.User
 import           Cascade.Api.Data.ByteString.Password
                                                 ( Password )
 import qualified Cascade.Api.Data.User         as User
-import           Cascade.Api.Data.WrappedC
+import           Cascade.Api.Data.WrappedC      ( WrappedC(..) )
+import qualified Cascade.Api.Data.WrappedC     as WrappedC
+import qualified Cascade.Api.Database.Query    as Query
+import qualified Cascade.Api.Database.Query.User
+                                               as Query.User
 import qualified Cascade.Api.Database.UserTable
                                                as UserTable
 import           Cascade.Api.Database.UserTable ( UserTable )
@@ -29,15 +33,15 @@ import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
-import qualified Cascade.Api.Query             as Query
-import qualified Cascade.Api.Query.User        as User
 import           Control.Lens                   ( (^.)
                                                 , to
                                                 )
-import           Database.Beam                  ( default_
+import           Database.Beam                  ( (==.)
+                                                , default_
+                                                , filter_
                                                 , insertExpressions
                                                 , select
-                                                , val_
+                                                , (||.)
                                                 )
 import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
@@ -70,9 +74,13 @@ run :: Beam.HasQBuilder backend
     -> Sem r a
 run = interpret \case
   FindByUsername username ->
-    User.queryByUsername username |> select |> Database.runSelectReturningOne
+    Query.User.byUsername username |> select |> Database.runSelectReturningOne
   DoesExistsByUsernameOrEmailAddress username emailAddress -> do
-    User.queryExistanceByUsernameOrEmailAddress username emailAddress
+    let prediction user =
+          (user ^. #username ==. WrappedC.val username)
+            ||. (user ^. #emailAddress ==. WrappedC.val emailAddress)
+
+    Query.User.existance (filter_ prediction)
       |> select
       |> Database.runSelectReturningOne
       -- Only @Just@ is acceptable.
@@ -95,9 +103,9 @@ fromParsedCreatableUser :: BeamSqlBackend backend
                         -> UserTable (Beam.QExpr backend s)
 fromParsedCreatableUser encryptedPassword creatable = UserTable.Row
   { id                = default_
-  , username          = creatable ^. #username . to WrappedC . to val_
-  , emailAddress      = creatable ^. #emailAddress . to WrappedC . to val_
-  , encryptedPassword = val_ . WrappedC $ encryptedPassword
+  , username          = creatable ^. #username . to WrappedC.val
+  , emailAddress      = creatable ^. #emailAddress . to WrappedC.val
+  , encryptedPassword = WrappedC.val encryptedPassword
   , createdAt         = default_
   , updatedAt         = default_
   }
