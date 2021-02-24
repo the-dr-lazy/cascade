@@ -56,9 +56,9 @@ handleCreate projectId creatable =
       >>= respond
       .   Response.created
 
-handleFindByProjectId
-  :: Member TaskL r => Project.Id -> Sem r (Union FindByProjectIdResponse)
-handleFindByProjectId projectId =
+handleGetByProjectId
+  :: Member TaskL r => Project.Id -> Sem r (Union GetByProjectIdResponse)
+handleGetByProjectId projectId =
   Database.Task.findByProjectId projectId >>= respond . Response.ok
 
 server
@@ -66,6 +66,6 @@ server
   => Project.Id
   -> ToServant Routes (AsServerT (Sem r))
 server projectId = genericServerT Routes
-  { findByProjectId = handleFindByProjectId projectId
-  , create          = handleCreate projectId
+  { getByProjectId = handleGetByProjectId projectId
+  , create         = handleCreate projectId
   }

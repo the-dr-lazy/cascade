@@ -12,9 +12,9 @@ Portability : POSIX
 
 module Cascade.Api.Network.TestClient.Api.Projects.Tasks
   ( CreateResponse
-  , FindByProjectIdResponse
+  , GetByProjectIdResponse
   , create
-  , findByProjectId
+  , getByProjectId
   )
 where
 
@@ -32,13 +32,13 @@ import           Servant.Client.Free            ( ResponseF )
 
 type CreateResponse = ResponseF (Union Api.Projects.Tasks.CreateResponse)
 
-type FindByProjectIdResponse
-  = ResponseF (Union Api.Projects.Tasks.FindByProjectIdResponse)
+type GetByProjectIdResponse
+  = ResponseF (Union Api.Projects.Tasks.GetByProjectIdResponse)
 
 create :: Project.Id -> Task.RawCreatable -> IO CreateResponse
 create projectId = interpret . go
   where go = Client.Api.Projects.tasks projectId ^. #create
 
-findByProjectId :: Project.Id -> IO FindByProjectIdResponse
-findByProjectId projectId = interpret go
-  where go = Client.Api.Projects.tasks projectId ^. #findByProjectId
+getByProjectId :: Project.Id -> IO GetByProjectIdResponse
+getByProjectId projectId = interpret go
+  where go = Client.Api.Projects.tasks projectId ^. #getByProjectId
