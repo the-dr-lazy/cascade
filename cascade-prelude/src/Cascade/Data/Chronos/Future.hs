@@ -1,3 +1,15 @@
+{-|
+Module      : Cascade.Data.Chronos.Future
+Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
+Copyright   : (c) 2020-2021 Cascade
+License     : MPL 2.0
+Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
+Stability   : Stable
+Portability : POSIX
+
+!!! INSERT MODULE LONG DESCRIPTION !!!
+-}
+
 module Cascade.Data.Chronos.Future
   ( Future
   , ValidationError(..)
@@ -21,7 +33,8 @@ import           Validation
 
 newtype Future a = Mk
   { un :: a }
-  deriving newtype (Show, Eq, FromJSON, ToJSON)
+  deriving stock Show
+  deriving newtype (Eq, FromJSON, ToJSON)
 
 makeWrapped ''Future
 
