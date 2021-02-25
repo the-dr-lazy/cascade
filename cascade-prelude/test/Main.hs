@@ -10,9 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Main
-  ( main
-  ) where
+module Main (main) where
 
 import qualified Test.Cascade.Data.ByteString
 import qualified Test.Cascade.Data.Char

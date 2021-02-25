@@ -10,24 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api
-  ( Routes(..)
-  ) where
+module Cascade.Api.Network.Anatomy.Api (Routes(..)) where
 
 import qualified Cascade.Api.Network.Anatomy.Api.Authentication
-                                               as Api.Authentication
+                                                    as Api.Authentication
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
-                                               as Api.Projects
+                                                    as Api.Projects
 import qualified Cascade.Api.Network.Anatomy.Api.Users
-                                               as Api.Users
-import           Data.Generics.Labels           ( )
+                                                    as Api.Users
+import           Data.Generics.Labels                ( )
 import           Servant
 import           Servant.API.Generic
 
 data Routes route = Routes
-  { projects :: route :- "projects" :> ToServantApi Api.Projects.Routes
-  , users    :: route :- "users" :> ToServantApi Api.Users.Routes
-  , authentication
-      :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
+  { projects       :: route :- "projects" :> ToServantApi Api.Projects.Routes
+  , users          :: route :- "users" :> ToServantApi Api.Users.Routes
+  , authentication :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
   }
   deriving stock Generic

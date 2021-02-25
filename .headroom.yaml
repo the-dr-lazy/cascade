@@ -11,7 +11,8 @@ source-paths:
   - cascade-cli/app
   - cascade-cli/test
 
-excluded-paths: []
+excluded-paths:
+  - Setup.hs
 
 template-paths:
   - .headroom-templates

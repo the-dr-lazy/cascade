@@ -22,6 +22,29 @@ jobs:
       - name: Check headers
         run: headroom run --check-headers
 
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v1
+        id: haskell
+        with:
+          ghc-version: "8.10.2"
+          cabal-version: "3.2"
+
+      - name: Install Brittany
+        run: |
+          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
+          unzip brittany.zip
+          rm brittany.zip
+          sudo chmod +x brittany
+          sudo mv brittany /usr/bin/
+
+      - name: Check formatting
+        run: brittany -c **/*.hs
+
   build:
     name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

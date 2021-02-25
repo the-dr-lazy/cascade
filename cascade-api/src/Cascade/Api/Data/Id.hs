@@ -10,18 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Id
-  ( Id(..)
-  ) where
+module Cascade.Api.Data.Id (Id(..)) where
 
-import           Control.Lens.TH                ( makeWrapped )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import           Libjwt.Classes                 ( JwtRep )
-import           Servant.API                    ( FromHttpApiData
-                                                , ToHttpApiData
-                                                )
+import           Control.Lens.TH                     ( makeWrapped )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import           Libjwt.Classes                      ( JwtRep )
+import           Servant.API                         ( FromHttpApiData
+                                                     , ToHttpApiData
+                                                     )
 
 newtype Id (entity :: Type) = Id
   { unId :: UUID }
