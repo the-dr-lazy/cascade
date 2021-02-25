@@ -10,18 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Server
-  ( Api.Effects
-  , server
-  ) where
+module Cascade.Api.Network.Server (Api.Effects, server) where
 
 import           Cascade.Api.Network.Anatomy
-import qualified Cascade.Api.Network.Server.Api
-                                               as Api
-import           Polysemy                       ( Members
-                                                , Sem
-                                                )
-import           Servant.Server.Generic         ( AsServerT )
+import qualified Cascade.Api.Network.Server.Api     as Api
+import           Polysemy                            ( Members
+                                                     , Sem
+                                                     )
+import           Servant.Server.Generic              ( AsServerT )
 
 server :: Members Api.Effects r => Routes (AsServerT (Sem r))
 server = Routes { api = Api.server }

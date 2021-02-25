@@ -10,19 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Project
-  ( Project
-  , Id
-  , Readable(..)
-  , Creatable(..)
-  , Updatable(..)
-  ) where
+module Cascade.Api.Data.Project (Project, Id, Readable(..), Creatable(..), Updatable(..)) where
 
-import qualified Cascade.Api.Data.Id           as Data
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Data.Id                as Data
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import           Data.Generics.Labels                ( )
 
 data Project
 

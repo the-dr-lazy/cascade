@@ -22,11 +22,11 @@ module Cascade.Api.Servant.Response
   , created
   ) where
 
-import           Data.Aeson                     ( (.=)
-                                                , FromJSON(..)
-                                                , ToJSON(..)
-                                                , object
-                                                )
+import           Data.Aeson                          ( (.=)
+                                                     , FromJSON(..)
+                                                     , ToJSON(..)
+                                                     , object
+                                                     )
 import           Servant
 
 data NotFound = NotFound

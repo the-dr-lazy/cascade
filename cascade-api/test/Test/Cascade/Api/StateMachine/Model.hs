@@ -10,16 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Model
-  ( Model
-  , initialModel
-  ) where
+module Test.Cascade.Api.StateMachine.Model (Model, initialModel) where
 
-import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Data.User         as User
-import           Data.Generics.Labels           ( )
-import qualified Data.Map.Strict               as Map
-import           Hedgehog.Internal.State        ( Var )
+import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.User              as User
+import           Data.Generics.Labels                ( )
+import qualified Data.Map.Strict                    as Map
+import           Hedgehog.Internal.State             ( Var )
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
@@ -29,10 +26,9 @@ data Model (v :: Type -> Type) = Model
   deriving stock Generic
 
 initialModel :: Model v
-initialModel = Model
-  { project = ProjectModel { creatables = Map.empty, notExistingIds = mempty }
-  , user    = UserModel { byUsername = Map.empty, byEmailAddress = Map.empty }
-  }
+initialModel = Model { project = ProjectModel { creatables = Map.empty, notExistingIds = mempty }
+                     , user    = UserModel { byUsername = Map.empty, byEmailAddress = Map.empty }
+                     }
 
 -- brittany-disable-next-binding
 data ProjectModel (v :: Type -> Type) = ProjectModel
