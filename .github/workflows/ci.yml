@@ -28,7 +28,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        os:
+          # Ubuntu builds disabled due to issue with installing libjwt-dev@1.12.x
+          # TODO: enable it when it's possible to install the lib
+          # - ubuntu-latest
+          - macOS-latest
 
     steps:
       - uses: actions/checkout@v2
