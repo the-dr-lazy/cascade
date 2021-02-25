@@ -10,24 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.OffsetDatetime
-  ( FormattedOffsetDatetime(..)
-  )
-where
+module Cascade.Api.Data.OffsetDatetime (FormattedOffsetDatetime(..)) where
 
-import           Data.Aeson                     ( FromJSON(..)
-                                                , ToJSON(..)
-                                                , Value(..)
-                                                )
-import           Data.Aeson.Types               ( prependFailure
-                                                , typeMismatch
-                                                , parserThrowError
-                                                )
+import           Data.Aeson                          ( FromJSON(..)
+                                                     , ToJSON(..)
+                                                     , Value(..)
+                                                     )
+import           Data.Aeson.Types                    ( prependFailure
+                                                     , typeMismatch
+                                                     , parserThrowError
+                                                     )
 import qualified Chronos
 import           Chronos.Types
-import           Data.Attoparsec.Text           ( parseOnly
-                                                , endOfInput
-                                                )
+import           Data.Attoparsec.Text                ( parseOnly
+                                                     , endOfInput
+                                                     )
 
 newtype FormattedOffsetDatetime = FormattedOffsetDatetime
   { unFormattedOffsetDatetime :: OffsetDatetime }
@@ -41,12 +38,7 @@ instance FromJSON FormattedOffsetDatetime where
           Right r -> pure $ FormattedOffsetDatetime r
           Left  e -> parserThrowError [] ("parsing date failed: " ++ e)
 
-  parseJSON invalid =
-    prependFailure "parsing date failed, " (typeMismatch "String" invalid)
+  parseJSON invalid = prependFailure "parsing date failed, " (typeMismatch "String" invalid)
 
 instance ToJSON FormattedOffsetDatetime where
-  toJSON date = String $ Chronos.encode_YmdHMSz
-    OffsetFormatColonAuto
-    SubsecondPrecisionAuto
-    Chronos.hyphen
-    (unFormattedOffsetDatetime date)
+  toJSON date = String $ Chronos.encode_YmdHMSz OffsetFormatColonAuto SubsecondPrecisionAuto Chronos.hyphen (unFormattedOffsetDatetime date)

@@ -10,24 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.Tasks
-  ( Routes(..)
-  , GetByIdResponse
-  , UpdateByIdResponse
-  , DeleteByIdResponse
-  )
-where
+module Cascade.Api.Network.Anatomy.Api.Tasks (Routes(..), GetByIdResponse, UpdateByIdResponse, DeleteByIdResponse) where
 
-import qualified Cascade.Api.Data.Task         as Task
+import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Network.Anatomy.Prelude
-import qualified Cascade.Api.Servant.Response  as Response
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Servant.Response       as Response
+import           Data.Generics.Labels                ( )
 
 type GetByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 
-type UpdateByIdResponse
-  = '[Response.Ok Task.Readable, Response.NotFound, Response.Unprocessable
-    Task.RawUpdatableValidationErrors]
+type UpdateByIdResponse = '[Response.Ok Task.Readable, Response.NotFound, Response.Unprocessable Task.RawUpdatableValidationErrors]
 
 type DeleteByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
 

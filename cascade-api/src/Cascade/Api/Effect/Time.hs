@@ -10,22 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Time
-  ( TimeL
-  , now
-  , run
-  )
-where
+module Cascade.Api.Effect.Time (TimeL, now, run) where
 
 
-import           Polysemy                       ( Embed
-                                                , Member
-                                                , Sem
-                                                , embed
-                                                , interpret
-                                                , makeSem
-                                                )
-import           Chronos                        ( Time )
+import           Polysemy                            ( Embed
+                                                     , Member
+                                                     , Sem
+                                                     , embed
+                                                     , interpret
+                                                     , makeSem
+                                                     )
+import           Chronos                             ( Time )
 import qualified Chronos
 
 data TimeL (m :: Type -> Type) (a :: Type) where

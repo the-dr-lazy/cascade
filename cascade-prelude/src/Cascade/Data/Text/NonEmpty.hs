@@ -10,24 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Text.NonEmpty
-  ( NonEmpty
-  , ValidationError(..)
-  , ValidationErrors
-  , pattern NonEmpty
-  , un
-  , mk
-  )
-where
+module Cascade.Data.Text.NonEmpty (NonEmpty, ValidationError(..), ValidationErrors, pattern NonEmpty, un, mk) where
 
 
-import           Prelude                 hiding ( NonEmpty )
-import qualified Prelude                        ( NonEmpty )
-import           Control.Lens.TH                ( makeWrapped )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import qualified Data.Text                     as Text
+import           Prelude                      hiding ( NonEmpty )
+import qualified Prelude                             ( NonEmpty )
+import           Control.Lens.TH                     ( makeWrapped )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import qualified Data.Text                          as Text
 import           Validation
 
 newtype NonEmpty = Mk

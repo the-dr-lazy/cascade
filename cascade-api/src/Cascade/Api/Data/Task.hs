@@ -27,24 +27,23 @@ module Cascade.Api.Data.Task
   )
 where
 
-import qualified Cascade.Api.Data.Id           as Data
-import           Data.Aeson                     ( FromJSON(..)
-                                                , ToJSON(..)
-                                                )
-import qualified Cascade.Api.Data.Project      as Project
-import           Cascade.Api.Data.OffsetDatetime
-                                                ( FormattedOffsetDatetime
-                                                , unFormattedOffsetDatetime
-                                                )
+import qualified Cascade.Api.Data.Id                as Data
+import           Data.Aeson                          ( FromJSON(..)
+                                                     , ToJSON(..)
+                                                     )
+import qualified Cascade.Api.Data.Project           as Project
+import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime
+                                                     , unFormattedOffsetDatetime
+                                                     )
 import           Cascade.Api.Data.OffsetDatetime.Deadline
-                                                ( Deadline )
+                                                     ( Deadline )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
-                                               as Deadline
-import qualified Cascade.Data.Text             as Text
-import qualified Cascade.Data.Text.NonEmpty    as Text.NonEmpty
-import           Chronos                        ( Time )
+                                                    as Deadline
+import qualified Cascade.Data.Text                  as Text
+import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
+import           Chronos                             ( Time )
 import           Cascade.Api.Data.Prelude
-import           Data.Generics.Labels           ( )
+import           Data.Generics.Labels                ( )
 import           Data.Monoid.Generic
 import           Validation
 
@@ -88,21 +87,15 @@ data ParsedCreatable = ParsedCreatable
   }
   deriving stock (Generic, Show, Eq)
 
-parseRawCreatableTask
-  :: RawCreatable
-  -> Time
-  -> Validation RawCreatableValidationErrors ParsedCreatable
-parseRawCreatableTask RawCreatable {..} now =
-  ParsedCreatable <$> validateTitle <*> validateDeadlineAt
+parseRawCreatableTask :: RawCreatable -> Time -> Validation RawCreatableValidationErrors ParsedCreatable
+parseRawCreatableTask RawCreatable {..} now = ParsedCreatable <$> validateTitle <*> validateDeadlineAt
  where
   validateTitle :: Validation RawCreatableValidationErrors Text.NonEmpty
-  validateTitle = Text.NonEmpty.mk title
-    |> first \e -> mempty { title = Just e } :: RawCreatableValidationErrors
+  validateTitle = Text.NonEmpty.mk title |> first \e -> mempty { title = Just e } :: RawCreatableValidationErrors
 
   validateDeadlineAt :: Validation RawCreatableValidationErrors Deadline
   validateDeadlineAt =
-    Deadline.mk (unFormattedOffsetDatetime deadlineAt) now |> first \e ->
-      mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
+    Deadline.mk (unFormattedOffsetDatetime deadlineAt) now |> first \e -> mempty { deadlineAt = Just e } :: RawCreatableValidationErrors
 
 data RawUpdatableV f = RawUpdatable
   { title      :: Validatable f (Maybe Text) (Maybe Text.NonEmpty.ValidationErrors)
@@ -131,22 +124,16 @@ data ParsedUpdatable = ParsedUpdatable
   }
   deriving stock (Generic, Show, Eq)
 
-parseRawUpdatableTask
-  :: RawUpdatable
-  -> Time
-  -> Validation RawUpdatableValidationErrors ParsedUpdatable
-parseRawUpdatableTask RawUpdatable {..} now =
-  ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
+parseRawUpdatableTask :: RawUpdatable -> Time -> Validation RawUpdatableValidationErrors ParsedUpdatable
+parseRawUpdatableTask RawUpdatable {..} now = ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
  where
   validateTitle :: Validation RawUpdatableValidationErrors (Maybe Text.NonEmpty)
   validateTitle = case title of
-    Just t -> Just <$> Text.NonEmpty.mk t |> first \e ->
-      mempty { title = Just e } :: RawUpdatableValidationErrors
+    Just t  -> Just <$> Text.NonEmpty.mk t |> first \e -> mempty { title = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing
 
   validateDeadlineAt :: Validation RawUpdatableValidationErrors (Maybe Deadline)
   validateDeadlineAt = case deadlineAt of
     Just date ->
-      Just <$> Deadline.mk (unFormattedOffsetDatetime date) now |> first \e ->
-        mempty { deadlineAt = Just e } :: RawUpdatableValidationErrors
+      Just <$> Deadline.mk (unFormattedOffsetDatetime date) now |> first \e -> mempty { deadlineAt = Just e } :: RawUpdatableValidationErrors
     Nothing -> Success Nothing

@@ -10,21 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.Projects.Tasks
-  ( Routes(..)
-  , CreateResponse
-  , GetByProjectIdResponse
-  )
-where
+module Cascade.Api.Network.Anatomy.Api.Projects.Tasks (Routes(..), CreateResponse, GetByProjectIdResponse) where
 
-import qualified Cascade.Api.Data.Task         as Task
+import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Network.Anatomy.Prelude
-import qualified Cascade.Api.Servant.Response  as Response
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Servant.Response       as Response
+import           Data.Generics.Labels                ( )
 
-type CreateResponse
-  = '[Response.Created Task.Readable, Response.Unprocessable
-    Task.RawCreatableValidationErrors, Response.NotFound]
+type CreateResponse = '[Response.Created Task.Readable, Response.Unprocessable Task.RawCreatableValidationErrors, Response.NotFound]
 
 type GetByProjectIdResponse = '[Response.Ok [Task.Readable]]
 

@@ -10,35 +10,26 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.Projects.Tasks
-  ( CreateResponse
-  , GetByProjectIdResponse
-  , create
-  , getByProjectId
-  )
-where
+module Cascade.Api.Network.TestClient.Api.Projects.Tasks (CreateResponse, GetByProjectIdResponse, create, getByProjectId) where
 
-import qualified Cascade.Api.Data.Task         as Task
-import qualified Cascade.Api.Data.Project      as Project
+import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
-                                               as Api.Projects.Tasks
-import           Cascade.Api.Network.TestClient ( interpret )
+                                                    as Api.Projects.Tasks
+import           Cascade.Api.Network.TestClient      ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api.Projects
-                                               as Client.Api.Projects
-import           Control.Lens                   ( (^.) )
-import           Data.Generics.Labels           ( )
-import           Servant.API                    ( Union )
-import           Servant.Client.Free            ( ResponseF )
+                                                    as Client.Api.Projects
+import           Control.Lens                        ( (^.) )
+import           Data.Generics.Labels                ( )
+import           Servant.API                         ( Union )
+import           Servant.Client.Free                 ( ResponseF )
 
 type CreateResponse = ResponseF (Union Api.Projects.Tasks.CreateResponse)
 
-type GetByProjectIdResponse
-  = ResponseF (Union Api.Projects.Tasks.GetByProjectIdResponse)
+type GetByProjectIdResponse = ResponseF (Union Api.Projects.Tasks.GetByProjectIdResponse)
 
 create :: Project.Id -> Task.RawCreatable -> IO CreateResponse
-create projectId = interpret . go
-  where go = Client.Api.Projects.tasks projectId ^. #create
+create projectId = interpret . go where go = Client.Api.Projects.tasks projectId ^. #create
 
 getByProjectId :: Project.Id -> IO GetByProjectIdResponse
-getByProjectId projectId = interpret go
-  where go = Client.Api.Projects.tasks projectId ^. #getByProjectId
+getByProjectId projectId = interpret go where go = Client.Api.Projects.tasks projectId ^. #getByProjectId

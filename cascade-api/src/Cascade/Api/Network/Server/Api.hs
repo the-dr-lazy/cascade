@@ -40,7 +40,7 @@ import           Servant.Server.Generic              ( AsServerT
                                                      , genericServerT
                                                      )
 
-type Effects = '[Database.ProjectL, Database.UserL, Database.TaskL, ScryptL, Error ServerError]
+type Effects = '[Database.ProjectL, Database.UserL, Database.TaskL, TimeL, ScryptL, Error ServerError]
 
 server :: Members Effects r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { projects       = Api.Projects.server
