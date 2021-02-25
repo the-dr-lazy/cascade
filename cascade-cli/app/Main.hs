@@ -21,9 +21,9 @@ import qualified Database.PostgreSQL.Simple         as Postgres
 
 mkDatabaseConnectionPool :: IO (Pool Postgres.Connection)
 mkDatabaseConnectionPool = createPool acquire Postgres.close 1 10 10
-    where acquire = Postgres.connectPostgreSQL "postgresql://cascade:cascade@postgresql:5432/cascade"
+  where acquire = Postgres.connectPostgreSQL "postgresql://cascade:cascade@postgresql:5432/cascade"
 
 main :: IO ()
 main = do
-    databaseConnectionPool <- mkDatabaseConnectionPool
-    Cascade.Api.main $ Pool.withResource databaseConnectionPool
+  databaseConnectionPool <- mkDatabaseConnectionPool
+  Cascade.Api.main $ Pool.withResource databaseConnectionPool

@@ -13,20 +13,20 @@ Portability : POSIX
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module Cascade.Api.Effect.Database
-    ( DatabaseL
-    , TableFieldsFulfillConstraint
-    , runSelectReturningList
-    , runSelectReturningOne
-    , runInsertReturningOne
-    , runUpdateReturningOne
-    , runDeleteReturningOne
-    , runPostgres
-    , all
-    , lookup
-    , update
-    , insert
-    , delete
-    ) where
+  ( DatabaseL
+  , TableFieldsFulfillConstraint
+  , runSelectReturningList
+  , runSelectReturningOne
+  , runInsertReturningOne
+  , runUpdateReturningOne
+  , runDeleteReturningOne
+  , runPostgres
+  , all
+  , lookup
+  , update
+  , insert
+  , delete
+  ) where
 
 import           Cascade.Api.Database                ( Database
                                                      , database
@@ -86,17 +86,17 @@ makeSem ''DatabaseL
 
 runPostgres :: Member (Embed IO) r => (forall b . (Postgres.Connection -> IO b) -> IO b) -> Sem (DatabaseL Beam.Postgres ': r) a -> Sem r a
 runPostgres withConnection = interpret \case
-    RunSelectReturningList sql -> Beam.runSelectReturningList sql |> runSql
-    RunSelectReturningOne  sql -> Beam.runSelectReturningOne sql |> runSql
-    RunInsertReturningOne  sql -> Beam.runInsertReturningList sql |> runSql |> fmap listToMaybe
-    RunUpdateReturningOne  sql -> Beam.runUpdateReturningList sql |> runSql |> fmap listToMaybe
-    RunDeleteReturningOne  sql -> Beam.runDeleteReturningList sql |> runSql |> fmap listToMaybe
-  where
-    runSql :: Member (Embed IO) r => Pg a -> Sem r a
-    runSql sql = embed $ withConnection (`runBeamPostgres` sql)
+  RunSelectReturningList sql -> Beam.runSelectReturningList sql |> runSql
+  RunSelectReturningOne  sql -> Beam.runSelectReturningOne sql |> runSql
+  RunInsertReturningOne  sql -> Beam.runInsertReturningList sql |> runSql |> fmap listToMaybe
+  RunUpdateReturningOne  sql -> Beam.runUpdateReturningList sql |> runSql |> fmap listToMaybe
+  RunDeleteReturningOne  sql -> Beam.runDeleteReturningList sql |> runSql |> fmap listToMaybe
+ where
+  runSql :: Member (Embed IO) r => Pg a -> Sem r a
+  runSql sql = embed $ withConnection (`runBeamPostgres` sql)
 
 type DatabaseEntityGetter backend table
-    = Getter (Beam.DatabaseSettings backend Database) (Beam.DatabaseEntity backend Database (Beam.TableEntity table))
+  = Getter (Beam.DatabaseSettings backend Database) (Beam.DatabaseEntity backend Database (Beam.TableEntity table))
 
 all :: forall backend table s
      . BeamSqlBackend backend
@@ -139,11 +139,11 @@ delete getter = Beam.delete $ database ^. getter
 
 -- brittany-disable-next-binding
 type family TableFieldsFulfillConstraint' (table :: Type -> Type) :: Constraint where
-    TableFieldsFulfillConstraint' U1 = ()
-    TableFieldsFulfillConstraint' (x :*: y) = (TableFieldsFulfillConstraint' x, TableFieldsFulfillConstraint' y)
-    TableFieldsFulfillConstraint' (K1 R (HasConstraint constraint x)) = (constraint x)
-    TableFieldsFulfillConstraint' (M1 _ _ table) = TableFieldsFulfillConstraint' table
+  TableFieldsFulfillConstraint' U1 = ()
+  TableFieldsFulfillConstraint' (x :*: y) = (TableFieldsFulfillConstraint' x, TableFieldsFulfillConstraint' y)
+  TableFieldsFulfillConstraint' (K1 R (HasConstraint constraint x)) = (constraint x)
+  TableFieldsFulfillConstraint' (M1 _ _ table) = TableFieldsFulfillConstraint' table
 
 -- brittany-disable-next-binding
 type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
-    = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' (Rep (table (HasConstraint constraint))))
+  = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' (Rep (table (HasConstraint constraint))))

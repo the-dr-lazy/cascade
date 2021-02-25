@@ -22,10 +22,10 @@ class ProjectGenerator (a :: Type) where
   project :: MonadGen m => m a
 
 instance ProjectGenerator Project.Readable where
-    project = Project.Readable <$> Gen.id <*> name where name = Gen.text (Range.linear 8 32) Gen.alphaNum
+  project = Project.Readable <$> Gen.id <*> name where name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Project.Creatable where
-    project = Project.Creatable <$> name where name = Gen.text (Range.linear 8 32) Gen.alphaNum
+  project = Project.Creatable <$> name where name = Gen.text (Range.linear 8 32) Gen.alphaNum
 
 instance ProjectGenerator Project.Updatable where
-    project = Project.Updatable <$> name where name = Gen.maybe (Gen.text (Range.linear 8 32) Gen.alphaNum)
+  project = Project.Updatable <$> name where name = Gen.maybe (Gen.text (Range.linear 8 32) Gen.alphaNum)

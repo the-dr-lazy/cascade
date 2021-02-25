@@ -51,11 +51,11 @@ instance ( Wrapped a
          Beam.HasSqlEqualityCheck backend (WrappedC a)
 
 instance (Wrapped a, Postgres.FromField (Unwrapped a)) => Postgres.FromField (WrappedC a) where
-    fromField a b = review (_Wrapped' . _Wrapped') <$> Postgres.fromField a b
+  fromField a b = review (_Wrapped' . _Wrapped') <$> Postgres.fromField a b
 
 instance (Wrapped a, Beam.HasSqlValueSyntax backend (Unwrapped a)) =>
          Beam.HasSqlValueSyntax backend (WrappedC a) where
-    sqlValueSyntax = Beam.sqlValueSyntax . view (_Wrapped' . _Wrapped')
+  sqlValueSyntax = Beam.sqlValueSyntax . view (_Wrapped' . _Wrapped')
 
 type family C (f :: Type -> Type) (a :: Type) :: Type where
   C f x = Beam.C f (WrappedC x)

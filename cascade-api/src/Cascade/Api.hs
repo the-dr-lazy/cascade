@@ -28,14 +28,14 @@ import qualified Servant
 
 main :: (forall a . (Postgres.Connection -> IO a) -> IO a) -> IO ()
 main withDatabaseConnection = do
-    Warp.run 3141 $ application
-        ( Servant.Handler
-        . ExceptT
-        . runFinal
-        . errorToIOFinal
-        . embedToFinal
-        . Scrypt.run
-        . Database.runPostgres withDatabaseConnection
-        . Database.Project.run
-        . Database.User.run
-        )
+  Warp.run 3141 $ application
+    ( Servant.Handler
+    . ExceptT
+    . runFinal
+    . errorToIOFinal
+    . embedToFinal
+    . Scrypt.run
+    . Database.runPostgres withDatabaseConnection
+    . Database.Project.run
+    . Database.User.run
+    )

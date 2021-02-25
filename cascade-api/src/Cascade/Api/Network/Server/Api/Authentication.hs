@@ -44,39 +44,39 @@ import qualified Web.Cookie                         as Cookie
 
 handleLogin :: Members '[Database.UserL , Error ServerError] r => Authentication.RawCredential -> Sem r LoginResponse
 handleLogin = validation (const $ throw err422) go . parseRawCredential
-  where
-    go :: Members '[Database.UserL , Error ServerError] r => Authentication.ParsedCredential -> Sem r LoginResponse
-    go credential = Database.User.findByUsername (credential ^. #username) >>= maybe
-        (throw err401)
-        \user -> do
-            let doesPasswordsMatch = Scrypt.verifyPassword (credential ^. #password) (user ^. #encryptedPassword . _Wrapped')
-            unless doesPasswordsMatch $ throw err401
-            pure $ mkLoginResponse (Jwt.mk $ user ^. #id . _Wrapped')
+ where
+  go :: Members '[Database.UserL , Error ServerError] r => Authentication.ParsedCredential -> Sem r LoginResponse
+  go credential = Database.User.findByUsername (credential ^. #username) >>= maybe
+    (throw err401)
+    \user -> do
+      let doesPasswordsMatch = Scrypt.verifyPassword (credential ^. #password) (user ^. #encryptedPassword . _Wrapped')
+      unless doesPasswordsMatch $ throw err401
+      pure $ mkLoginResponse (Jwt.mk $ user ^. #id . _Wrapped')
 
 server :: Members '[Database.UserL , Error ServerError] r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { login = handleLogin }
 
 mkLoginResponse :: (ByteString, ByteString) -> LoginResponse
 mkLoginResponse (headerAndPayload, sig) = NoContent |> addHeader setHeaderAndPayloadCookie |> addHeader setSignatureCookie
-  where
-    setHeaderAndPayloadCookie = mkSetHeaderAndPayloadCookie headerAndPayload
-    setSignatureCookie        = mkSetSignatureCookie sig
+ where
+  setHeaderAndPayloadCookie = mkSetHeaderAndPayloadCookie headerAndPayload
+  setSignatureCookie        = mkSetSignatureCookie sig
 
 mkSetHeaderAndPayloadCookie :: ByteString -> SetCookie
 mkSetHeaderAndPayloadCookie value =
-    (defaultSetCookie { setCookieName     = headerAndPayloadCookieName
-                      , setCookieValue    = value
-                      , setCookieSecure   = True
-                      , setCookieSameSite = Just Cookie.sameSiteStrict
-                      }
-    )
+  (defaultSetCookie { setCookieName     = headerAndPayloadCookieName
+                    , setCookieValue    = value
+                    , setCookieSecure   = True
+                    , setCookieSameSite = Just Cookie.sameSiteStrict
+                    }
+  )
 
 mkSetSignatureCookie :: ByteString -> SetCookie
 mkSetSignatureCookie value =
-    (defaultSetCookie { setCookieName     = signatureCookieName
-                      , setCookieValue    = value
-                      , setCookieHttpOnly = True
-                      , setCookieSecure   = True
-                      , setCookieSameSite = Just Cookie.sameSiteStrict
-                      }
-    )
+  (defaultSetCookie { setCookieName     = signatureCookieName
+                    , setCookieValue    = value
+                    , setCookieHttpOnly = True
+                    , setCookieSecure   = True
+                    , setCookieSameSite = Just Cookie.sameSiteStrict
+                    }
+  )

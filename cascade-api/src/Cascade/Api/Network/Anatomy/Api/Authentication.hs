@@ -20,6 +20,6 @@ import           Web.Cookie                          ( SetCookie )
 type LoginResponse = Headers '[Header "Set-Cookie" SetCookie , Header "Set-Cookie" SetCookie] NoContent
 
 data Routes route = Routes
-    { login :: route :- "login" :> ReqBody '[JSON] Authentication.RawCredential :> Verb 'POST 204 '[JSON] LoginResponse
-    }
-    deriving stock Generic
+  { login :: route :- "login" :> ReqBody '[JSON] Authentication.RawCredential :> Verb 'POST 204 '[JSON] LoginResponse
+  }
+  deriving stock Generic

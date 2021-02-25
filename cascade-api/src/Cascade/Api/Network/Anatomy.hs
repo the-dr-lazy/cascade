@@ -19,6 +19,6 @@ import           Servant
 import           Servant.API.Generic
 
 data Routes route = Routes
-    { api :: route :- "api" :> ToServantApi Api.Routes
-    }
-    deriving stock Generic
+  { api :: route :- "api" :> ToServantApi Api.Routes
+  }
+  deriving stock Generic

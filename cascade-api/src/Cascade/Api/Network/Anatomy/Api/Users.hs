@@ -20,6 +20,6 @@ import           Data.Generics.Labels                ( )
 type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable User.RawCreatableValidationErrors]
 
 data Routes route = Routes
-    { create :: route :- ReqBody '[JSON] User.RawCreatable :> Post '[JSON] CreateResponse
-    }
-    deriving stock Generic
+  { create :: route :- ReqBody '[JSON] User.RawCreatable :> Post '[JSON] CreateResponse
+  }
+  deriving stock Generic

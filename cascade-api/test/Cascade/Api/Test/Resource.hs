@@ -42,40 +42,40 @@ import           Test.Tasty                          ( TestTree )
 
 migrate :: HasCallStack => TempPostgres.DB -> IO ()
 migrate db = do
-    cwd <- (getCurrentDirectory >>= findSqitchConfigFileUpward) |> (fmap . fmap) takeDirectory |> fmap Unsafe.fromJust
-    Process.proc "sqitch" ["deploy", "--target", connectionUri . TempPostgres.toConnectionOptions $ db]
-        |> setStdout nullStream
-        |> setWorkingDir cwd
-        |> runProcess_
-  where
-    connectionUri Postgres.Options {..} =
-        "postgresql:///" <> Unsafe.fromJust (coerce dbname) <> "?host=" <> Unsafe.fromJust (coerce host) <> "&port=" <> show @String @Int
-            (Unsafe.fromJust $ coerce port)
+  cwd <- (getCurrentDirectory >>= findSqitchConfigFileUpward) |> (fmap . fmap) takeDirectory |> fmap Unsafe.fromJust
+  Process.proc "sqitch" ["deploy", "--target", connectionUri . TempPostgres.toConnectionOptions $ db]
+    |> setStdout nullStream
+    |> setWorkingDir cwd
+    |> runProcess_
+ where
+  connectionUri Postgres.Options {..} =
+    "postgresql:///" <> Unsafe.fromJust (coerce dbname) <> "?host=" <> Unsafe.fromJust (coerce host) <> "&port=" <> show @String @Int
+      (Unsafe.fromJust $ coerce port)
 
 withTemporaryPostgresConnectionPool :: (IO (Pool Postgres.Connection) -> TestTree) -> TestTree
 withTemporaryPostgresConnectionPool f =
-    let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection)
-        acquire = do
-            cache          <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
-            migratedConfig <- throwE
-                $ TempPostgres.cacheAction "~/.cascade/tmp-postgres" migrate (TempPostgres.defaultConfig <> TempPostgres.cacheConfig cache)
-            db   <- throwE $ TempPostgres.startConfig migratedConfig
-            pool <- createPool (connectPostgreSQL $ TempPostgres.toConnectionString db) Postgres.close 1 1 10
-            pure (cache, db, pool)
+  let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection)
+      acquire = do
+        cache          <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
+        migratedConfig <- throwE
+          $ TempPostgres.cacheAction "~/.cascade/tmp-postgres" migrate (TempPostgres.defaultConfig <> TempPostgres.cacheConfig cache)
+        db   <- throwE $ TempPostgres.startConfig migratedConfig
+        pool <- createPool (connectPostgreSQL $ TempPostgres.toConnectionString db) Postgres.close 1 1 10
+        pure (cache, db, pool)
 
-        release :: (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection) -> IO ()
-        release (cache, db, pool) = do
-            Pool.destroyAllResources pool
-            TempPostgres.stop db
-            TempPostgres.cleanupInitDbCache cache
-    in  Tasty.withResource acquire release $ f . fmap (view _3)
-    where throwE x = either throwIO pure =<< x
+      release :: (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection) -> IO ()
+      release (cache, db, pool) = do
+        Pool.destroyAllResources pool
+        TempPostgres.stop db
+        TempPostgres.cleanupInitDbCache cache
+  in  Tasty.withResource acquire release $ f . fmap (view _3)
+  where throwE x = either throwIO pure =<< x
 
 withPostgresConnection :: MonadManaged m => Pool Postgres.Connection -> m Postgres.Connection
 withPostgresConnection pool = managed $ Pool.withResource pool
 
 withPostgresConnectionInAbortionBracket :: MonadManaged m => Pool Postgres.Connection -> m Postgres.Connection
 withPostgresConnectionInAbortionBracket pool = do
-    connection <- withPostgresConnection pool
-    managed $ bracket (Postgres.begin connection) (const $ Postgres.rollback connection)
-    pure connection
+  connection <- withPostgresConnection pool
+  managed $ bracket (Postgres.begin connection) (const $ Postgres.rollback connection)
+  pure connection

@@ -33,11 +33,11 @@ import           Validation                          ( validation )
 
 handleCreate :: Members '[Database.UserL , ScryptL] r => User.RawCreatable -> Sem r (Union CreateResponse)
 handleCreate = validation (respond . Response.Unprocessable) go . parseRawCreatableUser
-  where
-    go :: Members '[Database.UserL , ScryptL] r => User.ParsedCreatable -> Sem r (Union CreateResponse)
-    go creatable = do
-        hasConflict <- Database.User.doesExistsByUsernameOrEmailAddress (creatable ^. #username) (creatable ^. #emailAddress)
-        if hasConflict then respond Response.Conflict else (respond . Response.Created) =<< Database.User.create creatable
+ where
+  go :: Members '[Database.UserL , ScryptL] r => User.ParsedCreatable -> Sem r (Union CreateResponse)
+  go creatable = do
+    hasConflict <- Database.User.doesExistsByUsernameOrEmailAddress (creatable ^. #username) (creatable ^. #emailAddress)
+    if hasConflict then respond Response.Conflict else (respond . Response.Created) =<< Database.User.create creatable
 
 server :: Members '[Database.UserL , ScryptL] r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { create = handleCreate }

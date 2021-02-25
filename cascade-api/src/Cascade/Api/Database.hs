@@ -27,17 +27,17 @@ import qualified Database.Beam                      as Beam
 
 -- brittany-disable-next-binding
 data Database (f :: Type -> Type) = Database
-    { projects :: f (TableEntity ProjectTable)
-    , users    :: f (TableEntity UserTable)
-    }
-    deriving stock Generic
-    deriving anyclass (Beam.Database backend)
+  { projects :: f (TableEntity ProjectTable)
+  , users    :: f (TableEntity UserTable)
+  }
+  deriving stock Generic
+  deriving anyclass (Beam.Database backend)
 
 database :: DatabaseSettings backend Database
 database = Beam.defaultDbSettings `withDbModification` dbModification
-    { users = modifyTableFields tableModification { emailAddress      = fieldNamed "email_address"
-                                                  , encryptedPassword = fieldNamed "encrypted_password"
-                                                  , createdAt         = fieldNamed "created_at"
-                                                  , updatedAt         = fieldNamed "updated_at"
-                                                  }
-    }
+  { users = modifyTableFields tableModification { emailAddress      = fieldNamed "email_address"
+                                                , encryptedPassword = fieldNamed "encrypted_password"
+                                                , createdAt         = fieldNamed "created_at"
+                                                , updatedAt         = fieldNamed "updated_at"
+                                                }
+  }

@@ -36,15 +36,15 @@ api = fromServant $ client ^. #api
 
 interpret :: Free ClientF a -> IO (ResponseF a)
 interpret x = case x of
-    Pure _                          -> error "ERROR: got (Pure a)."
-    Free (Throw clientError       ) -> error $ "ERROR: " <> show clientError
-    Free (RunRequest request parse) -> do
-        baseUrl <- parseBaseUrl "http://localhost:3141"
-        manager <- Http.newManager Http.defaultManagerSettings
-        let request' = Http.defaultMakeClientRequest baseUrl request
-        response' <- Http.httpLbs request' manager
-        let response = Http.clientResponseToResponse identity response'
-        case parse response of
-            Pure body                -> pure $ response $> body
-            Free (Throw clientError) -> error $ "ERROR: " <> show clientError
-            _                        -> error "ERROR: didn't got response."
+  Pure _                          -> error "ERROR: got (Pure a)."
+  Free (Throw clientError       ) -> error $ "ERROR: " <> show clientError
+  Free (RunRequest request parse) -> do
+    baseUrl <- parseBaseUrl "http://localhost:3141"
+    manager <- Http.newManager Http.defaultManagerSettings
+    let request' = Http.defaultMakeClientRequest baseUrl request
+    response' <- Http.httpLbs request' manager
+    let response = Http.clientResponseToResponse identity response'
+    case parse response of
+      Pure body                -> pure $ response $> body
+      Free (Throw clientError) -> error $ "ERROR: " <> show clientError
+      _                        -> error "ERROR: didn't got response."

@@ -37,16 +37,16 @@ tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withTemporaryPostgre
 
 prop_sequential :: IO (Pool Postgres.Connection) -> Property
 prop_sequential getPool = withTests 1000 . property $ do
-    pool    <- evalIO getPool
-    actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
+  pool    <- evalIO getPool
+  actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
 
-    control \runInBase -> flip with pure $ do
-        connection <- Resource.withPostgresConnectionInAbortionBracket pool
-        liftIO $ withAsync
-            (Cascade.Api.main \f -> f connection)
-            \_ -> do
-                Socket.wait "127.0.0.1" 3141
-                runInBase $ executeSequential initialModel actions
+  control \runInBase -> flip with pure $ do
+    connection <- Resource.withPostgresConnectionInAbortionBracket pool
+    liftIO $ withAsync
+      (Cascade.Api.main \f -> f connection)
+      \_ -> do
+        Socket.wait "127.0.0.1" 3141
+        runInBase $ executeSequential initialModel actions
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands = Command.Project.commands <> Command.User.commands

@@ -51,4 +51,4 @@ verifyPassword (Password p) ep = Scrypt.verifyPass' (coerce p) (coerce ep)
 
 run :: Member (Embed IO) r => Sem (ScryptL ': r) a -> Sem r a
 run = interpret \case
-    Encrypt x -> Scrypt.encryptPassIO' (coerce x) |> coerce |> fmap Mk |> embed
+  Encrypt x -> Scrypt.encryptPassIO' (coerce x) |> coerce |> fmap Mk |> embed

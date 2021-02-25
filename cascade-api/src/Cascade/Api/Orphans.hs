@@ -34,22 +34,21 @@ import           Database.PostgreSQL.Simple.TypeInfo.Static
                                                      ( timestamptzOid )
 
 instance Postgres.ToField OffsetDatetime where
-    toField = Postgres.Plain . Postgres.inQuotes . encode
-      where
-        encode =
-            Chronos.builderUtf8_YmdHMSz OffsetFormatColonAuto (SubsecondPrecisionFixed 6) (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
+  toField = Postgres.Plain . Postgres.inQuotes . encode
+   where
+    encode = Chronos.builderUtf8_YmdHMSz OffsetFormatColonAuto (SubsecondPrecisionFixed 6) (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
 
 instance Postgres.FromField OffsetDatetime where
-    fromField f
-        | typeOid f /= timestamptzOid = return $ Postgres.returnError Incompatible f ""
-        | otherwise = maybe (Postgres.returnError UnexpectedNull f "") (maybe (Postgres.returnError ConversionFailed f "") return <$> decode)
-      where
-        decode = rightToMaybe . Attoparsec.parseOnly (parser <* Attoparsec.endOfInput)
-        parser = Chronos.parserUtf8_YmdHMSz OffsetFormatColonAuto (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
+  fromField f
+    | typeOid f /= timestamptzOid = return $ Postgres.returnError Incompatible f ""
+    | otherwise = maybe (Postgres.returnError UnexpectedNull f "") (maybe (Postgres.returnError ConversionFailed f "") return <$> decode)
+   where
+    decode = rightToMaybe . Attoparsec.parseOnly (parser <* Attoparsec.endOfInput)
+    parser = Chronos.parserUtf8_YmdHMSz OffsetFormatColonAuto (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
 
 instance Beam.FromBackendRow Postgres OffsetDatetime
 
 instance Beam.HasSqlValueSyntax PgValueSyntax OffsetDatetime where
-    sqlValueSyntax = defaultPgValueSyntax
+  sqlValueSyntax = defaultPgValueSyntax
 
 instance Beam.HasSqlEqualityCheck Postgres OffsetDatetime

@@ -24,14 +24,14 @@ tests = testGroup "Cascade.Data.Char" [isAlphaNumUnderscoreTests]
 
 isAlphaNumUnderscoreTests :: TestTree
 isAlphaNumUnderscoreTests = testGroup
-    "isAlphaNumUnderscore"
-    [ testProperty "on non-(alphanumeric + underscore) input returns False" prop_false
-    , testProperty "on alphanumeric + underscore input returns True"        prop_true
-    ]
-  where
-    prop_false = property do
-        char <- forAll $ Gen.filter ((/= '_') *> not . Char.isAlphaNum) Gen.unicodeAll
-        isAlphaNumUnderscore char === False
-    prop_true = property do
-        char <- forAll $ Gen.choice [Gen.alphaNum, pure '_']
-        isAlphaNumUnderscore char === True
+  "isAlphaNumUnderscore"
+  [ testProperty "on non-(alphanumeric + underscore) input returns False" prop_false
+  , testProperty "on alphanumeric + underscore input returns True"        prop_true
+  ]
+ where
+  prop_false = property do
+    char <- forAll $ Gen.filter ((/= '_') *> not . Char.isAlphaNum) Gen.unicodeAll
+    isAlphaNumUnderscore char === False
+  prop_true = property do
+    char <- forAll $ Gen.choice [Gen.alphaNum, pure '_']
+    isAlphaNumUnderscore char === True

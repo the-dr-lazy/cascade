@@ -23,20 +23,20 @@ data Project
 type Id = Data.Id Project
 
 data Readable = Readable
-    { id   :: Id
-    , name :: Text
-    }
-    deriving stock (Generic, Show, Eq)
-    deriving anyclass (FromJSON, ToJSON)
+  { id   :: Id
+  , name :: Text
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
 
 data Creatable = Creatable
-    { name :: Text
-    }
-    deriving stock (Generic, Show, Eq)
-    deriving anyclass (FromJSON, ToJSON)
+  { name :: Text
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)
 
 data Updatable = Updatable
-    { name :: Maybe Text
-    }
-    deriving stock (Generic, Show, Eq)
-    deriving anyclass (FromJSON, ToJSON)
+  { name :: Maybe Text
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (FromJSON, ToJSON)

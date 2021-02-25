@@ -62,26 +62,26 @@ run :: BeamSqlBackend backend
     => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) UserTable
     => Members '[ScryptL , DatabaseL backend] r => Sem (UserL ': r) a -> Sem r a
 run = interpret \case
-    FindByUsername username ->
-        Database.all #users |> filter_ (\user -> user ^. #username ==. val_ (coerce username)) |> select |> Database.runSelectReturningOne
-    DoesExistsByUsernameOrEmailAddress username emailAddress -> do
-        let query = Database.all #users |> filter_ \user ->
-                (user ^. #username ==. val_ (coerce username)) ||. (user ^. #emailAddress ==. val_ (coerce emailAddress))
+  FindByUsername username ->
+    Database.all #users |> filter_ (\user -> user ^. #username ==. val_ (coerce username)) |> select |> Database.runSelectReturningOne
+  DoesExistsByUsernameOrEmailAddress username emailAddress -> do
+    let query = Database.all #users
+          |> filter_ \user -> (user ^. #username ==. val_ (coerce username)) ||. (user ^. #emailAddress ==. val_ (coerce emailAddress))
 
-        exists_ query
-            |> pure
-            |> select
-            |> Database.runSelectReturningOne
-          -- Only @Just@ is acceptable.
-            |> fmap Unsafe.fromJust
-    Create creatable -> do
-        encryptedPassword <- creatable ^. #password |> Scrypt.encryptPassword
-        insertExpressions [fromParsedCreatableUser encryptedPassword creatable]
-            |> Database.insert #users
-            |> Database.runInsertReturningOne
-          -- Only @Just@ is acceptable.
-            |> fmap Unsafe.fromJust
-            |> fmap toReadableUser
+    exists_ query
+      |> pure
+      |> select
+      |> Database.runSelectReturningOne
+      -- Only @Just@ is acceptable.
+      |> fmap Unsafe.fromJust
+  Create creatable -> do
+    encryptedPassword <- creatable ^. #password |> Scrypt.encryptPassword
+    insertExpressions [fromParsedCreatableUser encryptedPassword creatable]
+      |> Database.insert #users
+      |> Database.runInsertReturningOne
+      -- Only @Just@ is acceptable.
+      |> fmap Unsafe.fromJust
+      |> fmap toReadableUser
 
 fromParsedCreatableUser :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) UserTable

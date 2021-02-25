@@ -55,26 +55,26 @@ run :: forall backend r a
     => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
     => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
-    FindAll -> Database.all #projects |> select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
-    FindById id ->
-        Database.lookup #projects (Database.Project.PrimaryKey $ coerce id) |> Database.runSelectReturningOne |> (fmap . fmap) toReadableProject
-    Create creatable ->
-        insertExpressions [fromCreatableProject creatable]
-            |> Database.insert #projects
-            |> Database.runInsertReturningOne
-        -- Only @Just@ is acceptable.
-            |> fmap Unsafe.fromJust
-            |> fmap toReadableProject
-    UpdateById id updatable -> case updatable of
-        Project.Updatable { name = Nothing } -> run $ findById id
-        _ ->
-            Database.update #projects (fromUpdatableProject updatable) (\project -> project ^. #id ==. val_ (coerce id))
-                |> Database.runUpdateReturningOne
-                |> (fmap . fmap) toReadableProject
-    DeleteById id ->
-        Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
-            |> Database.runDeleteReturningOne
-            |> (fmap . fmap) toReadableProject
+  FindAll -> Database.all #projects |> select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
+  FindById id ->
+    Database.lookup #projects (Database.Project.PrimaryKey $ coerce id) |> Database.runSelectReturningOne |> (fmap . fmap) toReadableProject
+  Create creatable ->
+    insertExpressions [fromCreatableProject creatable]
+      |> Database.insert #projects
+      |> Database.runInsertReturningOne
+      -- Only @Just@ is acceptable.
+      |> fmap Unsafe.fromJust
+      |> fmap toReadableProject
+  UpdateById id updatable -> case updatable of
+    Project.Updatable { name = Nothing } -> run $ findById id
+    _ ->
+      Database.update #projects (fromUpdatableProject updatable) (\project -> project ^. #id ==. val_ (coerce id))
+        |> Database.runUpdateReturningOne
+        |> (fmap . fmap) toReadableProject
+  DeleteById id ->
+    Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
+      |> Database.runDeleteReturningOne
+      |> (fmap . fmap) toReadableProject
 
 toReadableProject :: Database.Project.Row -> Project.Readable
 toReadableProject Database.Project.Row {..} = Project.Readable { id = coerce id, name }

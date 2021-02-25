@@ -23,8 +23,8 @@ import           Servant
 import           Servant.API.Generic
 
 data Routes route = Routes
-    { projects       :: route :- "projects" :> ToServantApi Api.Projects.Routes
-    , users          :: route :- "users" :> ToServantApi Api.Users.Routes
-    , authentication :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
-    }
-    deriving stock Generic
+  { projects       :: route :- "projects" :> ToServantApi Api.Projects.Routes
+  , users          :: route :- "users" :> ToServantApi Api.Users.Routes
+  , authentication :: route :- "authentication" :> ToServantApi Api.Authentication.Routes
+  }
+  deriving stock Generic
