@@ -22,6 +22,20 @@ jobs:
       - name: Check headers
         run: headroom run --check-headers
 
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Brittany
+        run: |
+          sudo curl -Lo /usr/bin/brittany https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
+          sudo chmod +x /usr/bin/brittany
+
+      - name: Check formatting
+        run: brittany -c **/*.hs
+
   build:
     name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
