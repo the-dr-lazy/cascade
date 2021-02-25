@@ -30,8 +30,11 @@ jobs:
 
       - name: Install Brittany
         run: |
-          sudo curl -Lo /usr/bin/brittany https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
-          sudo chmod +x /usr/bin/brittany
+          sudo curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
+          unzip brittany.zip
+          rm brittany.zip
+          sudo chmod +x brittany
+          mv brittany /usr/bin/
 
       - name: Check formatting
         run: brittany -c **/*.hs
