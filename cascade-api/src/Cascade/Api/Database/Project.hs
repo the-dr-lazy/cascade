@@ -26,11 +26,11 @@ import           Database.Beam                       ( Beamable
 
 -- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row
-  { id   :: Wrapped.C f Project.Id
-  , name :: C f Text
-  }
-  deriving stock Generic
-  deriving anyclass Beamable
+    { id   :: Wrapped.C f Project.Id
+    , name :: C f Text
+    }
+    deriving stock Generic
+    deriving anyclass Beamable
 
 instance Table ProjectTable where
     newtype PrimaryKey ProjectTable f = PrimaryKey

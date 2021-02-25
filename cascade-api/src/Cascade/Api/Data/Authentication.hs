@@ -21,13 +21,12 @@ import           Data.Aeson                          ( FromJSON
                                                      )
 import           Validation
 
--- brittany-disable-next-binding
 data RawCredential = RawCredential
-  { username :: Text
-  , password :: Text
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+    { username :: Text
+    , password :: Text
+    }
+    deriving stock (Generic, Show, Eq)
+    deriving anyclass (FromJSON, ToJSON)
 
 data ParsedCredential = ParsedCredential
     { username :: User.Username

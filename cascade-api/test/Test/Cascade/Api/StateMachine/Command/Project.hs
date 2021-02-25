@@ -44,9 +44,9 @@ commands =
 
 -- brittany-disable-next-binding
 newtype Create (v :: Type -> Type) = Create
-  { creatable :: Project.Creatable
-  }
-  deriving stock (Generic, Show)
+    { creatable :: Project.Creatable
+    }
+    deriving stock (Generic, Show)
 
 instance HTraversable Create where
     htraverse _ (Create creatable) = pure $ Create creatable
@@ -105,9 +105,9 @@ getAll =
 
 -- brittany-disable-next-binding
 data AddNotExistingId (v :: Type -> Type) = AddNotExistingId
-  { id :: Project.Id
-  }
-  deriving stock Show
+    { id :: Project.Id
+    }
+    deriving stock Show
 
 instance HTraversable AddNotExistingId where
     htraverse _ (AddNotExistingId id) = pure $ AddNotExistingId id
@@ -178,10 +178,10 @@ getNotExisting =
 
 -- brittany-disable-next-binding
 data UpdateById (v :: Type -> Type) = UpdateById
-  { id :: Var Project.Id v
-  , updatable :: Project.Updatable
-  }
-  deriving stock (Generic, Show)
+    { id :: Var Project.Id v
+    , updatable :: Project.Updatable
+    }
+    deriving stock (Generic, Show)
 
 instance HTraversable UpdateById where
     htraverse f (UpdateById {..}) = UpdateById <$> htraverse f id <*> pure updatable
@@ -228,9 +228,9 @@ updateNotExisting =
 
 -- brittany-disable-next-binding
 newtype DeleteById (v :: Type -> Type) = DeleteById
-  { id :: Var Project.Id v
-  }
-  deriving stock (Generic, Show)
+    { id :: Var Project.Id v
+    }
+    deriving stock (Generic, Show)
 
 instance HTraversable DeleteById where
     htraverse f (DeleteById id) = DeleteById <$> htraverse f id

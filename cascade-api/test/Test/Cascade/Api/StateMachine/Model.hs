@@ -20,10 +20,10 @@ import           Hedgehog.Internal.State             ( Var )
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
-  { project :: ProjectModel v
-  , user    :: UserModel v
-  }
-  deriving stock Generic
+    { project :: ProjectModel v
+    , user    :: UserModel v
+    }
+    deriving stock Generic
 
 initialModel :: Model v
 initialModel = Model { project = ProjectModel { creatables = Map.empty, notExistingIds = mempty }
@@ -32,14 +32,14 @@ initialModel = Model { project = ProjectModel { creatables = Map.empty, notExist
 
 -- brittany-disable-next-binding
 data ProjectModel (v :: Type -> Type) = ProjectModel
-  { creatables     :: Map (Var Project.Id v) Project.Creatable
-  , notExistingIds :: [Var Project.Id v]
-  }
-  deriving stock Generic
+    { creatables     :: Map (Var Project.Id v) Project.Creatable
+    , notExistingIds :: [Var Project.Id v]
+    }
+    deriving stock Generic
 
 -- brittany-disable-next-binding
 data UserModel (v :: Type -> Type) = UserModel
-  { byUsername     :: Map Text User.RawCreatable
-  , byEmailAddress :: Map Text User.RawCreatable
-  }
-  deriving stock Generic
+    { byUsername     :: Map Text User.RawCreatable
+    , byEmailAddress :: Map Text User.RawCreatable
+    }
+    deriving stock Generic

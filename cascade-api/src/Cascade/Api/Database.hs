@@ -27,11 +27,11 @@ import qualified Database.Beam                      as Beam
 
 -- brittany-disable-next-binding
 data Database (f :: Type -> Type) = Database
-  { projects :: f (TableEntity ProjectTable)
-  , users    :: f (TableEntity UserTable)
-  }
-  deriving stock Generic
-  deriving anyclass (Beam.Database backend)
+    { projects :: f (TableEntity ProjectTable)
+    , users    :: f (TableEntity UserTable)
+    }
+    deriving stock Generic
+    deriving anyclass (Beam.Database backend)
 
 database :: DatabaseSettings backend Database
 database = Beam.defaultDbSettings `withDbModification` dbModification

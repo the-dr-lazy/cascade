@@ -139,11 +139,11 @@ delete getter = Beam.delete $ database ^. getter
 
 -- brittany-disable-next-binding
 type family TableFieldsFulfillConstraint' (table :: Type -> Type) :: Constraint where
-  TableFieldsFulfillConstraint' U1 = ()
-  TableFieldsFulfillConstraint' (x :*: y) = (TableFieldsFulfillConstraint' x, TableFieldsFulfillConstraint' y)
-  TableFieldsFulfillConstraint' (K1 R (HasConstraint constraint x)) = (constraint x)
-  TableFieldsFulfillConstraint' (M1 _ _ table) = TableFieldsFulfillConstraint' table
+    TableFieldsFulfillConstraint' U1 = ()
+    TableFieldsFulfillConstraint' (x :*: y) = (TableFieldsFulfillConstraint' x, TableFieldsFulfillConstraint' y)
+    TableFieldsFulfillConstraint' (K1 R (HasConstraint constraint x)) = (constraint x)
+    TableFieldsFulfillConstraint' (M1 _ _ table) = TableFieldsFulfillConstraint' table
 
 -- brittany-disable-next-binding
 type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
-  = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' (Rep (table (HasConstraint constraint))))
+    = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' (Rep (table (HasConstraint constraint))))

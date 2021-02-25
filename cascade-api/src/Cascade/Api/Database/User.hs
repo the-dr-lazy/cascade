@@ -23,15 +23,15 @@ import           Database.Beam                       ( Beamable
 
 -- brittany-disable-next-binding
 data UserTable (f :: Type -> Type) = Row
-  { id                :: Wrapped.C f User.Id
-  , username          :: Wrapped.C f User.Username
-  , emailAddress      :: Wrapped.C f User.EmailAddress
-  , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
-  , createdAt         :: C f OffsetDatetime
-  , updatedAt         :: C f OffsetDatetime
-  }
-  deriving stock Generic
-  deriving anyclass Beamable
+    { id                :: Wrapped.C f User.Id
+    , username          :: Wrapped.C f User.Username
+    , emailAddress      :: Wrapped.C f User.EmailAddress
+    , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
+    , createdAt         :: C f OffsetDatetime
+    , updatedAt         :: C f OffsetDatetime
+    }
+    deriving stock Generic
+    deriving anyclass Beamable
 
 instance Table UserTable where
     newtype PrimaryKey UserTable f = PrimaryKey

@@ -37,10 +37,10 @@ commands = [createNotExisting, createExisting]
 
 -- brittany-disable-next-binding
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
-  { validity :: Validity
-  , creatable :: User.RawCreatable
-  }
-  deriving stock (Generic, Show)
+    { validity :: Validity
+    , creatable :: User.RawCreatable
+    }
+    deriving stock (Generic, Show)
 
 instance HTraversable CreateNotExisting where
     htraverse _ CreateNotExisting {..} = pure $ CreateNotExisting { .. }
@@ -104,8 +104,9 @@ createNotExisting =
 
 -- brittany-disable-next-binding
 newtype CreateExisting (v :: Type -> Type) = CreateExisting
-  { creatable :: User.RawCreatable }
-  deriving stock Show
+    { creatable :: User.RawCreatable
+    }
+    deriving stock Show
 
 instance HTraversable CreateExisting where
     htraverse _ input = pure $ coerce input
