@@ -146,6 +146,7 @@ test-suite cascade-api-test
   hs-source-dirs:      test
   main-is:             Main.hs
   build-depends:       cascade-api
+                     , chronos
                      , directory
                      , filepath
                      , free
@@ -166,7 +167,6 @@ test-suite cascade-api-test
                      , tasty-hedgehog
                      , tmp-postgres
                      , typed-process
-                     , chronos
                      , validation-selective
 
   ghc-options:         -threaded
