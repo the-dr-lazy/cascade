@@ -63,6 +63,7 @@ commands
   => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
   [ createValid
+  , createValidForNonExistingProject
   , createInvalid
   , getByProjectId
   , addNotExistingId
@@ -130,6 +131,39 @@ createValid =
             model ^. #task . #creatables . at projectId |> fromMaybe Map.empty
           newByProjectId = byProjectId |> at id ?~ creatable
   in  Command generator execute [Update update]
+
+createValidForNonExistingProject
+  :: forall g m
+   . MonadGen g
+  => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
+createValidForNonExistingProject =
+  let
+    generator :: Model Symbolic -> Maybe (g (Create Symbolic))
+    generator model = case model ^. #project . #notExistingIds of
+      []         -> Nothing
+      projectIds -> Just $ do
+        projectId  <- Gen.element projectIds
+        title      <- Gen.nonEmptyText 30 Valid
+        deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
+        let creatable = Task.RawCreatable { .. }
+        pure $ Create { .. }
+
+    execute :: Create Concrete -> m Cascade.Api.Projects.Tasks.CreateResponse
+    execute (Create projectId creatable) =
+      evalIO $ Cascade.Api.Projects.Tasks.create (concrete projectId) creatable
+
+    ensure
+      :: Model Concrete
+      -> Model Concrete
+      -> Create Concrete
+      -> Cascade.Api.Projects.Tasks.CreateResponse
+      -> Test ()
+    ensure _before _after _input response = do
+      footnoteShow response
+
+      response ^. #responseStatusCode . #statusCode === 404
+  in
+    Command generator execute [Ensure ensure]
 
 createInvalid
   :: forall g m
@@ -612,11 +646,9 @@ checkEqReadableRawCreatableTask
   :: (MonadTest m, HasCallStack) => Task.Readable -> Task.RawCreatable -> m ()
 checkEqReadableRawCreatableTask task creatable = do
   task ^. #title . to Text.NonEmpty.un === creatable ^. #title
-  task
-    ^.  #deadlineAt
-    .   to unFormattedOffsetDatetime
-    .   to offsetDatetimeToTime
-    === creatable
-    ^.  #deadlineAt
-    .   to unFormattedOffsetDatetime
-    .   to offsetDatetimeToTime
+  (task ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime)
+    === (  creatable
+        ^. #deadlineAt
+        .  to unFormattedOffsetDatetime
+        .  to offsetDatetimeToTime
+        )
