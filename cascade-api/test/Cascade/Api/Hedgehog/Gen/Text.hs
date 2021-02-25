@@ -29,9 +29,8 @@ import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
 
 nonEmptyText :: MonadGen g => Int -> Validity -> g Text
-nonEmptyText upperLimit Valid =
-  Gen.text (Range.linear 1 upperLimit) Gen.alphaNum
-nonEmptyText _ Invalid = pure ""
+nonEmptyText upperLimit Valid   = Gen.text (Range.linear 1 upperLimit) Gen.alphaNum
+nonEmptyText _          Invalid = pure ""
 
 nonEmptyTextWithValidity :: MonadGen g => Int -> g (Validity, Text)
 nonEmptyTextWithValidity upperLimit = do

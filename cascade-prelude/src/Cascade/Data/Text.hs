@@ -12,12 +12,7 @@ Portability : POSIX
 
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Cascade.Data.Text
-  ( module Data.Text
-  , NonEmpty
-  )
-where
-
+module Cascade.Data.Text (module Data.Text, NonEmpty) where
 
 import           Data.Text
-import           Cascade.Data.Text.NonEmpty     ( NonEmpty )
+import           Cascade.Data.Text.NonEmpty          ( NonEmpty )

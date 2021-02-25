@@ -10,25 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Chronos.Future
-  ( Future
-  , ValidationError(..)
-  , ValidationErrors
-  , pattern Future
-  , un
-  , mk
-  , IsFuture
-  )
-where
+module Cascade.Data.Chronos.Future (Future, ValidationError(..), ValidationErrors, pattern Future, un, mk, IsFuture) where
 
-import           Control.Lens.TH                ( makeWrapped )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
-import           Chronos                        ( Time
-                                                , OffsetDatetime
-                                                , offsetDatetimeToTime
-                                                )
+import           Control.Lens.TH                     ( makeWrapped )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
+import           Chronos                             ( Time
+                                                     , OffsetDatetime
+                                                     , offsetDatetimeToTime
+                                                     )
 import           Validation
 
 newtype Future a = Mk

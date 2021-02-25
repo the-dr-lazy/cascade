@@ -10,16 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.OffsetDatetime.Deadline
-  ( Deadline
-  , ValidationError(..)
-  , ValidationErrors
-  , un
-  , mk
-  )
-where
+module Cascade.Api.Data.OffsetDatetime.Deadline (Deadline, ValidationError(..), ValidationErrors, un, mk) where
 
 import           Cascade.Data.Chronos.Future
-import           Chronos                        ( OffsetDatetime )
+import           Chronos                             ( OffsetDatetime )
 
 type Deadline = Future OffsetDatetime
