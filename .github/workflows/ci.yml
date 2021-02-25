@@ -31,7 +31,7 @@ jobs:
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
-          ghc-version: "8.8.4"
+          ghc-version: "8.10.2"
           cabal-version: "3.2"
 
       - name: Install Brittany
