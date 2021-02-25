@@ -42,10 +42,9 @@ instance Validation.ToMessage ValidationError where
 type ValidationErrors = NonEmpty ValidationError
 
 mk :: Text -> Validation ValidationErrors Password
-mk = Polysemy.run . validate @Password
+mk = Polysemy.run . validate
 
-instance Validatable Password where
-  type Raw Password = Text
-  type Errors Password = ValidationErrors
+instance Validatable Text Password where
+  type Errors Text Password = ValidationErrors
 
-  validate input = pure $ Mk (encodeUtf8 input) <$ ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)
+  parse input = pure $ Mk (encodeUtf8 input) <$ ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)

@@ -22,14 +22,15 @@ import qualified Polysemy
 
 -- brittany-disable-next-binding
 data Credential (v :: Phase) = Credential
-  { username :: Validate v User.Username
-  , password :: Validate v User.Password
+  { username :: Validate v Text User.Username
+  , password :: Validate v Text User.Password
   }
   deriving stock (Generic)
-  deriving Validatable via (Generically (Credential v))
+
+deriving via (Generically (Credential 'Parsed)) instance Validatable (Credential 'Raw) (Credential 'Parsed)
 
 deriving anyclass instance ToJSON (Credential 'Raw)
 deriving anyclass instance FromJSON (Credential 'Raw)
 
 parseRawCredential :: Credential 'Raw -> Validation () (Credential 'Parsed)
-parseRawCredential = first mempty . Polysemy.run . validate @(Credential 'Raw)
+parseRawCredential = first mempty . Polysemy.run . validate

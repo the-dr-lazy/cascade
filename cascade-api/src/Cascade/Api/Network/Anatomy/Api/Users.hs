@@ -19,7 +19,7 @@ import qualified Cascade.Data.Validation            as Validation
 import           Cascade.Data.Validation             ( Phase(..) )
 import           Data.Generics.Labels                ( )
 
-type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable (Validation.Errors (User.Creatable 'Raw))]
+type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable User.RawCreatableValidationErrors]
 
 data Routes route = Routes
   { create :: route :- ReqBody '[JSON] (User.Creatable 'Raw) :> Post '[JSON] CreateResponse

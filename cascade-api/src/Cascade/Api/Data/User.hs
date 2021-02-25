@@ -11,7 +11,17 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
-module Cascade.Api.Data.User (User, Id, Username, EmailAddress, Password, Readable(..), Creatable(..), parseRawCreatableUser) where
+module Cascade.Api.Data.User
+  ( User
+  , Id
+  , Username
+  , EmailAddress
+  , Password
+  , Readable(..)
+  , Creatable(..)
+  , RawCreatableValidationErrors
+  , parseRawCreatableUser
+  ) where
 
 import           Cascade.Api.Data.ByteString.Password
                                                      ( Password )
@@ -39,16 +49,20 @@ data Readable = Readable
   deriving anyclass (FromJSON, ToJSON)
 
 data Creatable v = Creatable
-  { username     :: Validate v Username
-  , emailAddress :: Validate v EmailAddress
-  , password     :: Validate v Password
+  { username     :: Validate v Text Username
+  , emailAddress :: Validate v Text EmailAddress
+  , password     :: Validate v Text Password
   }
   deriving stock Generic
-  deriving Validatable via (Generically (Creatable v))
+  -- deriving Validatable via (Generically (Creatable 'Raw))
+
+deriving via (Generically (Creatable 'Parsed)) instance Validatable (Creatable 'Raw) (Creatable 'Parsed)
 
 deriving stock instance Show (Creatable 'Raw)
 deriving anyclass instance ToJSON (Creatable 'Raw)
 deriving anyclass instance FromJSON (Creatable 'Raw)
 
-parseRawCreatableUser :: Creatable 'Raw -> Validation (Validation.Errors (Creatable 'Raw)) (Creatable 'Parsed)
-parseRawCreatableUser = Polysemy.run . validate @(Creatable 'Raw)
+type RawCreatableValidationErrors = (Validation.Errors (Creatable 'Raw) (Creatable 'Parsed))
+
+parseRawCreatableUser :: Creatable 'Raw -> Validation RawCreatableValidationErrors (Creatable 'Parsed)
+parseRawCreatableUser = Polysemy.run . validate

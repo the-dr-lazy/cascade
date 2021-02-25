@@ -43,8 +43,7 @@ type ValidationErrors = NonEmpty ValidationError
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8
 
-instance Validatable EmailAddress where
-  type Raw EmailAddress = Text
-  type Errors EmailAddress = ValidationErrors
+instance Validatable Text EmailAddress where
+  type Errors Text EmailAddress = ValidationErrors
 
-  validate = pure . maybeToSuccess (IsInvalid :| []) . mk
+  parse = pure . maybeToSuccess (IsInvalid :| []) . mk

@@ -53,13 +53,12 @@ instance Validation.ToMessage ValidationError where
 type ValidationErrors = NonEmpty ValidationError
 
 mk :: Text -> Validation ValidationErrors Username
-mk = Polysemy.run . validate @Username
+mk = Polysemy.run . validate
 
-instance Validatable Username where
-  type Raw Username = Text
-  type Errors Username = ValidationErrors
+instance Validatable Text Username where
+  type Errors Text Username = ValidationErrors
 
-  validate input = pure $ Mk input <$ ifS
+  parse input = pure $ Mk input <$ ifS
     (pure $ Text.null input)
     (failure IsEmpty)
     (failureIf (l > 20) IsLong *> failureIf (l < 8) IsShort *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid)
