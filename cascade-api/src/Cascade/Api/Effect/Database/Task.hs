@@ -155,6 +155,5 @@ fromParsedUpdatableTask updatable task =
     $ [ (task ^. #title <-.) . (val_ . coerce) <$> updatable ^. #title
       , (task ^. #deadlineAt <-.)
       .   (val_ . Deadline.un)
-      <$> updatable
-      ^.  #deadlineAt
+      <$> (updatable ^. #deadlineAt)
       ]

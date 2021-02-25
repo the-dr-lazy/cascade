@@ -24,7 +24,7 @@ import           Data.Generics.Labels           ( )
 
 type CreateResponse
   = '[Response.Created Task.Readable, Response.Unprocessable
-    Task.RawCreatableValidationErrors]
+    Task.RawCreatableValidationErrors, Response.NotFound]
 
 type GetByProjectIdResponse = '[Response.Ok [Task.Readable]]
 
