@@ -10,9 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Main
-  ( main
-  ) where
+module Main (main) where
 
 
 main :: IO ()

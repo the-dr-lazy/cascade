@@ -20,19 +20,15 @@ module Cascade.Api.Hedgehog.Gen.Text
   ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Data.Text                     as Text
-import           Hedgehog                       ( MonadGen(GenBase) )
-import qualified Hedgehog.Gen                  as Gen
-import qualified Hedgehog.Range                as Range
+import qualified Data.Text                          as Text
+import           Hedgehog                            ( MonadGen(GenBase) )
+import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Range                     as Range
 
 username :: MonadGen g => Validity -> g Text
-username Valid =
-  Gen.text (Range.linear 8 20) $ Gen.choice [Gen.hexit, pure '_']
-username Invalid = Gen.choice
-  [ Gen.text (Range.linear 0 7) Gen.hexit
-  , Gen.text (Range.exponential 21 100) Gen.hexit
-  , Gen.text (Range.linear 8 20) Gen.unicode
-  ]
+username Valid = Gen.text (Range.linear 8 20) $ Gen.choice [Gen.hexit, pure '_']
+username Invalid =
+  Gen.choice [Gen.text (Range.linear 0 7) Gen.hexit, Gen.text (Range.exponential 21 100) Gen.hexit, Gen.text (Range.linear 8 20) Gen.unicode]
 
 usernameWithValidity :: MonadGen g => g (Validity, Text)
 usernameWithValidity = do
@@ -45,11 +41,9 @@ emailAddress Valid = do
   domain    <- Gen.text (Range.linear 1 63) Gen.alphaNum
   tld       <- Gen.text (Range.linear 1 24) Gen.lower
   pure $ recipient <> "@" <> domain <> "." <> tld
-emailAddress Invalid = Gen.filter ((== 0) . Text.count "@")
-  $ Gen.text (Range.exponential 0 256) Gen.unicode
+emailAddress Invalid = Gen.filter ((== 0) . Text.count "@") $ Gen.text (Range.exponential 0 256) Gen.unicode
 
-emailAddressWithValidity :: (MonadGen g, GenBase g ~ Identity)
-                         => g (Validity, Text)
+emailAddressWithValidity :: (MonadGen g, GenBase g ~ Identity) => g (Validity, Text)
 emailAddressWithValidity = do
   validity <- Gen.enumBounded
   (validity, ) <$> emailAddress validity

@@ -10,28 +10,23 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient
-  ( api
-  , interpret
-  ) where
+module Cascade.Api.Network.TestClient (api, interpret) where
 
-import           Cascade.Api.Network.Anatomy    ( Routes )
-import qualified Cascade.Api.Network.Anatomy.Api
-                                               as Api
-import           Control.Lens                   ( (^.) )
+import           Cascade.Api.Network.Anatomy         ( Routes )
+import qualified Cascade.Api.Network.Anatomy.Api    as Api
+import           Control.Lens                        ( (^.) )
 import           Control.Monad.Free
-import qualified Network.HTTP.Client           as Http
-import           Servant.API.Generic            ( fromServant )
+import qualified Network.HTTP.Client                as Http
+import           Servant.API.Generic                 ( fromServant )
 import           Servant.Client.Core
-import           Servant.Client.Free            ( ClientF(..) )
-import           Servant.Client.Generic         ( AsClientT
-                                                , genericClient
-                                                )
-import qualified Servant.Client.Internal.HttpClient
-                                               as Http
-                                                ( clientResponseToResponse
-                                                , defaultMakeClientRequest
-                                                )
+import           Servant.Client.Free                 ( ClientF(..) )
+import           Servant.Client.Generic              ( AsClientT
+                                                     , genericClient
+                                                     )
+import qualified Servant.Client.Internal.HttpClient as Http
+                                                     ( clientResponseToResponse
+                                                     , defaultMakeClientRequest
+                                                     )
 
 client :: Routes (AsClientT (Free ClientF))
 client = genericClient

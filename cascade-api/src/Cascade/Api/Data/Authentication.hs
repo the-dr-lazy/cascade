@@ -10,23 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Authentication
-  ( RawCredential(..)
-  , ParsedCredential
-  , parseRawCredential
-  ) where
+module Cascade.Api.Data.Authentication (RawCredential(..), ParsedCredential, parseRawCredential) where
 
 import qualified Cascade.Api.Data.ByteString.Password
-                                               as Password
-import qualified Cascade.Api.Data.Text.Username
-                                               as Username
-import qualified Cascade.Api.Data.User         as User
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
+                                                    as Password
+import qualified Cascade.Api.Data.Text.Username     as Username
+import qualified Cascade.Api.Data.User              as User
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
 import           Validation
 
--- brittany-disable-next-binding
 data RawCredential = RawCredential
   { username :: Text
   , password :: Text

@@ -18,24 +18,24 @@ module Cascade.Api.Servant.Authentication
   , handleAuthentication
   ) where
 
-import qualified Cascade.Api.Data.Jwt          as Jwt
-import qualified Cascade.Api.Data.Session      as Session
-import           Cascade.Api.Data.Session       ( Session )
-import qualified Cascade.Data.ByteString       as W8
-import qualified Data.ByteString               as W8
-import qualified Data.List                     as List
-import           Network.HTTP.Types             ( hAuthorization
-                                                , hCookie
-                                                )
-import qualified Network.Wai                   as Wai
-import           Network.Wai                    ( requestHeaders )
-import           Servant                        ( Handler
-                                                , throwError
-                                                )
+import qualified Cascade.Api.Data.Jwt               as Jwt
+import qualified Cascade.Api.Data.Session           as Session
+import           Cascade.Api.Data.Session            ( Session )
+import qualified Cascade.Data.ByteString            as W8
+import qualified Data.ByteString                    as W8
+import qualified Data.List                          as List
+import           Network.HTTP.Types                  ( hAuthorization
+                                                     , hCookie
+                                                     )
+import qualified Network.Wai                        as Wai
+import           Network.Wai                         ( requestHeaders )
+import           Servant                             ( Handler
+                                                     , throwError
+                                                     )
 import           Servant.API.Experimental.Auth
-import           Servant.Server                 ( err401 )
+import           Servant.Server                      ( err401 )
 import           Servant.Server.Experimental.Auth
-import           Web.Cookie                     ( parseCookies )
+import           Web.Cookie                          ( parseCookies )
 
 type Auth = AuthProtect "JWT"
 
@@ -53,20 +53,11 @@ signatureCookieName = "signature"
 handleAuthentication :: Wai.Request -> Handler Session
 handleAuthentication request = maybe
   (pure Session.Anonymous)
-  (   maybe (throwError err401)
-            (pure . Session.Authenticated . Jwt.getPrivateClaims)
-  <=< (liftIO . Jwt.decode)
-  )
+  (maybe (throwError err401) (pure . Session.Authenticated . Jwt.getPrivateClaims) <=< (liftIO . Jwt.decode))
   token
  where
-  cookies =
-    request |> requestHeaders |> List.lookup hCookie |> fmap parseCookies
-  tokenFromCookies =
-    Jwt.reassociate
-      <$> (cookies >>= List.lookup headerAndPayloadCookieName)
-      <*> (cookies >>= List.lookup signatureCookieName)
+  cookies          = request |> requestHeaders |> List.lookup hCookie |> fmap parseCookies
+  tokenFromCookies = Jwt.reassociate <$> (cookies >>= List.lookup headerAndPayloadCookieName) <*> (cookies >>= List.lookup signatureCookieName)
   tokenFromAuthorization =
-    (request |> requestHeaders |> List.lookup hAuthorization)
-      >>= fmap W8.trim
-      .   W8.stripPrefix authorizationHeaderPrefix
+    (request |> requestHeaders |> List.lookup hAuthorization) >>= fmap W8.trim . W8.stripPrefix authorizationHeaderPrefix
   token = tokenFromCookies <|> tokenFromAuthorization

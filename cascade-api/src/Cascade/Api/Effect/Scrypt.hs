@@ -10,31 +10,23 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Scrypt
-  ( Encrypted
-  , pattern Encrypted
-  , un
-  , ScryptL
-  , encryptPassword
-  , verifyPassword
-  , run
-  ) where
+module Cascade.Api.Effect.Scrypt (Encrypted, pattern Encrypted, un, ScryptL, encryptPassword, verifyPassword, run) where
 
 import           Cascade.Api.Data.ByteString.Password
-                                                ( Password
-                                                , pattern Password
-                                                )
+                                                     ( Password
+                                                     , pattern Password
+                                                     )
 import qualified Cascade.Api.Data.ByteString.Password
-                                               as Password
-import           Control.Lens.TH                ( makeWrapped )
-import qualified Crypto.Scrypt                 as Scrypt
-import           Polysemy                       ( Embed
-                                                , Member
-                                                , Sem
-                                                , embed
-                                                , interpret
-                                                , makeSem
-                                                )
+                                                    as Password
+import           Control.Lens.TH                     ( makeWrapped )
+import qualified Crypto.Scrypt                      as Scrypt
+import           Polysemy                            ( Embed
+                                                     , Member
+                                                     , Sem
+                                                     , embed
+                                                     , interpret
+                                                     , makeSem
+                                                     )
 
 newtype Encrypted (a :: Type) = Mk
   { un :: ByteString }
