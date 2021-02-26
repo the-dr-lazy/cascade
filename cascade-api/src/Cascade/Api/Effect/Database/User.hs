@@ -29,10 +29,8 @@ import           Database.Beam                       ( SqlEq((==.))
                                                      , default_
                                                      , exists_
                                                      , filter_
-                                                     , guard_
                                                      , insertExpressions
                                                      , select
-                                                     , subselect_
                                                      , val_
                                                      , (||.)
                                                      )

@@ -26,7 +26,6 @@ import           Cascade.Api.Servant.Authentication  ( headerAndPayloadCookieNam
 import           Control.Lens                        ( (^.)
                                                      , _Wrapped'
                                                      )
-import qualified Data.ByteString                    as W8
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
