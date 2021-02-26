@@ -54,7 +54,6 @@ data Creatable v = Creatable
   , password     :: Validate v Text Password
   }
   deriving stock Generic
-  -- deriving Validatable via (Generically (Creatable 'Raw))
 
 deriving via (Generically (Creatable 'Parsed)) instance Validatable (Creatable 'Raw) (Creatable 'Parsed)
 
