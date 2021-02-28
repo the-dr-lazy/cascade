@@ -15,4 +15,7 @@ clean:
 setup:
 	git config core.hooksPath .githooks
 
-.PHONY: wtest wtest-api clean setup
+wcabal:
+	find . -type f -path "./*/*" -name *.dhall | entr -d dhall-hpack-cabal --package-dhall /_
+
+.PHONY: wtest wtest-api clean setup wcabal
