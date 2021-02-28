@@ -58,13 +58,13 @@ jobs:
           - macOS-latest
 
     steps:
-      - uses: actions/checkout@v2
-
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.8.4"
           cabal-version: "3.2"
+
+      - uses: actions/checkout@v2
 
       - name: Setup environment
         uses: knicknic/os-specific-run@v1.0.2
@@ -113,13 +113,13 @@ jobs:
         os: [macOS-latest]
 
     steps:
-      - uses: actions/checkout@v2
-
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.8.4"
           cabal-version: "3.2"
+
+      - uses: actions/checkout@v2
 
       - name: Setup environment
         uses: knicknic/os-specific-run@v1.0.2
