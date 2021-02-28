@@ -96,8 +96,7 @@ jobs:
 
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
-          sed "s/^constraints: /cabal new-install hpack-dhall --constraint '/;s/^ \+/--constraint '/;s/,\$/' \\\\/;\$s/\$/'/" cabal.project.freeze >cascade-cabal-new-install
-          sudo chmod +x cascade-cabal-new-install && ./cascade-cabal-new-install
+          cabal new-install hpack-dhall
 
           dhall-hpack-cabal --version
 
@@ -173,8 +172,7 @@ jobs:
           cd ~
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
-          sed "s/^constraints: /cabal new-install hpack-dhall --constraint '/;s/^ \+/--constraint '/;s/,\$/' \\\\/;\$s/\$/'/" cabal.project.freeze >cascade-cabal-new-install
-          sudo chmod +x cascade-cabal-new-install && ./cascade-cabal-new-install
+          cabal new-install hpack-dhall
 
           dhall-hpack-cabal --version
 
