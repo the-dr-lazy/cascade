@@ -81,23 +81,23 @@ jobs:
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
+            cd ~
+
             sudo apt-get update
             sudo apt-get --yes install libjwt-dev
 
             cabal new-install hpack-dhall
 
-            make setup
-
             dhall-hpack-cabal --version
           macos: |
+            cd ~
+
             export HOMEBREW_NO_AUTO_UPDATE=1
             export HOMEBREW_NO_INSTALL_CLEANUP=1
 
             brew install libjwt
 
             cabal new-install hpack-dhall
-
-            make setup
 
             dhall-hpack-cabal --version
 
@@ -107,6 +107,7 @@ jobs:
 
       - name: Configure
         run: |
+          make setup
           cabal new-configure --disable-documentation \
                               --disable-optimization \
                               --enable-tests \
@@ -149,6 +150,8 @@ jobs:
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
+            cd ~
+
             sudo apt-get update
             sudo apt-get --yes remove postgresql\*
             sudo apt-get --yes install postgresql-13
@@ -160,11 +163,11 @@ jobs:
 
             cabal new-install hpack-dhall
 
-            make setup
-
             postgres --version
             dhall-hpack-cabal --version
           macos: |
+            cd ~
+
             export HOMEBREW_NO_AUTO_UPDATE=1
             export HOMEBREW_NO_INSTALL_CLEANUP=1
 
@@ -175,8 +178,6 @@ jobs:
 
             cabal new-install hpack-dhall
 
-            make setup
-
             postgres --version
             dhall-hpack-cabal --version
 
@@ -186,6 +187,7 @@ jobs:
 
       - name: Configure
         run: |
+          make setup
           cabal new-configure --disable-documentation \
                               --enable-optimization=2 \
                               --enable-tests \
