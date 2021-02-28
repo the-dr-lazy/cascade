@@ -91,12 +91,9 @@ jobs:
 
       - name: Setup environment (common)
         run: |
-          cp cabal.project.freeze ~/
-          cd ~
-
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
-          cabal new-install hpack-dhall
+          ./scripts/ci/environment
 
       - name: Verify environment
         run: |
@@ -168,11 +165,9 @@ jobs:
 
       - name: Setup environment (common)
         run: |
-          cp cabal.project.freeze ~/
-          cd ~
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
-          cabal new-install hpack-dhall
+          ./scripts/ci/environment
 
       - name: Verify environment
         run: |
