@@ -48,8 +48,7 @@ jobs:
 
       - name: Check formatting
         run: |
-          find **/*.hs
-          brittany -c $(find **/*.hs)
+          brittany -c $(find . -name \*.hs)
 
   build:
     name: Build ${{ matrix.os }}
