@@ -77,33 +77,29 @@ jobs:
           path: ${{ steps.haskell.outputs.cabal-store }}
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
-      - name: Setup environment
+      - name: Setup environment (OS specific)
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
-            cd ~
-
             sudo apt-get update
             sudo apt-get --yes install libjwt-dev
-
-            cabal new-install hpack-dhall
-
-            dhall-hpack-cabal --version
           macos: |
-            cd ~
-
             export HOMEBREW_NO_AUTO_UPDATE=1
             export HOMEBREW_NO_INSTALL_CLEANUP=1
 
             brew install libjwt
 
-            cabal new-install hpack-dhall
-
-            dhall-hpack-cabal --version
-
-      - name: Setup $PATH
+      - name: Setup environment (common)
         run: |
+          cp cabal.project.freeze ~/
+          cd ~
+
           echo "~/.cabal/bin" >> $GITHUB_PATH
+
+          sed "s/^constraints: /cabal new-install hpack-dhall --constraint '/;s/^ \+/--constraint '/;s/,\$/' \\\\/;\$s/\$/'/" cabal.project.freeze >cascade-cabal-new-install
+          sudo chmod +x cascade-cabal-new-install
+
+          dhall-hpack-cabal --version
 
       - name: Configure
         run: |
@@ -146,12 +142,10 @@ jobs:
           path: ${{ steps.haskell.outputs.cabal-store }}
           key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
-      - name: Setup environment
+      - name: Setup environment (OS specific)
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
-            cd ~
-
             sudo apt-get update
             sudo apt-get --yes remove postgresql\*
             sudo apt-get --yes install postgresql-13
@@ -161,13 +155,8 @@ jobs:
 
             sudo apt-get --yes install sqitch libdbd-pg-perl postgresql-client-13
 
-            cabal new-install hpack-dhall
-
             postgres --version
-            dhall-hpack-cabal --version
           macos: |
-            cd ~
-
             export HOMEBREW_NO_AUTO_UPDATE=1
             export HOMEBREW_NO_INSTALL_CLEANUP=1
 
@@ -176,14 +165,18 @@ jobs:
             brew tap sqitchers/sqitch
             brew install sqitch --with-postgres-support
 
-            cabal new-install hpack-dhall
-
             postgres --version
-            dhall-hpack-cabal --version
 
-      - name: Setup $PATH
+      - name: Setup environment (common)
         run: |
+          cp cabal.project.freeze ~/
+          cd ~
           echo "~/.cabal/bin" >> $GITHUB_PATH
+
+          sed "s/^constraints: /cabal new-install hpack-dhall --constraint '/;s/^ \+/--constraint '/;s/,\$/' \\\\/;\$s/\$/'/" cabal.project.freeze >cascade-cabal-new-install
+          sudo chmod +x cascade-cabal-new-install
+
+          dhall-hpack-cabal --version
 
       - name: Configure
         run: |
