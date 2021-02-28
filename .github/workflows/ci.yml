@@ -36,13 +36,15 @@ jobs:
 
       - name: Install Brittany
         run: |
-          ls -lisah
-          pwd
           curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
-          unzip brittany.zip
+          echo 28b272de3f895f1b7e19e7a7dd91c3e1  brittany.zip | md5sum --check -
+
+          unzip brittany.zip -d brittany
           rm brittany.zip
-          sudo chmod +x brittany
-          sudo mv brittany /usr/bin/
+
+          sudo chmod +x ./brittany/brittany
+          sudo mv ./brittany/brittany /usr/bin/
+          rm -rf brittany
 
       - name: Check formatting
         run: brittany -c **/*.hs
