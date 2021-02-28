@@ -14,6 +14,7 @@ clean:
 
 setup:
 	git config core.hooksPath .githooks
+	./scripts/cabal
 
 wcabal:
 	find . -type f -path "./*/*" -name *.dhall | entr -d dhall-hpack-cabal --package-dhall /_

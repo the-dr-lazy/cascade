@@ -79,19 +79,21 @@ jobs:
 
             brew install libjwt
 
-      - name: Configure
-        run: |
-          cabal new-configure --disable-documentation \
-                              --disable-optimization \
-                              --enable-tests \
-                              --enable-benchmarks \
-                              --test-show-details=direct
-
       - uses: actions/cache@v2.1.3
         name: Cache ~/.cabal/store
         with:
           path: ${{ steps.haskell.outputs.cabal-store }}
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
+
+      - name: Configure
+        run: |
+          cabal new-install hpack-dhall
+          make setup
+          cabal new-configure --disable-documentation \
+                              --disable-optimization \
+                              --enable-tests \
+                              --enable-benchmarks \
+                              --test-show-details=direct
 
       - name: Install dependencies
         run: |
@@ -148,20 +150,22 @@ jobs:
         run: |
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
+      - name: Cache ~/.cabal/store
+        uses: actions/cache@v2.1.3
+        with:
+          path: ${{ steps.haskell.outputs.cabal-store }}
+          key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
+
       - name: Configure
         run: |
+          cabal new-install hpack-dhall
+          make setup
           cabal new-configure --disable-documentation \
                               --enable-optimization=2 \
                               --enable-tests \
                               --disable-coverage \
                               --disable-per-component \
                               --test-show-details=direct
-
-      - name: Cache ~/.cabal/store
-        uses: actions/cache@v2.1.3
-        with:
-          path: ${{ steps.haskell.outputs.cabal-store }}
-          key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
       - name: Install dependencies
         run: |
