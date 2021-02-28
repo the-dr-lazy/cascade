@@ -47,7 +47,9 @@ jobs:
           rm -rf brittany
 
       - name: Check formatting
-        run: brittany -c **/*.hs
+        run: |
+          find **/*.hs
+          brittany -c $(find **/*.hs)
 
   build:
     name: Build ${{ matrix.os }}
