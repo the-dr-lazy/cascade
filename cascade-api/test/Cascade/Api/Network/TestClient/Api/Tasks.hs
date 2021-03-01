@@ -10,7 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.Tasks (GetByIdResponse, UpdateByIdResponse, DeleteByIdResponse, getById, updateById, deleteById) where
+module Cascade.Api.Network.TestClient.Api.Tasks
+  ( GetByIdResponse
+  , UpdateByIdResponse
+  , DeleteByIdResponse
+  , getById
+  , updateById
+  , deleteById
+  ) where
 
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Network.Anatomy.Api.Tasks
