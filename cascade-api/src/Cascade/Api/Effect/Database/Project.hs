@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Database.Project (ProjectL(..), findAll, findById, create, updateById, deleteById, run) where
+module Cascade.Api.Effect.Database.Project (ProjectL(..), findAll, findById, create, updateById, deleteById, doesExistsById, run) where
 
 import qualified Cascade.Api.Data.Project           as Project
 import           Cascade.Api.Data.WrappedC
@@ -25,6 +25,8 @@ import           Database.Beam                       ( (<-.)
                                                      , insertExpressions
                                                      , select
                                                      , val_
+                                                     , exists_
+                                                     , filter_
                                                      )
 import qualified Database.Beam                      as Beam
 import           Database.Beam.Backend               ( BeamSqlBackend
@@ -44,6 +46,7 @@ data ProjectL m a where
   Create     ::Project.Creatable -> ProjectL m Project.Readable
   UpdateById ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
   DeleteById ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  DoesExistsById ::Project.Id -> ProjectL m Bool
 
 makeSem ''ProjectL
 
@@ -53,7 +56,7 @@ run :: forall backend r a
     => Database.TableFieldsFulfillConstraint (Beam.FromBackendRow backend) ProjectTable
     => Database.TableFieldsFulfillConstraint (Beam.HasSqlEqualityCheck backend) ProjectTable
     => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
-    => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
+    => Beam.FromBackendRow backend Bool => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
   FindAll -> Database.all #projects |> select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
   FindById id ->
@@ -75,6 +78,15 @@ run = interpret \case
     Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
+  DoesExistsById id -> do
+    let query = Database.all #projects |> filter_ \project -> project ^. #id ==. val_ (coerce id)
+
+    exists_ query
+      |> pure
+      |> select
+      |> Database.runSelectReturningOne
+      -- Only @Just@ is acceptable.
+      |> fmap Unsafe.fromJust
 
 toReadableProject :: Database.Project.Row -> Project.Readable
 toReadableProject Database.Project.Row {..} = Project.Readable { id = coerce id, name }

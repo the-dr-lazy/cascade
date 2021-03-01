@@ -10,19 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.Projects.Tasks (Routes(..), CreateResponse, GetByProjectIdResponse) where
+module Cascade.Api.Network.Anatomy.Api.Projects.Tasks (Routes(..), CreateResponse, GetAllByProjectIdResponse) where
 
 import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import           Data.Generics.Labels                ( )
 
-type CreateResponse = '[Response.Created Task.Readable, Response.Unprocessable Task.RawCreatableValidationErrors, Response.NotFound]
+type CreateResponse = '[Response.Created Task.Readable , Response.Unprocessable Task.RawCreatableValidationErrors , Response.NotFound]
 
-type GetByProjectIdResponse = '[Response.Ok [Task.Readable]]
+type GetAllByProjectIdResponse = '[Response.Ok [Task.Readable] , Response.NotFound]
 
 data Routes route = Routes
-  { create :: route :- ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
-  , getByProjectId :: route :- Get '[JSON] GetByProjectIdResponse
+  { create            :: route :- ReqBody '[JSON] Task.RawCreatable :> Post '[JSON] CreateResponse
+  , getAllByProjectId :: route :- Get '[JSON] GetAllByProjectIdResponse
   }
   deriving stock Generic
