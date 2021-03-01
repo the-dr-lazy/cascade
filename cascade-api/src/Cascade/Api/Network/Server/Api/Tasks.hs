@@ -33,14 +33,14 @@ import           Validation                          ( validation )
 handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
 handleGetById id = Database.Task.findById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleUpdateById :: Members '[TaskL, TimeL] r => Task.Id -> Task.RawUpdatable -> Sem r (Union UpdateByIdResponse)
+handleUpdateById :: Members '[TaskL , TimeL] r => Task.Id -> Task.RawUpdatable -> Sem r (Union UpdateByIdResponse)
 handleUpdateById id updatable = Time.now >>= validation (respond . Response.Unprocessable) go . Task.parseRawUpdatableTask updatable
  where
-  go :: Members '[TaskL, TimeL] r => Task.ParsedUpdatable -> Sem r (Union UpdateByIdResponse)
+  go :: Members '[TaskL , TimeL] r => Task.ParsedUpdatable -> Sem r (Union UpdateByIdResponse)
   go parsedUpdatable = Database.Task.updateById id parsedUpdatable >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 handleDeleteById :: Member TaskL r => Task.Id -> Sem r (Union DeleteByIdResponse)
 handleDeleteById id = Database.Task.deleteById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-server :: Members '[TaskL, TimeL] r => ToServant Routes (AsServerT (Sem r))
+server :: Members '[TaskL , TimeL] r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { getById = handleGetById, updateById = handleUpdateById, deleteById = handleDeleteById }

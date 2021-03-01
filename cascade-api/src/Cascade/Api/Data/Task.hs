@@ -24,8 +24,7 @@ module Cascade.Api.Data.Task
   , RawUpdatableValidationErrors
   , parseRawCreatableTask
   , parseRawUpdatableTask
-  )
-where
+  ) where
 
 import qualified Cascade.Api.Data.Id                as Data
 import           Data.Aeson                          ( FromJSON(..)

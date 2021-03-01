@@ -38,15 +38,18 @@ import           Servant.Server.Generic              ( AsServerT
                                                      )
 import           Validation                          ( validation )
 
-handleCreate :: Members '[TaskL, ProjectL, TimeL] r => Project.Id -> Task.RawCreatable -> Sem r (Union CreateResponse)
+handleCreate :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> Task.RawCreatable -> Sem r (Union CreateResponse)
 handleCreate projectId creatable = Time.now >>= validation (respond . Response.Unprocessable) go . Task.parseRawCreatableTask creatable
  where
-  go :: Members '[TaskL, ProjectL, TimeL] r => Task.ParsedCreatable -> Sem r (Union CreateResponse)
-  go parsedCreatable = Database.Project.findById projectId
-    >>= maybe (respond Response.notFound) \_ -> Database.Task.create parsedCreatable projectId >>= respond . Response.created
+  go :: Members '[TaskL , ProjectL , TimeL] r => Task.ParsedCreatable -> Sem r (Union CreateResponse)
+  go parsedCreatable = do
+    projectExists <- Database.Project.doesExistsById projectId
+    if projectExists then Database.Task.create parsedCreatable projectId >>= respond . Response.created else respond Response.notFound
 
-handleGetByProjectId :: Member TaskL r => Project.Id -> Sem r (Union GetByProjectIdResponse)
-handleGetByProjectId projectId = Database.Task.findByProjectId projectId >>= respond . Response.ok
+handleGetAllByProjectId :: Members '[TaskL , ProjectL] r => Project.Id -> Sem r (Union GetAllByProjectIdResponse)
+handleGetAllByProjectId projectId = do
+  projectExists <- Database.Project.doesExistsById projectId
+  if projectExists then Database.Task.findByProjectId projectId >>= respond . Response.ok else respond Response.notFound
 
-server :: Members '[TaskL, ProjectL, TimeL] r => Project.Id -> ToServant Routes (AsServerT (Sem r))
-server projectId = genericServerT Routes { getByProjectId = handleGetByProjectId projectId, create = handleCreate projectId }
+server :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> ToServant Routes (AsServerT (Sem r))
+server projectId = genericServerT Routes { getAllByProjectId = handleGetAllByProjectId projectId, create = handleCreate projectId }
