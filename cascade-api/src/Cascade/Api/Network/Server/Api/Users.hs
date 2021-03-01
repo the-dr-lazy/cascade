@@ -16,9 +16,11 @@ module Cascade.Api.Network.Server.Api.Users
 
 import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.User          ( parseRawCreatableUser )
-import qualified Cascade.Api.Effect.Depository as Depository
-import qualified Cascade.Api.Effect.Depository.User
-                                               as Depository.User
+import qualified Cascade.Api.Effect.Database.User
+                                               as Database
+                                                ( UserL )
+import qualified Cascade.Api.Effect.Database.User
+                                               as Database.User
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
 import           Cascade.Api.Network.Anatomy.Api.Users
 import qualified Cascade.Api.Servant.Response  as Response
@@ -33,23 +35,23 @@ import           Servant.API.Generic            ( ToServant )
 import           Servant.Server.Generic
 import           Validation                     ( validation )
 
-handleCreate :: Members '[Depository.UserL , ScryptL] r
+handleCreate :: Members '[Database.UserL , ScryptL] r
              => User.RawCreatable
              -> Sem r (Union CreateResponse)
 handleCreate =
   validation (respond . Response.Unprocessable) go . parseRawCreatableUser
  where
-  go :: Members '[Depository.UserL , ScryptL] r
+  go :: Members '[Database.UserL , ScryptL] r
      => User.ParsedCreatable
      -> Sem r (Union CreateResponse)
   go creatable = do
-    hasConflict <- Depository.User.doesExistsByUsernameOrEmailAddress
+    hasConflict <- Database.User.doesExistsByUsernameOrEmailAddress
       (creatable ^. #username)
       (creatable ^. #emailAddress)
     if hasConflict
       then respond Response.Conflict
-      else (respond . Response.Created) =<< Depository.User.create creatable
+      else (respond . Response.Created) =<< Database.User.create creatable
 
-server :: Members '[Depository.UserL , ScryptL] r
+server :: Members '[Database.UserL , ScryptL] r
        => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { create = handleCreate }

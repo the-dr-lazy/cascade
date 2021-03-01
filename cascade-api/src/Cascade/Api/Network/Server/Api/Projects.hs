@@ -15,9 +15,10 @@ module Cascade.Api.Network.Server.Api.Projects
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Effect.Depository as Depository
-import qualified Cascade.Api.Effect.Depository.Project
-                                               as Depository.Project
+import qualified Cascade.Api.Effect.Database.Project
+                                               as Database.Project
+import           Cascade.Api.Effect.Database.Project
+                                                ( ProjectL )
 import           Cascade.Api.Network.Anatomy.Api.Projects
 import qualified Cascade.Api.Servant.Response  as Response
 import           Polysemy                       ( Member
@@ -29,27 +30,27 @@ import           Servant.Server.Generic         ( AsServerT
                                                 , genericServerT
                                                 )
 
-handleGetById :: Member Depository.ProjectL r
+handleGetById :: Member ProjectL r
               => Project.Id
               -> Sem r (Union GetByIdResponse)
-handleGetById id = Depository.Project.findById id
+handleGetById id = Database.Project.findById id
   >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleUpdateById :: Member Depository.ProjectL r
+handleUpdateById :: Member ProjectL r
                  => Project.Id
                  -> Project.Updatable
                  -> Sem r (Union UpdateByIdResponse)
 handleUpdateById id updatable =
-  Depository.Project.updateById id updatable
+  Database.Project.updateById id updatable
     >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleDeleteById :: Member Depository.ProjectL r
+handleDeleteById :: Member ProjectL r
                  => Project.Id
                  -> Sem r (Union DeleteByIdResponse)
-handleDeleteById id = Depository.Project.deleteById id
+handleDeleteById id = Database.Project.deleteById id
   >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-server :: Member Depository.ProjectL r => ToServant Routes (AsServerT (Sem r))
+server :: Member ProjectL r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { getById    = handleGetById
                                , updateById = handleUpdateById
                                , deleteById = handleDeleteById

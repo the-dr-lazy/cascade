@@ -15,7 +15,12 @@ module Cascade.Api.Network.Server.Api
   , server
   ) where
 
-import qualified Cascade.Api.Effect.Depository as Depository
+import qualified Cascade.Api.Effect.Database.Project
+                                               as Database
+                                                ( ProjectL )
+import qualified Cascade.Api.Effect.Database.User
+                                               as Database
+                                                ( UserL )
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
 import           Cascade.Api.Network.Anatomy.Api
 import qualified Cascade.Api.Network.Server.Api.Authentication
@@ -37,7 +42,7 @@ import           Servant.Server.Generic         ( AsServerT
                                                 )
 
 type Effects
-  = '[Depository.ProjectL , Depository.UserL , ScryptL , Error ServerError]
+  = '[Database.ProjectL , Database.UserL , ScryptL , Error ServerError]
 
 server :: Members Effects r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { projects       = Projects.server

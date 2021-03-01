@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Effect.Depository.Project
+Module      : Cascade.Api.Effect.Database.Project
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Depository.Project
+module Cascade.Api.Effect.Database.Project
   ( ProjectL(..)
   , findAll
   , findAllByUserId
@@ -18,7 +18,7 @@ module Cascade.Api.Effect.Depository.Project
   , create
   , updateById
   , deleteById
-  , runDatabase
+  , run
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
@@ -64,19 +64,17 @@ data ProjectL m a where
 
 makeSem ''ProjectL
 
-runDatabase :: forall backend r a
-             . BeamSqlBackend backend
-            => Beam.HasQBuilder backend
-            => Query.TableFieldsFulfillConstraints
-                 '[ Beam.FromBackendRow backend
-                  , Beam.HasSqlEqualityCheck backend
-                  , BeamSqlBackendCanSerialize backend
-                  ]
-                 ProjectTable
-            => Member (DatabaseL backend) r
-            => Sem (ProjectL ': r) a
-            -> Sem r a
-runDatabase = interpret \case
+run :: forall backend r a
+     . BeamSqlBackend backend
+    => Beam.HasQBuilder backend
+    => Query.TableFieldsFulfillConstraints
+         '[ Beam.FromBackendRow backend
+          , Beam.HasSqlEqualityCheck backend
+          , BeamSqlBackendCanSerialize backend
+          ]
+         ProjectTable
+    => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
+run = interpret \case
   FindAll ->
     Query.all #projects
       |> select
@@ -100,7 +98,7 @@ runDatabase = interpret \case
       |> fmap Unsafe.fromJust
       |> fmap toReadableProject
   UpdateById id updatable -> case updatable of
-    Project.Updatable { name = Nothing } -> runDatabase $ findById id
+    Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
       Query.update #projects
                    (fromUpdatableProject updatable)

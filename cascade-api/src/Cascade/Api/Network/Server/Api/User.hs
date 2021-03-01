@@ -14,7 +14,8 @@ module Cascade.Api.Network.Server.Api.User
   ( server
   ) where
 
-import qualified Cascade.Api.Effect.Depository as Depository
+import qualified Cascade.Api.Effect.Database.Project
+                                               as Database
 import           Cascade.Api.Network.Anatomy.Api.User
 import qualified Cascade.Api.Network.Server.Api.User.Projects
                                                as Projects
@@ -22,5 +23,5 @@ import           Polysemy
 import           Servant.API.Generic
 import           Servant.Server.Generic
 
-server :: Member Depository.ProjectL r => ToServant Routes (AsServerT (Sem r))
+server :: Member Database.ProjectL r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { projects = Projects.server }

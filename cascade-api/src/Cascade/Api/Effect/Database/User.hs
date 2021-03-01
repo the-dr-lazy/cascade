@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Effect.Depository.User
+Module      : Cascade.Api.Effect.Database.User
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,12 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Depository.User
+module Cascade.Api.Effect.Database.User
   ( UserL
   , findByUsername
   , create
   , doesExistsByUsernameOrEmailAddress
-  , runDatabase
+  , run
   ) where
 
 import           Cascade.Api.Data.ByteString.Password
@@ -61,18 +61,18 @@ data UserL m a where
 
 makeSem ''UserL
 
-runDatabase :: Beam.HasQBuilder backend
-            => Beam.FromBackendRow backend Bool
-            => Query.TableFieldsFulfillConstraints
-                 '[ Beam.FromBackendRow backend
-                  , Beam.HasSqlEqualityCheck backend
-                  , BeamSqlBackendCanSerialize backend
-                  ]
-                 UserTable
-            => Members '[ScryptL , DatabaseL backend] r
-            => Sem (UserL ': r) a
-            -> Sem r a
-runDatabase = interpret \case
+run :: Beam.HasQBuilder backend
+    => Beam.FromBackendRow backend Bool
+    => Query.TableFieldsFulfillConstraints
+         '[ Beam.FromBackendRow backend
+          , Beam.HasSqlEqualityCheck backend
+          , BeamSqlBackendCanSerialize backend
+          ]
+         UserTable
+    => Members '[ScryptL , DatabaseL backend] r
+    => Sem (UserL ': r) a
+    -> Sem r a
+run = interpret \case
   FindByUsername username ->
     Query.User.byUsername username |> select |> Database.runSelectReturningOne
   DoesExistsByUsernameOrEmailAddress username emailAddress -> do

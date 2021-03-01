@@ -17,9 +17,10 @@ module Cascade.Api.Network.Server.Api.User.Projects
 import qualified Cascade.Api.Data.Project      as Project
 import           Cascade.Api.Data.Session       ( Session )
 import qualified Cascade.Api.Data.Session      as Session
-import qualified Cascade.Api.Effect.Depository as Depository
-import qualified Cascade.Api.Effect.Depository.Project
-                                               as Depository.Project
+import qualified Cascade.Api.Effect.Database.Project
+                                               as Database.Project
+import qualified Cascade.Api.Effect.Database.Project
+                                               as Database
 import           Cascade.Api.Network.Anatomy.Api.User.Projects
 import qualified Cascade.Api.Servant.Response  as Response
 import           Control.Lens                   ( (^.) )
@@ -28,22 +29,20 @@ import           Servant
 import           Servant.API.Generic
 import           Servant.Server.Generic
 
-handleCreate :: Member Depository.ProjectL r
+handleCreate :: Member Database.ProjectL r
              => Project.Creatable
              -> Session
              -> Sem r (Union CreateResponse)
 handleCreate creatable = Session.withAuthenticated \claims ->
-  Depository.Project.create creatable (claims ^. #userId)
+  Database.Project.create creatable (claims ^. #userId)
     >>= respond
     .   Response.created
 
-handleGetAll :: Member Depository.ProjectL r
+handleGetAll :: Member Database.ProjectL r
              => Session
              -> Sem r (Union GetAllResponse)
 handleGetAll = Session.withAuthenticated \claims ->
-  Depository.Project.findAllByUserId (claims ^. #userId)
-    >>= respond
-    .   Response.ok
+  Database.Project.findAllByUserId (claims ^. #userId) >>= respond . Response.ok
 
-server :: Member Depository.ProjectL r => ToServant Routes (AsServerT (Sem r))
+server :: Member Database.ProjectL r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { create = handleCreate, getAll = handleGetAll }
