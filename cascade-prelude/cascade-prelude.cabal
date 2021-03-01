@@ -113,7 +113,6 @@ library
                      , text
                      , aeson
                      , lens
-                     , validation-selective
                      , chronos
 
 test-suite cascade-prelude-test
@@ -123,12 +122,15 @@ test-suite cascade-prelude-test
   main-is:             Main.hs
   build-depends:       base-noprelude
                      , cascade-prelude
+                     , chronos
                      , hedgehog
                      , tasty
                      , tasty-hedgehog
                      , word8
   other-modules:       Test.Cascade.Data.ByteString
                        Test.Cascade.Data.Char
+                       Test.Cascade.Data.Chronos.Future
+                       Test.Cascade.Data.Text.NonEmpty
   ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
