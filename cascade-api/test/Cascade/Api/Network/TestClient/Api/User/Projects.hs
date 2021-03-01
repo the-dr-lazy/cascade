@@ -15,7 +15,8 @@ module Cascade.Api.Network.TestClient.Api.User.Projects where
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Network.Anatomy.Api.User.Projects
                                                as Api.User.Projects
-import           Cascade.Api.Network.TestClient ( authenticated
+import           Cascade.Api.Network.TestClient ( AuthToken
+                                                , authenticated
                                                 , interpret
                                                 )
 import qualified Cascade.Api.Network.TestClient.Api.User
@@ -28,10 +29,12 @@ import           Servant.Client.Free            ( ResponseF )
 
 type CreateResponse = (ResponseF (Union Api.User.Projects.CreateResponse))
 
-create :: Authenticate -> Project.Creatable -> IO CreateResponse
-create f = interpret . go f where go = Client.Api.User.projects ^. #create
+create :: AuthToken -> Project.Creatable -> IO CreateResponse
+create auth = interpret . flip go (authenticated auth)
+  where go = Client.Api.User.projects ^. #create
 
 type GetAllResponse = (ResponseF (Union Api.User.Projects.GetAllResponse))
 
-getAll :: Authenticate -> IO GetAllResponse
-getAll f = interpret . go f where go = Client.Api.User.projects ^. #getAll
+getAll :: AuthToken -> IO GetAllResponse
+getAll = interpret . go . authenticated
+  where go = Client.Api.User.projects ^. #getAll

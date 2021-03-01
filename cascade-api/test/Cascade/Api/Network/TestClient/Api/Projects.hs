@@ -22,7 +22,10 @@ module Cascade.Api.Network.TestClient.Api.Projects
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                as Api.Projects
-import           Cascade.Api.Network.TestClient ( interpret )
+import           Cascade.Api.Network.TestClient ( AuthToken
+                                                , authenticated
+                                                , interpret
+                                                )
 import qualified Cascade.Api.Network.TestClient.Api
                                                as Client.Api
 import           Control.Lens                   ( (^.) )
@@ -32,16 +35,21 @@ import           Servant.Client.Free            ( ResponseF )
 
 type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
 
-getById :: Project.Id -> IO GetByIdResponse
-getById = interpret . go where go = Client.Api.projects ^. #getById
+getById :: AuthToken -> Project.Id -> IO GetByIdResponse
+getById auth = interpret . flip go (authenticated auth)
+  where go = Client.Api.projects ^. #getById
 
 type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
 
-updateById :: Project.Id -> Project.Updatable -> IO UpdateByIdResponse
-updateById id updatable = interpret $ go id updatable
+updateById :: AuthToken
+           -> Project.Id
+           -> Project.Updatable
+           -> IO UpdateByIdResponse
+updateById auth id updatable = interpret $ go id updatable (authenticated auth)
   where go = Client.Api.projects ^. #updateById
 
 type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
 
-deleteById :: Project.Id -> IO DeleteByIdResponse
-deleteById = interpret . go where go = Client.Api.projects ^. #deleteById
+deleteById :: AuthToken -> Project.Id -> IO DeleteByIdResponse
+deleteById auth = interpret . flip go (authenticated auth)
+  where go = Client.Api.projects ^. #deleteById
