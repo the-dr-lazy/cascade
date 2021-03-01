@@ -15,6 +15,8 @@ module Cascade.Api.Network.Server.Api.Projects
   ) where
 
 import qualified Cascade.Api.Data.Project      as Project
+import qualified Cascade.Api.Data.Session      as Session
+import           Cascade.Api.Data.Session       ( Session )
 import qualified Cascade.Api.Effect.Database.Project
                                                as Database.Project
 import           Cascade.Api.Effect.Database.Project
@@ -32,23 +34,28 @@ import           Servant.Server.Generic         ( AsServerT
 
 handleGetById :: Member ProjectL r
               => Project.Id
+              -> Session
               -> Sem r (Union GetByIdResponse)
-handleGetById id = Database.Project.findById id
-  >>= maybe (respond Response.notFound) (respond . Response.ok)
+handleGetById id = Session.withAuthenticated \_ ->
+  Database.Project.findById id
+    >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 handleUpdateById :: Member ProjectL r
                  => Project.Id
                  -> Project.Updatable
+                 -> Session
                  -> Sem r (Union UpdateByIdResponse)
-handleUpdateById id updatable =
+handleUpdateById id updatable = Session.withAuthenticated \_ ->
   Database.Project.updateById id updatable
     >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 handleDeleteById :: Member ProjectL r
                  => Project.Id
+                 -> Session
                  -> Sem r (Union DeleteByIdResponse)
-handleDeleteById id = Database.Project.deleteById id
-  >>= maybe (respond Response.notFound) (respond . Response.ok)
+handleDeleteById id = Session.withAuthenticated \_ ->
+  Database.Project.deleteById id
+    >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 server :: Member ProjectL r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { getById    = handleGetById

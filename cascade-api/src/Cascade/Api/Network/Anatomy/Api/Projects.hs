@@ -44,10 +44,11 @@ type DeleteByIdResponse
      ]
 
 data Routes route = Routes
-  { getById :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
+  { getById
+      :: route :- Capture "id" Project.Id :> Auth :> Get '[JSON] GetByIdResponse
   , updateById
-      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
+      :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Auth :> Patch '[JSON] UpdateByIdResponse
   , deleteById
-      :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
+      :: route :- Capture "id" Project.Id :> Auth :> Delete '[JSON] DeleteByIdResponse
   }
   deriving stock Generic
