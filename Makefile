@@ -17,6 +17,8 @@ setup:
 	./scripts/cabal
 
 wcabal:
-	find . -type f -path "./*/*" -name *.dhall | entr -d dhall-hpack-cabal --package-dhall /_
+	while sleep 0.3; do \
+	  git ls-files -cmo | egrep "\.hs$$|\.dhall$$" | entr -cdr ./scripts/cabal; \
+	done
 
 .PHONY: wtest wtest-api clean setup wcabal
