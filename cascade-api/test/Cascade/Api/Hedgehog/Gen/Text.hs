@@ -19,8 +19,7 @@ module Cascade.Api.Hedgehog.Gen.Text
   , passwordWithValidity
   , nonEmptyText
   , nonEmptyTextWithValidity
-  )
-where
+  ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
 import qualified Data.Text                          as Text

@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.Projects.Tasks (CreateResponse, GetByProjectIdResponse, create, getByProjectId) where
+module Cascade.Api.Network.TestClient.Api.Projects.Tasks (CreateResponse, GetAllByProjectIdResponse, create, getAllByProjectId) where
 
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.Project           as Project
@@ -26,10 +26,10 @@ import           Servant.Client.Free                 ( ResponseF )
 
 type CreateResponse = ResponseF (Union Api.Projects.Tasks.CreateResponse)
 
-type GetByProjectIdResponse = ResponseF (Union Api.Projects.Tasks.GetByProjectIdResponse)
+type GetAllByProjectIdResponse = ResponseF (Union Api.Projects.Tasks.GetAllByProjectIdResponse)
 
 create :: Project.Id -> Task.RawCreatable -> IO CreateResponse
 create projectId = interpret . go where go = Client.Api.Projects.tasks projectId ^. #create
 
-getByProjectId :: Project.Id -> IO GetByProjectIdResponse
-getByProjectId projectId = interpret go where go = Client.Api.Projects.tasks projectId ^. #getByProjectId
+getAllByProjectId :: Project.Id -> IO GetAllByProjectIdResponse
+getAllByProjectId projectId = interpret go where go = Client.Api.Projects.tasks projectId ^. #getAllByProjectId
