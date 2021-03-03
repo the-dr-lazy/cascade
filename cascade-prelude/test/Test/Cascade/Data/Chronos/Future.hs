@@ -27,13 +27,12 @@ futureTests :: TestTree
 futureTests = testGroup "mk" [testProperty "date in future is valid" prop_future, testProperty "date in past is invalid" prop_past]
  where
   prop_future = property do
-    now          <- liftIO Chronos.now
+    now          <- evalIO Chronos.now
     randomNumber <- forAll $ Gen.int64 (Range.linear 0 10000)
     let x = Chronos.Time $ Chronos.getTime now + 1 + randomNumber
-    Future.mk x now |> evalMaybe
-    pure ()
+    Future.mk x now |> evalMaybe |> void
   prop_past = property do
-    now          <- liftIO Chronos.now
+    now          <- evalIO Chronos.now
     randomNumber <- forAll $ Gen.int64 (Range.linear 0 10000)
     let x = Chronos.Time $ Chronos.getTime now - 1 - randomNumber
     Future.mk x now === Nothing

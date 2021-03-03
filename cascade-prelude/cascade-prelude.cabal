@@ -126,6 +126,7 @@ test-suite cascade-prelude-test
                      , hedgehog
                      , tasty
                      , tasty-hedgehog
+                     , tasty-hunit
                      , word8
   other-modules:       Test.Cascade.Data.ByteString
                        Test.Cascade.Data.Char
