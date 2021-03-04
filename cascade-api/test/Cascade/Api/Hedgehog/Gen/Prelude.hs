@@ -18,3 +18,10 @@ data Validity
   = Valid
   | Invalid
   deriving stock (Show, Eq, Enum, Bounded)
+
+instance Semigroup Validity where
+  Valid <> Valid = Valid
+  _     <> _     = Invalid
+
+instance Monoid Validity where
+  mempty = Valid
