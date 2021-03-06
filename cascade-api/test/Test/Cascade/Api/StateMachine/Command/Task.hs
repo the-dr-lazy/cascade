@@ -109,7 +109,7 @@ createValidForExistingProject =
         pure id
 
       update :: Ord1 v => Model v -> Create v -> Var Task.Id v -> Model v
-      update model (Create projectId creatable) id = model |> #task . #creatables . at projectId . non Map.empty . at id ?~ creatable
+      update model (Create projectId creatable) id = model |> #task . #byProjectId . at projectId . non Map.empty . at id ?~ creatable
   in  Command generator execute [Update update]
 
 createValidForNonExistingProject :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
@@ -190,7 +190,7 @@ getAllByProjectIdForExistingProject =
       projectIds -> Just $ GetAllByProjectId <$> Gen.element projectIds
 
     require :: Model Symbolic -> GetAllByProjectId Symbolic -> Bool
-    require model (GetAllByProjectId projectId) = model |> has (#task . #creatables . ix projectId)
+    require model (GetAllByProjectId projectId) = model |> has (#task . #byProjectId . ix projectId)
 
     execute :: GetAllByProjectId Concrete -> m Cascade.Api.Projects.Tasks.GetAllByProjectIdResponse
     execute (GetAllByProjectId projectId) = do
@@ -203,7 +203,7 @@ getAllByProjectIdForExistingProject =
 
       Response.Ok readables <- (response ^. #responseBody) |> matchUnion @(Response.Ok [Task.Readable]) |> evalMaybe
 
-      let tasks = before ^. #task . #creatables . at projectId . non Map.empty
+      let tasks = before ^. #task . #byProjectId . at projectId . non Map.empty
 
       length readables === Map.size tasks
 
@@ -270,12 +270,12 @@ instance HTraversable GetById where
 getExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getExistingById =
   let generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
-      generator model = case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
       require :: Model Symbolic -> GetById Symbolic -> Bool
-      require model (GetById id) = model |> has (#task . #creatables . folded . ix id)
+      require model (GetById id) = model |> has (#task . #byProjectId . folded . ix id)
 
       execute :: GetById Concrete -> m Cascade.Api.Tasks.GetByIdResponse
       execute (GetById id) = do
@@ -283,14 +283,14 @@ getExistingById =
         evalIO . Cascade.Api.Tasks.getById $ concrete id
 
       ensure :: Model Concrete -> Model Concrete -> GetById Concrete -> Cascade.Api.Tasks.GetByIdResponse -> Test ()
-      ensure before _after _input response = do
+      ensure before _after (GetById taskId) response = do
         footnoteShow response
 
         Response.Ok task <- (response ^. #responseBody) |> matchUnion @(Response.Ok Task.Readable) |> evalMaybe
 
-        let id = Var . Concrete $ task ^. #id
+        concrete taskId === task ^. #id
 
-        creatable <- evalMaybe $ before ^? #task . #creatables . folded . ix id
+        creatable <- evalMaybe $ before ^? #task . #byProjectId . folded . ix taskId
 
         checkEqReadableRawCreatableTask task creatable
   in  Command generator execute [Require require, Ensure ensure]
@@ -322,12 +322,12 @@ data UpdateById (v :: Type -> Type) = UpdateById
   deriving stock (Generic, Show)
 
 instance HTraversable UpdateById where
-  htraverse f (UpdateById {..}) = UpdateById <$> htraverse f id <*> pure updatable
+  htraverse f UpdateById {..} = UpdateById <$> htraverse f id <*> pure updatable
 
 updateExistingByIdValid :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 updateExistingByIdValid =
   let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
-      generator model = case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Just $ do
           id         <- Gen.element ids
@@ -337,7 +337,7 @@ updateExistingByIdValid =
           pure $ UpdateById { .. }
 
       require :: Model Symbolic -> UpdateById Symbolic -> Bool
-      require model (UpdateById id _) = model |> has (#task . #creatables . folded . ix id)
+      require model (UpdateById id _) = model |> has (#task . #byProjectId . folded . ix id)
 
       execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
       execute UpdateById { id, updatable } = do
@@ -362,13 +362,13 @@ updateExistingByIdValid =
 
       update :: Ord1 v => Model v -> UpdateById v -> Var Cascade.Api.Tasks.UpdateByIdResponse v -> Model v
       update model (UpdateById id updatable) _response =
-        let creatable = updateCreatableTask updatable in model |> #task . #creatables . traversed %~ Map.adjust creatable id
+        let creatable = updateCreatableTask updatable in model |> #task . #byProjectId . traversed %~ Map.adjust creatable id
   in  Command generator execute [Require require, Update update, Ensure ensure]
 
 updateExistingByIdInvalid :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 updateExistingByIdInvalid =
   let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
-      generator model = case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Just $ do
           flag <- Gen.bool_
@@ -382,7 +382,7 @@ updateExistingByIdInvalid =
           pure $ UpdateById { .. }
 
       require :: Model Symbolic -> UpdateById Symbolic -> Bool
-      require model (UpdateById id _) = model |> has (#task . #creatables . folded . ix id)
+      require model (UpdateById id _) = model |> has (#task . #byProjectId . folded . ix id)
 
       execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
       execute UpdateById { id, updatable } = do
@@ -434,18 +434,17 @@ instance HTraversable DeleteById where
 deleteExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 deleteExistingById =
   let generator :: Model Symbolic -> Maybe (g (DeleteById Symbolic))
-      generator model = case model ^.. #task . #creatables . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Gen.element ids |> fmap DeleteById |> Just
 
       require :: Model Symbolic -> DeleteById Symbolic -> Bool
-      require model (DeleteById id) = model |> has (#task . #creatables . folded . ix id)
+      require model (DeleteById id) = model |> has (#task . #byProjectId . folded . ix id)
 
       execute :: DeleteById Concrete -> m Cascade.Api.Tasks.DeleteByIdResponse
-      execute input = do
+      execute DeleteById { id } = do
         label "[Task/Delete Existing By Id]"
-        evalIO . Cascade.Api.Tasks.deleteById $ id
-        where id = input ^. #id . concreted
+        evalIO . Cascade.Api.Tasks.deleteById $ concrete id
 
       ensure :: Model Concrete -> Model Concrete -> DeleteById Concrete -> Cascade.Api.Tasks.DeleteByIdResponse -> Test ()
       ensure _before _after input response = do
@@ -454,7 +453,7 @@ deleteExistingById =
         task ^. #id === input ^. #id . concreted
 
       update :: Ord1 v => Model v -> DeleteById v -> Var Cascade.Api.Tasks.DeleteByIdResponse v -> Model v
-      update model (DeleteById id) _response = model |> #task . #creatables . traversed %~ sans id
+      update model (DeleteById id) _response = model |> #task . #byProjectId . traversed %~ sans id
   in  Command generator execute [Require require, Update update, Ensure ensure]
 
 deleteNotExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
@@ -465,10 +464,9 @@ deleteNotExistingById =
         ids -> Gen.element ids |> fmap DeleteById |> Just
 
       execute :: DeleteById Concrete -> m Cascade.Api.Tasks.DeleteByIdResponse
-      execute input = do
+      execute DeleteById { id } = do
         label "[Task/Delete Non Existing By Id]"
-        let id = input ^. #id . concreted
-        evalIO . Cascade.Api.Tasks.deleteById $ id
+        evalIO . Cascade.Api.Tasks.deleteById $ concrete id
 
       ensure :: Model Concrete -> Model Concrete -> DeleteById Concrete -> Cascade.Api.Tasks.DeleteByIdResponse -> Test ()
       ensure _before _after _input response = do
