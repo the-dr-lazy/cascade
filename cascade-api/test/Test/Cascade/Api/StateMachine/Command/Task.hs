@@ -49,6 +49,7 @@ import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen
 import           Test.Cascade.Api.StateMachine.Model ( Model )
 import qualified Cascade.Api.Servant.Response       as Response
+import qualified Chronos
 import           Chronos                             ( offsetDatetimeToTime )
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
@@ -140,21 +141,21 @@ createInvalid =
       generator model = case model ^. #project . #creatables . to Map.keys of
         []         -> Nothing
         projectIds -> Just $ do
-          flag <- Gen.bool_
-          let boolToValidity     = bool Invalid Valid
-          let titleValidity      = boolToValidity flag
-          let deadlineAtValidity = boolToValidity $ not flag
-          projectId  <- Gen.element projectIds
-          title      <- Gen.nonEmptyText 30 titleValidity
-          deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32
+          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) FormattedOffsetDatetime
+          projectId                        <- Gen.element projectIds
+          let validity = fold [titleValidity, deadlineAtValidity]
+          when (validity == Valid) Gen.discard
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
 
       coverage :: Create Concrete -> m ()
       coverage (Create _ creatable) = do
-        let flag = creatable ^. #title . to Text.null
-        cover 5 "invalid deadline" flag
-        cover 5 "empty title"      (not flag)
+        let isTitleEmpty = creatable ^. #title . to Text.null
+        now <- evalIO Chronos.now
+        let isDeadlinePast = creatable ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime . to (< now)
+        cover 5 "past deadline" isDeadlinePast
+        cover 5 "empty title"   isTitleEmpty
 
       execute :: Create Concrete -> m Cascade.Api.Projects.Tasks.CreateResponse
       execute input@(Create projectId creatable) = do
@@ -371,13 +372,11 @@ updateExistingByIdInvalid =
       generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Just $ do
-          flag <- Gen.bool_
-          let boolToValidity     = bool Invalid Valid
-          let titleValidity      = boolToValidity flag
-          let deadlineAtValidity = boolToValidity $ not flag
-          id         <- Gen.element ids
-          title      <- Just <$> Gen.nonEmptyText 30 titleValidity
-          deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32 |> (fmap . fmap) Just
+          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) (Just . FormattedOffsetDatetime)
+          id                               <- Gen.element ids
+          let validity = fold [titleValidity, deadlineAtValidity]
+          when (validity == Valid) Gen.discard
           let updatable = Task.RawUpdatable { .. }
           pure $ UpdateById { .. }
 
