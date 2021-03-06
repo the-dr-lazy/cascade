@@ -30,7 +30,7 @@ data Model (v :: Type -> Type) = Model
 initialModel :: Model v
 initialModel = Model { project = ProjectModel { creatables = Map.empty, notExistingIds = mempty }
                      , user    = UserModel { byUsername = Map.empty, byEmailAddress = Map.empty }
-                     , task    = TaskModel { creatables = Map.empty, notExistingIds = mempty }
+                     , task    = TaskModel { byProjectId = Map.empty, notExistingIds = mempty }
                      }
 
 -- brittany-disable-next-binding
@@ -49,7 +49,7 @@ data UserModel (v :: Type -> Type) = UserModel
 
 -- brittany-disable-next-binding
 data TaskModel (v :: Type -> Type) = TaskModel
-  { creatables     :: Map (Var Project.Id v) (Map (Var Task.Id v) Task.RawCreatable)
+  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) Task.RawCreatable)
   , notExistingIds :: [Var Task.Id v]
   }
   deriving stock Generic
