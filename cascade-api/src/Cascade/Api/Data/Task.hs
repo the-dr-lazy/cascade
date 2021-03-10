@@ -10,16 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
+{-# LANGUAGE UndecidableInstances #-}
 module Cascade.Api.Data.Task
   ( Task
   , Id
   , Readable(..)
-  , RawCreatableV(..)
-  , RawCreatable
-  , ParsedCreatable(..)
-  , RawUpdatableV(..)
-  , RawUpdatable
-  , ParsedUpdatable(..)
+  , Creatable(..)
+  , Updatable(..)
   , RawCreatableValidationErrors
   , RawUpdatableValidationErrors
   , parseRawCreatableTask
@@ -31,20 +28,16 @@ import           Data.Aeson                          ( FromJSON(..)
                                                      , ToJSON(..)
                                                      )
 import qualified Cascade.Api.Data.Project           as Project
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime
-                                                     , unFormattedOffsetDatetime
-                                                     )
+import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime() )
 import           Cascade.Api.Data.OffsetDatetime.Deadline
                                                      ( Deadline )
-import qualified Cascade.Api.Data.OffsetDatetime.Deadline
-                                                    as Deadline
+import           Cascade.Data.Validation
+import qualified Cascade.Data.Validation            as Validation
 import qualified Cascade.Data.Text                  as Text
-import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
-import           Chronos                             ( Time )
-import           Cascade.Api.Data.Prelude
-import           Data.Generics.Labels                ( )
-import           Data.Monoid.Generic
-import           Validation
+import           Polysemy                            ( Sem
+                                                     , Members
+                                                     )
+import           Cascade.Polysemy                    ( constraint )
 
 data Task
 
@@ -59,98 +52,42 @@ data Readable = Readable
   deriving stock (Generic, Show, Eq)
   deriving anyclass (FromJSON, ToJSON)
 
-data TitleValidationError = IsEmpty
-  deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
-
-type TitleValidationErrors = NonEmpty TitleValidationError
-
-data DeadlineValidationError = IsPast
-  deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
-
-type DeadlineValidationErrors = NonEmpty DeadlineValidationError
-
-data RawCreatableV f = RawCreatable
-  { title      :: Validatable f Text (Maybe TitleValidationErrors)
-  , deadlineAt :: Validatable f FormattedOffsetDatetime (Maybe DeadlineValidationErrors)
+data Creatable v = Creatable
+  { title      :: Validate v Text Text.NonEmpty
+  , deadlineAt :: Validate v FormattedOffsetDatetime Deadline
   }
   deriving stock Generic
 
-type RawCreatable = RawCreatableV Identity
+deriving via (Generically (Creatable 'Parsed)) instance Validatable (Creatable 'Raw) (Creatable 'Parsed)
 
-deriving stock instance Show RawCreatable
-deriving stock instance Eq RawCreatable
-deriving anyclass instance FromJSON RawCreatable
-deriving anyclass instance ToJSON RawCreatable
+deriving stock instance Show (Creatable 'Raw)
+deriving stock instance Eq (Creatable 'Raw)
+deriving anyclass instance ToJSON (Creatable 'Raw)
+deriving anyclass instance FromJSON (Creatable 'Raw)
 
-type RawCreatableValidationErrors = RawCreatableV Validate
+type RawCreatableValidationErrors = (Validation.Errors (Creatable 'Raw) (Creatable 'Parsed))
 
-deriving stock instance Show RawCreatableValidationErrors
-deriving anyclass instance FromJSON RawCreatableValidationErrors
-deriving anyclass instance ToJSON RawCreatableValidationErrors
-deriving via (GenericSemigroup RawCreatableValidationErrors) instance Semigroup RawCreatableValidationErrors
-deriving via (GenericMonoid RawCreatableValidationErrors) instance Monoid RawCreatableValidationErrors
+parseRawCreatableTask :: Members (Effects (Creatable 'Raw) (Creatable 'Parsed)) r
+                      => Creatable 'Raw
+                      -> Sem r (Validation (Errors (Creatable 'Raw) (Creatable 'Parsed)) (Creatable 'Parsed))
+parseRawCreatableTask = constraint . validate
 
-data ParsedCreatable = ParsedCreatable
-  { title      :: Text.NonEmpty
-  , deadlineAt :: Deadline
-  }
-  deriving stock (Generic, Show, Eq)
-
-parseRawCreatableTask :: RawCreatable -> Time -> Validation RawCreatableValidationErrors ParsedCreatable
-parseRawCreatableTask RawCreatable {..} now = ParsedCreatable <$> validateTitle <*> validateDeadlineAt
- where
-  validateTitle :: Validation RawCreatableValidationErrors Text.NonEmpty
-  validateTitle = case Text.NonEmpty.mk title of
-    Nothing -> Failure (mempty { title = Just (IsEmpty :| []) } :: RawCreatableValidationErrors)
-    Just a  -> Success a
-
-  validateDeadlineAt :: Validation RawCreatableValidationErrors Deadline
-  validateDeadlineAt = case Deadline.mk (unFormattedOffsetDatetime deadlineAt) now of
-    Nothing -> Failure (mempty { deadlineAt = Just (IsPast :| []) } :: RawCreatableValidationErrors)
-    Just a  -> Success a
-
-data RawUpdatableV f = RawUpdatable
-  { title      :: Validatable f (Maybe Text) (Maybe TitleValidationErrors)
-  , deadlineAt :: Validatable f (Maybe FormattedOffsetDatetime) (Maybe DeadlineValidationErrors)
+data Updatable v = Updatable
+  { title      :: Validate v (Maybe Text) (Maybe Text.NonEmpty)
+  , deadlineAt :: Validate v (Maybe FormattedOffsetDatetime) (Maybe Deadline)
   }
   deriving stock Generic
 
-type RawUpdatable = RawUpdatableV Identity
+deriving via (Generically (Updatable 'Parsed)) instance Validatable (Updatable 'Raw) (Updatable 'Parsed)
 
-deriving stock instance Show RawUpdatable
-deriving stock instance Eq RawUpdatable
-deriving anyclass instance FromJSON RawUpdatable
-deriving anyclass instance ToJSON RawUpdatable
+deriving stock instance Show (Updatable 'Raw)
+deriving stock instance Eq (Updatable 'Raw)
+deriving anyclass instance ToJSON (Updatable 'Raw)
+deriving anyclass instance FromJSON (Updatable 'Raw)
 
-type RawUpdatableValidationErrors = RawUpdatableV Validate
+type RawUpdatableValidationErrors = (Validation.Errors (Updatable 'Raw) (Updatable 'Parsed))
 
-deriving stock instance Show RawUpdatableValidationErrors
-deriving anyclass instance FromJSON RawUpdatableValidationErrors
-deriving anyclass instance ToJSON RawUpdatableValidationErrors
-deriving via (GenericSemigroup RawUpdatableValidationErrors) instance Semigroup RawUpdatableValidationErrors
-deriving via (GenericMonoid RawUpdatableValidationErrors) instance Monoid RawUpdatableValidationErrors
-
-data ParsedUpdatable = ParsedUpdatable
-  { title      :: Maybe Text.NonEmpty
-  , deadlineAt :: Maybe Deadline
-  }
-  deriving stock (Generic, Show, Eq)
-
-parseRawUpdatableTask :: RawUpdatable -> Time -> Validation RawUpdatableValidationErrors ParsedUpdatable
-parseRawUpdatableTask RawUpdatable {..} now = ParsedUpdatable <$> validateTitle <*> validateDeadlineAt
- where
-  validateTitle :: Validation RawUpdatableValidationErrors (Maybe Text.NonEmpty)
-  validateTitle = case title of
-    Just t -> Just <$> case Text.NonEmpty.mk t of
-      Nothing -> Failure (mempty { title = Just (IsEmpty :| []) } :: RawUpdatableValidationErrors)
-      Just a  -> Success a
-    Nothing -> Success Nothing
-
-  validateDeadlineAt :: Validation RawUpdatableValidationErrors (Maybe Deadline)
-  validateDeadlineAt = case deadlineAt of
-    Just date -> Just <$> case Deadline.mk (unFormattedOffsetDatetime date) now of
-      Nothing -> Failure (mempty { deadlineAt = Just (IsPast :| []) } :: RawUpdatableValidationErrors)
-      Just a  -> Success a
-    Nothing -> Success Nothing
+parseRawUpdatableTask :: Members (Effects (Creatable 'Raw) (Creatable 'Parsed)) r
+                      => Updatable 'Raw
+                      -> Sem r (Validation (Errors (Updatable 'Raw) (Updatable 'Parsed)) (Updatable 'Parsed))
+parseRawUpdatableTask = constraint . validate

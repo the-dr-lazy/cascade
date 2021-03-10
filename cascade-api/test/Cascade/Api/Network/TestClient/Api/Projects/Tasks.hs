@@ -23,12 +23,13 @@ import           Control.Lens                        ( (^.) )
 import           Data.Generics.Labels                ( )
 import           Servant.API                         ( Union )
 import           Servant.Client.Free                 ( ResponseF )
+import           Cascade.Data.Validation             ( Phase(..) )
 
 type CreateResponse = ResponseF (Union Api.Projects.Tasks.CreateResponse)
 
 type GetAllByProjectIdResponse = ResponseF (Union Api.Projects.Tasks.GetAllByProjectIdResponse)
 
-create :: Project.Id -> Task.RawCreatable -> IO CreateResponse
+create :: Project.Id -> Task.Creatable 'Raw -> IO CreateResponse
 create projectId = interpret . go where go = Client.Api.Projects.tasks projectId ^. #create
 
 getAllByProjectId :: Project.Id -> IO GetAllByProjectIdResponse

@@ -51,6 +51,7 @@ import           Test.Cascade.Api.StateMachine.Model ( Model )
 import qualified Cascade.Api.Servant.Response       as Response
 import qualified Chronos
 import           Chronos                             ( offsetDatetimeToTime )
+import           Cascade.Data.Validation             ( Phase(..) )
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
@@ -72,7 +73,7 @@ commands =
 -- brittany-disable-next-binding
 data Create (v :: Type -> Type) = Create
   { projectId  :: Var Project.Id v
-  , creatable  :: Task.RawCreatable
+  , creatable  :: Task.Creatable 'Raw
   }
   deriving stock (Generic, Show)
 
@@ -88,7 +89,7 @@ createValidForExistingProject =
           projectId  <- Gen.element projectIds
           title      <- Gen.nonEmptyText 30 Valid
           deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
-          let creatable = Task.RawCreatable { .. }
+          let creatable = Task.Creatable { .. }
           pure $ Create { .. }
 
       execute :: Create Concrete -> m Task.Id
@@ -122,7 +123,7 @@ createValidForNonExistingProject =
           projectId  <- Gen.element projectIds
           title      <- Gen.nonEmptyText 30 Valid
           deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
-          let creatable = Task.RawCreatable { .. }
+          let creatable = Task.Creatable { .. }
           pure $ Create { .. }
 
       execute :: Create Concrete -> m Cascade.Api.Projects.Tasks.CreateResponse
@@ -146,7 +147,7 @@ createInvalid =
           projectId                        <- Gen.element projectIds
           let validity = fold [titleValidity, deadlineAtValidity]
           when (validity == Valid) Gen.discard
-          let creatable = Task.RawCreatable { .. }
+          let creatable = Task.Creatable { .. }
           pure $ Create { .. }
 
       coverage :: Create Concrete -> m ()
@@ -318,7 +319,7 @@ getNotExistingById =
 -- brittany-disable-next-binding
 data UpdateById (v :: Type -> Type) = UpdateById
   { id :: Var Task.Id v
-  , updatable :: Task.RawUpdatable
+  , updatable :: Task.Updatable 'Raw
   }
   deriving stock (Generic, Show)
 
@@ -334,7 +335,7 @@ updateExistingByIdValid =
           id         <- Gen.element ids
           title      <- Just <$> Gen.nonEmptyText 30 Valid
           deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
-          let updatable = Task.RawUpdatable { .. }
+          let updatable = Task.Updatable { .. }
           pure $ UpdateById { .. }
 
       require :: Model Symbolic -> UpdateById Symbolic -> Bool
@@ -377,7 +378,7 @@ updateExistingByIdInvalid =
           id                               <- Gen.element ids
           let validity = fold [titleValidity, deadlineAtValidity]
           when (validity == Valid) Gen.discard
-          let updatable = Task.RawUpdatable { .. }
+          let updatable = Task.Updatable { .. }
           pure $ UpdateById { .. }
 
       require :: Model Symbolic -> UpdateById Symbolic -> Bool
@@ -406,7 +407,7 @@ updateNotExistingById =
           id         <- Gen.element ids
           title      <- Just <$> Gen.nonEmptyText 30 Valid
           deadlineAt <- Just . FormattedOffsetDatetime <$> Gen.deadline Valid
-          let updatable = Task.RawUpdatable { .. }
+          let updatable = Task.Updatable { .. }
           pure $ UpdateById { .. }
 
       execute :: UpdateById Concrete -> m Cascade.Api.Tasks.UpdateByIdResponse
@@ -473,11 +474,11 @@ deleteNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
-updateCreatableTask :: Task.RawUpdatable -> Task.RawCreatable -> Task.RawCreatable
-updateCreatableTask updatable Task.RawCreatable {..} =
-  Task.RawCreatable { title = fromMaybe title $ updatable ^. #title, deadlineAt = fromMaybe deadlineAt $ updatable ^. #deadlineAt }
+updateCreatableTask :: Task.Updatable 'Raw -> Task.Creatable 'Raw -> Task.Creatable 'Raw
+updateCreatableTask updatable Task.Creatable {..} =
+  Task.Creatable { title = fromMaybe title $ updatable ^. #title, deadlineAt = fromMaybe deadlineAt $ updatable ^. #deadlineAt }
 
-checkEqReadableRawCreatableTask :: (MonadTest m, HasCallStack) => Task.Readable -> Task.RawCreatable -> m ()
+checkEqReadableRawCreatableTask :: (MonadTest m, HasCallStack) => Task.Readable -> Task.Creatable 'Raw -> m ()
 checkEqReadableRawCreatableTask task creatable = do
   task ^. #title . to Text.NonEmpty.un === creatable ^. #title
   (task ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime)

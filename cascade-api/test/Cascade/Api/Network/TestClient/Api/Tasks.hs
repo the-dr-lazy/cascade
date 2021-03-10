@@ -29,7 +29,7 @@ import           Data.Generics.Labels                ( )
 import           Prelude                      hiding ( getAll )
 import           Servant.API                         ( Union )
 import           Servant.Client.Free                 ( ResponseF )
-
+import           Cascade.Data.Validation             ( Phase(..) )
 
 type GetByIdResponse = (ResponseF (Union Api.Tasks.GetByIdResponse))
 
@@ -40,7 +40,7 @@ type DeleteByIdResponse = (ResponseF (Union Api.Tasks.DeleteByIdResponse))
 getById :: Task.Id -> IO GetByIdResponse
 getById = interpret . go where go = Client.Api.tasks ^. #getById
 
-updateById :: Task.Id -> Task.RawUpdatable -> IO UpdateByIdResponse
+updateById :: Task.Id -> Task.Updatable 'Raw -> IO UpdateByIdResponse
 updateById id updatable = interpret $ go id updatable where go = Client.Api.tasks ^. #updateById
 
 deleteById :: Task.Id -> IO DeleteByIdResponse

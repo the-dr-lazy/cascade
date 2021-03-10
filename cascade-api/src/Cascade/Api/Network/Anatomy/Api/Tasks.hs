@@ -16,18 +16,17 @@ import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import           Data.Generics.Labels                ( )
+import           Cascade.Data.Validation             ( Phase(..) )
 
-type GetByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
+type GetByIdResponse = '[Response.Ok Task.Readable , Response.NotFound]
 
-type UpdateByIdResponse = '[Response.Ok Task.Readable, Response.NotFound, Response.Unprocessable Task.RawUpdatableValidationErrors]
+type UpdateByIdResponse = '[Response.Ok Task.Readable , Response.NotFound , Response.Unprocessable Task.RawUpdatableValidationErrors]
 
-type DeleteByIdResponse = '[Response.Ok Task.Readable, Response.NotFound]
+type DeleteByIdResponse = '[Response.Ok Task.Readable , Response.NotFound]
 
 data Routes route = Routes
-  { getById :: route :- Capture "id" Task.Id :> Get '[JSON] GetByIdResponse
-  , updateById
-      :: route :- Capture "id" Task.Id :> ReqBody '[JSON] Task.RawUpdatable :> Patch '[JSON] UpdateByIdResponse
-  , deleteById
-      :: route :- Capture "id" Task.Id :> Delete '[JSON] DeleteByIdResponse
+  { getById    :: route :- Capture "id" Task.Id :> Get '[JSON] GetByIdResponse
+  , updateById :: route :- Capture "id" Task.Id :> ReqBody '[JSON] (Task.Updatable 'Raw) :> Patch '[JSON] UpdateByIdResponse
+  , deleteById :: route :- Capture "id" Task.Id :> Delete '[JSON] DeleteByIdResponse
   }
   deriving stock Generic

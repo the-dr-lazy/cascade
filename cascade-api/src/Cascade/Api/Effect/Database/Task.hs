@@ -45,14 +45,15 @@ import qualified Relude.Unsafe                      as Unsafe
                                                      ( fromJust )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                     as Deadline
+import           Cascade.Data.Validation             ( Phase(..) )
 
 
 
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
   FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
-  Create          ::Task.ParsedCreatable -> Project.Id -> TaskL m Task.Readable
-  UpdateById      ::Task.Id -> Task.ParsedUpdatable -> TaskL m (Maybe Task.Readable)
+  Create          ::Task.Creatable 'Parsed -> Project.Id -> TaskL m Task.Readable
+  UpdateById      ::Task.Id -> Task.Updatable 'Parsed -> TaskL m (Maybe Task.Readable)
   DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
@@ -81,7 +82,7 @@ run = interpret \case
       |> fmap Unsafe.fromJust
       |> fmap toReadableTask
   UpdateById id updatable -> case updatable of
-    Task.ParsedUpdatable { title = Nothing, deadlineAt = Nothing } -> run $ findById id
+    Task.Updatable { title = Nothing, deadlineAt = Nothing } -> run $ findById id
     _ ->
       Database.update #tasks (fromParsedUpdatableTask updatable) (\task -> task ^. #id ==. val_ (coerce id))
         |> Database.runUpdateReturningOne
@@ -96,7 +97,7 @@ toReadableTask Database.Task.Row {..} =
 fromParsedCreatableTask :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
                         => Project.Id
-                        -> Task.ParsedCreatable
+                        -> Task.Creatable 'Parsed
                         -> TaskTable (Beam.QExpr backend s)
 fromParsedCreatableTask projectId creatable = Database.Task.Row { id         = default_
                                                                 , title      = creatable ^. #title . to coerce . to val_
@@ -106,7 +107,7 @@ fromParsedCreatableTask projectId creatable = Database.Task.Row { id         = d
 
 fromParsedUpdatableTask :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
-                        => Task.ParsedUpdatable
+                        => Task.Updatable 'Parsed
                         -> (forall s . TaskTable (Beam.QField s) -> Beam.QAssignment backend s)
 fromParsedUpdatableTask updatable task =
   mconcat

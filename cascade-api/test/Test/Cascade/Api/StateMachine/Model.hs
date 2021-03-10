@@ -50,7 +50,7 @@ data UserModel (v :: Type -> Type) = UserModel
 
 -- brittany-disable-next-binding
 data TaskModel (v :: Type -> Type) = TaskModel
-  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) Task.RawCreatable)
+  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) (Task.Creatable 'Raw))
   , notExistingIds :: [Var Task.Id v]
   }
   deriving stock Generic
