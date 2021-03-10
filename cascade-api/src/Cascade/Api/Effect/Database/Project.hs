@@ -22,11 +22,11 @@ import           Control.Lens                        ( (^.) )
 import           Database.Beam                       ( (<-.)
                                                      , (==.)
                                                      , default_
+                                                     , exists_
+                                                     , filter_
                                                      , insertExpressions
                                                      , select
                                                      , val_
-                                                     , exists_
-                                                     , filter_
                                                      )
 import qualified Database.Beam                      as Beam
 import           Database.Beam.Backend               ( BeamSqlBackend

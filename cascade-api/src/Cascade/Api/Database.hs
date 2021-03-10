@@ -14,8 +14,8 @@ module Cascade.Api.Database (Database, database) where
 
 import           Cascade.Api.Database.Project        ( ProjectTable )
 import qualified Cascade.Api.Database.Project       as Database.Project
-import           Cascade.Api.Database.User           ( UserTable(..) )
 import           Cascade.Api.Database.Task           ( TaskTable(..) )
+import           Cascade.Api.Database.User           ( UserTable(..) )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( DatabaseSettings
                                                      , TableEntity

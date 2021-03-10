@@ -12,13 +12,13 @@ Portability : POSIX
 
 module Cascade.Api.Network.Server.Api.Projects.Tasks (server) where
 
-import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Effect.Database.Task   as Database.Task
+import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
-import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Database.Project ( ProjectL )
+import qualified Cascade.Api.Effect.Database.Task   as Database.Task
+import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects.Tasks

@@ -12,17 +12,17 @@ Portability : POSIX
 
 module Cascade.Api.Hedgehog.Gen.Chronos (time, offsetDateTime, past, future, deadline, deadlineWithValidity) where
 
-import           Prelude                      hiding ( second )
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import           Chronos                             ( Time
-                                                     , Offset(..)
+import           Chronos                             ( Offset(..)
                                                      , OffsetDatetime
+                                                     , Time
                                                      , timeFromYmdhms
                                                      , timeToOffsetDatetime
                                                      )
 import           Hedgehog                            ( MonadGen(GenBase) )
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
+import           Prelude                      hiding ( second )
 
 
 time :: MonadGen g => g Time

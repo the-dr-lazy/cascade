@@ -12,10 +12,10 @@ Portability : POSIX
 
 module Test.Cascade.Api.Data.OffsetDatetime (tests) where
 
-import           Hedgehog
+import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
 import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
 import qualified Data.Aeson                         as Aeson
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
+import           Hedgehog
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 

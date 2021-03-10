@@ -12,18 +12,18 @@ Portability : POSIX
 
 module Cascade.Api.Data.OffsetDatetime (FormattedOffsetDatetime(..)) where
 
+import qualified Chronos
+import           Chronos.Types
 import           Data.Aeson                          ( FromJSON(..)
                                                      , ToJSON(..)
                                                      , Value(..)
                                                      )
-import           Data.Aeson.Types                    ( prependFailure
+import           Data.Aeson.Types                    ( parserThrowError
+                                                     , prependFailure
                                                      , typeMismatch
-                                                     , parserThrowError
                                                      )
-import qualified Chronos
-import           Chronos.Types
-import           Data.Attoparsec.Text                ( parseOnly
-                                                     , endOfInput
+import           Data.Attoparsec.Text                ( endOfInput
+                                                     , parseOnly
                                                      )
 
 newtype FormattedOffsetDatetime = FormattedOffsetDatetime

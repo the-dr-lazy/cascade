@@ -27,10 +27,6 @@ module Cascade.Api.Data.Task
   ) where
 
 import qualified Cascade.Api.Data.Id                as Data
-import           Data.Aeson                          ( FromJSON(..)
-                                                     , ToJSON(..)
-                                                     )
-import qualified Cascade.Api.Data.Project           as Project
 import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime
                                                      , unFormattedOffsetDatetime
                                                      )
@@ -38,10 +34,14 @@ import           Cascade.Api.Data.OffsetDatetime.Deadline
                                                      ( Deadline )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                     as Deadline
+import           Cascade.Api.Data.Prelude
+import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Data.Text                  as Text
 import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
 import           Chronos                             ( Time )
-import           Cascade.Api.Data.Prelude
+import           Data.Aeson                          ( FromJSON(..)
+                                                     , ToJSON(..)
+                                                     )
 import           Data.Generics.Labels                ( )
 import           Data.Monoid.Generic
 import           Validation

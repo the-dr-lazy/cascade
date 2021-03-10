@@ -22,8 +22,7 @@ module Cascade.Api.Network.TestClient.Api.Projects
   , updateById
   , deleteById
   , tasks
-  )
-where
+  ) where
 
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
@@ -34,14 +33,14 @@ import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import           Cascade.Api.Network.TestClient      ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api as Client.Api
 import           Control.Lens                        ( (^.) )
+import           Control.Monad.Free                  ( Free )
 import           Data.Generics.Labels                ( )
 import           Prelude                      hiding ( getAll )
 import           Servant.API                         ( Union )
+import           Servant.API.Generic                 ( fromServant )
 import           Servant.Client.Free                 ( ResponseF )
 import           Servant.Client.Free                 ( ClientF )
 import           Servant.Client.Generic              ( AsClientT )
-import           Control.Monad.Free                  ( Free )
-import           Servant.API.Generic                 ( fromServant )
 
 type CreateResponse = (ResponseF (Union Api.Projects.CreateResponse))
 

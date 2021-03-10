@@ -13,12 +13,12 @@ Portability : POSIX
 module Cascade.Data.Text.NonEmpty (NonEmpty, pattern NonEmpty, un, mk) where
 
 
-import           Prelude                      hiding ( NonEmpty )
 import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
 import qualified Data.Text                          as Text
+import           Prelude                      hiding ( NonEmpty )
 
 newtype NonEmpty = Mk
   { un :: Text }

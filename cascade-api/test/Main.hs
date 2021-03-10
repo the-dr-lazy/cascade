@@ -12,8 +12,8 @@ Portability : POSIX
 
 module Main (main) where
 
-import qualified Test.Cascade.Api.StateMachine
 import qualified Test.Cascade.Api.Data.OffsetDatetime
+import qualified Test.Cascade.Api.StateMachine
 import           Test.Tasty
 
 main :: IO ()
