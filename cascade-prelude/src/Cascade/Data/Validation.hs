@@ -53,6 +53,14 @@ class Validatable (raw :: Type) (parsed :: Type) where
 
   parse :: raw -> Sem (Effects raw parsed) (Validation (Errors raw parsed) (Parsed parsed))
 
+instance (Validatable raw parsed, Parsed parsed ~ parsed) => Validatable (Maybe raw) (Maybe parsed) where
+  type Errors (Maybe raw) (Maybe parsed) = Errors raw parsed
+  type Effects (Maybe raw) (Maybe parsed) = Effects raw parsed
+
+  parse = \case
+    Nothing  -> pure $ Success Nothing
+    Just raw -> parse @raw @parsed raw |> (fmap . fmap) Just
+
 validate :: forall raw parsed
           . Validatable raw parsed
          => parsed ~ Parsed parsed => raw -> Sem (Effects raw parsed) (Validation (Errors raw parsed) parsed)
