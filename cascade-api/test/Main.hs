@@ -13,10 +13,11 @@ Portability : POSIX
 module Main (main) where
 
 import qualified Test.Cascade.Api.StateMachine
+import qualified Test.Cascade.Api.Data.OffsetDatetime
 import           Test.Tasty
 
 main :: IO ()
 main = defaultMain $ testGroup "Tests" tests
 
 tests :: [TestTree]
-tests = [Test.Cascade.Api.StateMachine.tests]
+tests = [Test.Cascade.Api.StateMachine.tests, Test.Cascade.Api.Data.OffsetDatetime.tests]

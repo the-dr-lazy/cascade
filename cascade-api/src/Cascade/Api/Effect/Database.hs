@@ -11,6 +11,7 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Cascade.Api.Effect.Database
   ( DatabaseL
@@ -138,12 +139,13 @@ delete :: forall backend table
 delete getter = Beam.delete $ database ^. getter
 
 -- brittany-disable-next-binding
-type family TableFieldsFulfillConstraint' (table :: Type -> Type) :: Constraint where
-  TableFieldsFulfillConstraint' U1 = ()
-  TableFieldsFulfillConstraint' (x :*: y) = (TableFieldsFulfillConstraint' x, TableFieldsFulfillConstraint' y)
-  TableFieldsFulfillConstraint' (K1 R (HasConstraint constraint x)) = (constraint x)
-  TableFieldsFulfillConstraint' (M1 _ _ table) = TableFieldsFulfillConstraint' table
+type family TableFieldsFulfillConstraint' (constraint :: Type -> Constraint) (table :: Type -> Type) :: Constraint where
+  TableFieldsFulfillConstraint' _ U1 = ()
+  TableFieldsFulfillConstraint' constraint (x :*: y) = (TableFieldsFulfillConstraint' constraint x, TableFieldsFulfillConstraint' constraint y)
+  TableFieldsFulfillConstraint' _ (K1 R (HasConstraint constraint x)) = (constraint x)
+  TableFieldsFulfillConstraint' constraint (K1 R (PrimaryKey table _)) = TableFieldsFulfillConstraint constraint table
+  TableFieldsFulfillConstraint' constraint (M1 _ _ table) = TableFieldsFulfillConstraint' constraint table
 
 -- brittany-disable-next-binding
 type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
-  = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' (Rep (table (HasConstraint constraint))))
+  = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' constraint (Rep (table (HasConstraint constraint))))

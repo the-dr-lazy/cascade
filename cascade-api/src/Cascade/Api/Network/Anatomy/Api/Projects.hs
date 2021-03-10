@@ -23,6 +23,8 @@ import qualified Cascade.Api.Data.Project           as Project
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import           Data.Generics.Labels                ( )
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 
 type CreateResponse = '[Response.Created Project.Readable]
 
@@ -40,5 +42,6 @@ data Routes route = Routes
   , getById    :: route :- Capture "id" Project.Id :> Get '[JSON] GetByIdResponse
   , updateById :: route :- Capture "id" Project.Id :> ReqBody '[JSON] Project.Updatable :> Patch '[JSON] UpdateByIdResponse
   , deleteById :: route :- Capture "id" Project.Id :> Delete '[JSON] DeleteByIdResponse
+  , tasks      :: route :- Capture "id" Project.Id :> "tasks" :> ToServantApi Api.Projects.Tasks.Routes
   }
   deriving stock Generic

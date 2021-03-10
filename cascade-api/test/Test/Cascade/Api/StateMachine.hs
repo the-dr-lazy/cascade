@@ -28,6 +28,8 @@ import qualified Test.Cascade.Api.StateMachine.Command.Project
                                                     as Command.Project
 import qualified Test.Cascade.Api.StateMachine.Command.User
                                                     as Command.User
+import qualified Test.Cascade.Api.StateMachine.Command.Task
+                                                    as Command.Task
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
@@ -36,7 +38,7 @@ tests :: TestTree
 tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withTemporaryPostgresConnectionPool (testProperty "Sequential" . prop_sequential)]
 
 prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 1000 . property $ do
+prop_sequential getPool = withTests 1000 . withDiscards 500 . property $ do
   pool    <- evalIO getPool
   actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
 
@@ -49,4 +51,4 @@ prop_sequential getPool = withTests 1000 . property $ do
         runInBase $ executeSequential initialModel actions
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
-commands = Command.Project.commands <> Command.User.commands
+commands = Command.Project.commands <> Command.User.commands <> Command.Task.commands

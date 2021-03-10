@@ -243,7 +243,7 @@ deleteExisting =
   in  Command
         generator
         execute
-        [ Update \model (DeleteById id) _output -> model |> #project . #creatables %~ sans id
+        [ Update \model (DeleteById id) _output -> model |> #project . #creatables %~ sans id |> #task . #byProjectId %~ sans id
         , Ensure \_before _after input response -> do
           footnoteShow response
           project :: Project.Readable <- (response ^. #responseBody) |> matchUnion @(Response.Ok Project.Readable) |> coerce |> evalMaybe

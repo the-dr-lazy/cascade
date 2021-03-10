@@ -5,6 +5,7 @@ let dependencies =
       , "base-noprelude"
       , "bytestring"
       , "cascade-prelude"
+      , "chronos"
       , "containers"
       , "generic-lens"
       , "lens"
@@ -68,6 +69,7 @@ let cascade-api-test =
         , "tasty-hedgehog"
         , "tmp-postgres"
         , "typed-process"
+        , "validation-selective"
         ]
       }
 

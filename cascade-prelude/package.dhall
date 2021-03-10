@@ -1,10 +1,19 @@
 let Cascade = ../package.dhall
 
-let dependencies = [ "bytestring", "base-noprelude" ]
+let dependencies = [ "chornos", "bytestring", "base-noprelude" ]
 
 let cascade-prelude =
       { source-dirs = "src"
-      , dependencies = [ "containers", "flow", "relude", "uuid", "word8" ]
+      , dependencies =
+        [ "aeson"
+        , "containers"
+        , "flow"
+        , "lens"
+        , "relude"
+        , "text"
+        , "uuid"
+        , "word8"
+        ]
       }
 
 let cascade-prelude-test =
@@ -12,7 +21,13 @@ let cascade-prelude-test =
       , main = "Main.hs"
       , ghc-options = [ "-threaded", "-rtsopts", "-with-rtsopts=-N" ]
       , dependencies =
-        [ "cascade-prelude", "hedgehog", "tasty", "tasty-hedgehog", "word8" ]
+        [ "cascade-prelude"
+        , "hedgehog"
+        , "tasty"
+        , "tasty-hedgehog"
+        , "tasty-hunit"
+        , "word8"
+        ]
       }
 
 in    Cascade.package
