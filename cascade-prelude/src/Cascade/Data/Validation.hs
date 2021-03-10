@@ -26,18 +26,18 @@ module Cascade.Data.Validation
   ) where
 
 import           Cascade.Type.Monoid
-import qualified Data.Aeson                    as Aeson
-import           Data.Aeson                     ( (.=) )
-import qualified Data.Aeson.Types              as Aeson
+import qualified Data.Aeson                         as Aeson
+import           Data.Aeson                          ( (.=) )
+import qualified Data.Aeson.Types                   as Aeson
 import           Data.Data
-import qualified Data.TMap                     as TMap
-import           Data.TMap                      ( TMap )
-import qualified Data.Text                     as Text
+import qualified Data.TMap                          as TMap
+import           Data.TMap                           ( TMap )
+import qualified Data.Text                          as Text
 import           GHC.Generics
 import           GHC.TypeLits
-import           Polysemy                       ( EffectRow
-                                                , Sem
-                                                )
+import           Polysemy                            ( EffectRow
+                                                     , Sem
+                                                     )
 import           Unsafe.Coerce
 import           Validation
 
@@ -55,11 +55,7 @@ class Validatable (raw :: Type) (parsed :: Type) where
 
 validate :: forall raw parsed
           . Validatable raw parsed
-         => parsed ~ Parsed parsed
-         => raw
-         -> Sem
-              (Effects raw parsed)
-              (Validation (Errors raw parsed) parsed)
+         => parsed ~ Parsed parsed => raw -> Sem (Effects raw parsed) (Validation (Errors raw parsed) parsed)
 validate = parse @raw @parsed
 
 type GenericValidatableConstraints (a :: Phase -> Type)
@@ -73,16 +69,10 @@ type GenericValidatableConstraints (a :: Phase -> Type)
     )
 
 instance GenericValidatableConstraints a => Validatable (a 'Raw) (Generically (a 'Parsed)) where
-  type Errors (a 'Raw) (Generically (a 'Parsed))
-    = GenericValidationErrors (GenericFieldValidationErrors (Rep (a 'Mark)))
-  type Effects (a 'Raw) (Generically (a 'Parsed)) = GenericEffects
-    (Rep (a 'Mark))
+  type Errors (a 'Raw) (Generically (a 'Parsed)) = GenericValidationErrors (GenericFieldValidationErrors (Rep (a 'Mark)))
+  type Effects (a 'Raw) (Generically (a 'Parsed)) = GenericEffects (Rep (a 'Mark))
 
-  parse =
-    (fmap . fmap) (unsafeCoerce @(a ( 'MarkR 'Parsed)) . to)
-      . genericParse
-      . from
-      . unsafeCoerce @_ @(a ( 'MarkR 'Raw))
+  parse = (fmap . fmap) (unsafeCoerce @(a ( 'MarkR 'Parsed)) . to) . genericParse . from . unsafeCoerce @_ @(a ( 'MarkR 'Raw))
 
 class GenericValidatable (raw :: Type -> Type) (parsed :: Type -> Type) (errors :: [Type]) (effects :: EffectRow) where
   genericParse :: raw p -> Sem effects (Validation (GenericValidationErrors errors) (parsed p))
@@ -98,9 +88,8 @@ instance
                     _errors
                     effects
   where
-  genericParse (M1 (K1 (MarkedR x))) = parse @raw @parsed x <&> bimap
-    (GenericValidationErrors . TMap.one . FieldValidationError @fieldName)
-    (M1 . K1 . MarkedR)
+  genericParse (M1 (K1 (MarkedR x))) =
+    parse @raw @parsed x <&> bimap (GenericValidationErrors . TMap.one . FieldValidationError @fieldName) (M1 . K1 . MarkedR)
 
 instance
   ( GenericValidatable a c errors effects1
@@ -148,8 +137,7 @@ type family GenericFieldValidationErrors' (as :: [(Symbol, Type, Type)]) :: [Typ
   GenericFieldValidationErrors' '[] = '[]
   GenericFieldValidationErrors' ('(fieldName, raw, parsed) ': as) = FieldValidationError fieldName (Errors raw parsed) ': GenericFieldValidationErrors' as
 
-type GenericFieldValidationErrors a
-  = GenericFieldValidationErrors' (ValidatableFieldsAList a)
+type GenericFieldValidationErrors a = GenericFieldValidationErrors' (ValidatableFieldsAList a)
 
 type family GenericEffects' (as :: [(Symbol, Type, Type)]) :: EffectRow where
   GenericEffects' '[] = '[]
@@ -161,8 +149,7 @@ type GenericEffects a = GenericEffects' (ValidatableFieldsAList a)
 newtype ApiErrorFormat (error :: Type) = ApiErrorFormat error
 
 instance (Data error, ToMessage error) => Aeson.ToJSON (ApiErrorFormat error) where
-  toJSON (ApiErrorFormat e) = Aeson.object
-    ["tag" .= (show @String $ toConstr e), "message" .= toMessage e]
+  toJSON (ApiErrorFormat e) = Aeson.object ["tag" .= (show @String $ toConstr e), "message" .= toMessage e]
 
 class ToMessage (error :: Type) where
   toMessage :: error -> Text
@@ -190,12 +177,9 @@ instance ( Aeson.ToJSON error
          , GenericValidationErrorsToJSON errors
          , Typeable error
          ) => GenericValidationErrorsToJSON (FieldValidationError fieldName error ': errors) where
-  genericValidationErrorsToJSON (GenericValidationErrors tmap) =
-    case TMap.lookup @(FieldValidationError fieldName error) tmap of
-      Nothing -> next
-      Just (FieldValidationError e) ->
-        (Text.pack $ symbolVal (Proxy @fieldName), Aeson.toJSON e) : next
-   where
-    next = genericValidationErrorsToJSON (GenericValidationErrors @errors tmap)
+  genericValidationErrorsToJSON (GenericValidationErrors tmap) = case TMap.lookup @(FieldValidationError fieldName error) tmap of
+    Nothing                       -> next
+    Just (FieldValidationError e) -> (Text.pack $ symbolVal (Proxy @fieldName), Aeson.toJSON e) : next
+    where next = genericValidationErrorsToJSON (GenericValidationErrors @errors tmap)
 
 newtype FieldValidationError (fieldName :: Symbol) (error :: Type) = FieldValidationError error

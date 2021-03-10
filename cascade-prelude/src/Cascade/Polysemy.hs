@@ -12,9 +12,7 @@ Portability : POSIX
 
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Cascade.Polysemy
-  ( constraint
-  ) where
+module Cascade.Polysemy (constraint) where
 
 import           Polysemy
 import           Unsafe.Coerce
