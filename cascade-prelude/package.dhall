@@ -1,6 +1,6 @@
 let Cascade = ../package.dhall
 
-let dependencies = [ "chornos", "bytestring", "base-noprelude" ]
+let dependencies = [ "chronos", "bytestring", "base-noprelude" ]
 
 let cascade-prelude =
       { source-dirs = "src"
