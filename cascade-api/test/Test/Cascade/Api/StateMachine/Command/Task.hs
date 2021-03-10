@@ -12,45 +12,45 @@ Portability : POSIX
 
 module Test.Cascade.Api.StateMachine.Command.Task (commands) where
 
-import           Cascade.Api.Test.Prelude
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..)
                                                      , unFormattedOffsetDatetime
                                                      )
-import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
+import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
+import           Cascade.Api.Hedgehog.Gen.Prelude
+import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects.Tasks
                                                     as Cascade.Api.Projects.Tasks
 import qualified Cascade.Api.Network.TestClient.Api.Tasks
                                                     as Cascade.Api.Tasks
-import           Control.Lens                        ( (?~)
-                                                     , (^.)
-                                                     , (^..)
-                                                     , (%~)
-                                                     , (^?)
-                                                     , at
-                                                     , to
-                                                     , folded
-                                                     , traversed
-                                                     , cons
-                                                     , sans
-                                                     , non
-                                                     , ix
-                                                     , has
-                                                     )
-import           Servant.API.UVerb.Union             ( matchUnion )
-import qualified Data.Map                           as Map
+import qualified Cascade.Api.Servant.Response       as Response
+import           Cascade.Api.Test.Prelude
 import qualified Cascade.Data.Text                  as Text
 import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
-import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Test.Cascade.Api.StateMachine.Model ( Model )
-import qualified Cascade.Api.Servant.Response       as Response
 import qualified Chronos
 import           Chronos                             ( offsetDatetimeToTime )
+import           Control.Lens                        ( (%~)
+                                                     , (?~)
+                                                     , (^.)
+                                                     , (^..)
+                                                     , (^?)
+                                                     , at
+                                                     , cons
+                                                     , folded
+                                                     , has
+                                                     , ix
+                                                     , non
+                                                     , sans
+                                                     , to
+                                                     , traversed
+                                                     )
+import qualified Data.Map                           as Map
+import           Hedgehog
+import qualified Hedgehog.Gen                       as Gen
+import           Servant.API.UVerb.Union             ( matchUnion )
+import           Test.Cascade.Api.StateMachine.Model ( Model )
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =

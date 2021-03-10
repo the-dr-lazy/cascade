@@ -20,11 +20,11 @@ module Cascade.Api.Network.Anatomy.Api.Projects
   ) where
 
 import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import           Data.Generics.Labels                ( )
-import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
-                                                    as Api.Projects.Tasks
 
 type CreateResponse = '[Response.Created Project.Readable]
 

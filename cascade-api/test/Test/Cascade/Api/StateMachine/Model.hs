@@ -13,8 +13,8 @@ Portability : POSIX
 module Test.Cascade.Api.StateMachine.Model (Model, initialModel) where
 
 import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Data.User              as User
 import           Data.Generics.Labels                ( )
 import qualified Data.Map.Strict                    as Map
 import           Hedgehog.Internal.State             ( Var )

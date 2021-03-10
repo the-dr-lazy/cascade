@@ -26,10 +26,10 @@ import qualified Hedgehog.Range                     as Range
 import qualified Network.Socket.Wait                as Socket
 import qualified Test.Cascade.Api.StateMachine.Command.Project
                                                     as Command.Project
-import qualified Test.Cascade.Api.StateMachine.Command.User
-                                                    as Command.User
 import qualified Test.Cascade.Api.StateMachine.Command.Task
                                                     as Command.Task
+import qualified Test.Cascade.Api.StateMachine.Command.User
+                                                    as Command.User
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog

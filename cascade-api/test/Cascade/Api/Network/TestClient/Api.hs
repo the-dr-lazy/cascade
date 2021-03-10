@@ -16,10 +16,10 @@ import qualified Cascade.Api.Network.Anatomy.Api.Authentication
                                                     as Api.Authentication
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                     as Api.Projects
-import qualified Cascade.Api.Network.Anatomy.Api.Users
-                                                    as Api.Users
 import qualified Cascade.Api.Network.Anatomy.Api.Tasks
                                                     as Api.Tasks
+import qualified Cascade.Api.Network.Anatomy.Api.Users
+                                                    as Api.Users
 import qualified Cascade.Api.Network.TestClient     as Client
 import           Control.Lens                        ( (^.) )
 import           Control.Monad.Free                  ( Free )

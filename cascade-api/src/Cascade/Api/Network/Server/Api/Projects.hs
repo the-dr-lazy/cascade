@@ -15,15 +15,15 @@ module Cascade.Api.Network.Server.Api.Projects (server) where
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
-import qualified Cascade.Api.Network.Server.Api.Projects.Tasks
-                                                    as Api.Projects.Tasks
 import           Cascade.Api.Effect.Database.Project ( ProjectL )
 import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects
+import qualified Cascade.Api.Network.Server.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
-import           Polysemy                            ( Members
-                                                     , Member
+import           Polysemy                            ( Member
+                                                     , Members
                                                      , Sem
                                                      )
 import           Servant
@@ -47,7 +47,7 @@ handleUpdateById id updatable = Database.Project.updateById id updatable >>= may
 handleDeleteById :: Member ProjectL r => Project.Id -> Sem r (Union DeleteByIdResponse)
 handleDeleteById id = Database.Project.deleteById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-server :: Members '[ProjectL, TaskL, TimeL] r => ToServant Routes (AsServerT (Sem r))
+server :: Members '[ProjectL , TaskL , TimeL] r => ToServant Routes (AsServerT (Sem r))
 server = genericServerT Routes { getAll     = handleGetAll
                                , getById    = handleGetById
                                , create     = handleCreate

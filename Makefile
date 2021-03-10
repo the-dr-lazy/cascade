@@ -14,5 +14,11 @@ clean:
 
 setup:
 	git config core.hooksPath .githooks
+	./scripts/cabal
 
-.PHONY: wtest wtest-api clean setup
+wcabal:
+	while sleep 0.3; do \
+	  git ls-files -cmo | egrep "\.hs$$|\.dhall$$" | entr -cdr ./scripts/cabal; \
+	done
+
+.PHONY: wtest wtest-api clean setup wcabal

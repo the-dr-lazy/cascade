@@ -1,0 +1,10 @@
+#! /bin/bash
+
+set -e
+
+mkdir ~/cascade-cabal-system-exe
+cp cabal.project.freeze $_
+cd $_
+cabal init --non-interactive
+
+cabal new-install hpack-dhall
