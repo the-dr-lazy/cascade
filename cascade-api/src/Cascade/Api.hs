@@ -37,8 +37,8 @@ main withDatabaseConnection = do
     . runFinal
     . errorToIOFinal
     . embedToFinal
+    . Database.postgresToFinal withDatabaseConnection
     . Scrypt.run
-    . Database.runPostgres withDatabaseConnection
     . Database.Project.run
     . Database.User.run
     )

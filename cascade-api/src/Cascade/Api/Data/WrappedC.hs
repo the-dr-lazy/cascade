@@ -17,7 +17,7 @@ Portability : POSIX
 module Cascade.Api.Data.WrappedC
   ( WrappedC(..)
   , C
-  , val
+  , literal
   ) where
 
 import           Control.Lens                   ( Unwrapped
@@ -66,5 +66,5 @@ instance (Wrapped a, Beam.HasSqlValueSyntax backend (Unwrapped a)) =>
 type family C (f :: Type -> Type) (a :: Type) :: Type where
   C f x = Beam.C f (WrappedC x)
 
-val :: _ => a -> Beam.QGenExpr context backend s (WrappedC a)
-val = Beam.val_ . WrappedC
+literal :: _ => a -> Beam.QGenExpr context backend s (WrappedC a)
+literal = Beam.val_ . WrappedC

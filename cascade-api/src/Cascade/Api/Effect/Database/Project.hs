@@ -24,22 +24,25 @@ module Cascade.Api.Effect.Database.Project
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.WrappedC
-import qualified Cascade.Api.Data.WrappedC     as WrappedC
 import           Cascade.Api.Database.ProjectTable
                                                 ( ProjectTable )
 import qualified Cascade.Api.Database.ProjectTable
                                                as ProjectTable
-import qualified Cascade.Api.Database.Query    as Query
-import qualified Cascade.Api.Database.Query.Project
-                                               as Query.Project
+import qualified Cascade.Api.Database.Sql      as SQL
+import qualified Cascade.Api.Database.Sql.Query
+                                               as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.Project
+                                               as SQL.Query.Project
+import qualified Cascade.Api.Database.UserProjectTable
+                                               as UserProjectTable
+import qualified Cascade.Api.Database.UserTable
+                                               as UserTable
 import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
 import           Control.Lens                   ( (^.) )
 import           Database.Beam                  ( (<-.)
-                                                , (==.)
-                                                , default_
                                                 , insertExpressions
-                                                , select
+                                                , pk
                                                 , val_
                                                 )
 import qualified Database.Beam                 as Beam
@@ -67,7 +70,7 @@ makeSem ''ProjectL
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
-    => Query.TableFieldsFulfillConstraints
+    => SQL.TableFieldsFulfillConstraints
          '[ Beam.FromBackendRow backend
           , Beam.HasSqlEqualityCheck backend
           , BeamSqlBackendCanSerialize backend
@@ -76,37 +79,49 @@ run :: forall backend r a
     => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
   FindAll ->
-    Query.all #projects
-      |> select
+    SQL.Query.all #projects
+      |> SQL.select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindAllByUserId userId ->
-    Query.Project.byUserId userId
-      |> select
+    SQL.Query.Project.byUserId userId
+      |> SQL.select
       |> Database.runSelectReturningList
       |> (fmap . fmap) toReadableProject
   FindById id ->
-    Query.Project.byId id
-      |> select
+    SQL.Query.Project.byId id
+      |> SQL.select
       |> Database.runSelectReturningOne
       |> (fmap . fmap) toReadableProject
-  Create creatable _ ->
-    insertExpressions [fromCreatableProject creatable]
-      |> Query.insert #projects
+  Create creatable userId -> Database.withTransaction do
+    project <-
+      insertExpressions [fromCreatableProject creatable]
+      |> SQL.insert #projects
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
-      |> fmap toReadableProject
+    insertExpressions
+        [ UserProjectTable.Row
+            { userId    = UserTable.PrimaryKey <| SQL.literal userId
+            , projectId = pk <| val_ project
+            , createdAt = SQL.def
+            , updatedAt = SQL.def
+            }
+        ]
+      |> SQL.insert #userProjects
+      |> Database.runInsert
+      |> void
+    pure <| toReadableProject <| project
   UpdateById id updatable -> case updatable of
     Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
-      Query.update #projects
-                   (fromUpdatableProject updatable)
-                   (\project -> project ^. #id ==. WrappedC.val id)
+      SQL.update #projects
+                 (fromUpdatableProject updatable)
+                 (#id `SQL.eq` SQL.literal id)
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableProject
   DeleteById id ->
-    Query.delete #projects (\project -> project ^. #id ==. WrappedC.val id)
+    SQL.delete #projects (#id `SQL.eq` SQL.literal id)
       |> Database.runDeleteReturningOne
       |> (fmap . fmap) toReadableProject
 
@@ -115,16 +130,16 @@ toReadableProject ProjectTable.Row {..} =
   Project.Readable { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
-                     => Query.TableFieldsFulfillConstraint
+                     => SQL.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
                      => Project.Creatable
                      -> ProjectTable (Beam.QExpr backend s)
 fromCreatableProject Project.Creatable {..} =
-  ProjectTable.Row { id = default_, name = val_ name }
+  ProjectTable.Row { id = SQL.def, name = SQL.literal name }
 
 fromUpdatableProject :: BeamSqlBackend backend
-                     => Query.TableFieldsFulfillConstraint
+                     => SQL.TableFieldsFulfillConstraint
                           (BeamSqlBackendCanSerialize backend)
                           ProjectTable
                      => Project.Updatable

@@ -22,10 +22,11 @@ import           Cascade.Api.Data.ByteString.Password
                                                 ( Password )
 import qualified Cascade.Api.Data.User         as User
 import           Cascade.Api.Data.WrappedC      ( WrappedC(..) )
-import qualified Cascade.Api.Data.WrappedC     as WrappedC
-import qualified Cascade.Api.Database.Query    as Query
-import qualified Cascade.Api.Database.Query.User
-                                               as Query.User
+import qualified Cascade.Api.Database.Sql      as SQL
+import qualified Cascade.Api.Database.Sql.Query
+                                               as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.User
+                                               as SQL.Query.User
 import qualified Cascade.Api.Database.UserTable
                                                as UserTable
 import           Cascade.Api.Database.UserTable ( UserTable )
@@ -33,16 +34,8 @@ import qualified Cascade.Api.Effect.Database   as Database
 import           Cascade.Api.Effect.Database    ( DatabaseL )
 import qualified Cascade.Api.Effect.Scrypt     as Scrypt
 import           Cascade.Api.Effect.Scrypt      ( ScryptL )
-import           Control.Lens                   ( (^.)
-                                                , to
-                                                )
-import           Database.Beam                  ( (==.)
-                                                , default_
-                                                , filter_
-                                                , insertExpressions
-                                                , select
-                                                , (||.)
-                                                )
+import           Control.Lens                   ( (^.) )
+import           Database.Beam                  ( insertExpressions )
 import qualified Database.Beam                 as Beam
 import           Database.Beam.Backend          ( BeamSqlBackend
                                                 , BeamSqlBackendCanSerialize
@@ -63,7 +56,7 @@ makeSem ''UserL
 
 run :: Beam.HasQBuilder backend
     => Beam.FromBackendRow backend Bool
-    => Query.TableFieldsFulfillConstraints
+    => SQL.TableFieldsFulfillConstraints
          '[ Beam.FromBackendRow backend
           , Beam.HasSqlEqualityCheck backend
           , BeamSqlBackendCanSerialize backend
@@ -74,40 +67,43 @@ run :: Beam.HasQBuilder backend
     -> Sem r a
 run = interpret \case
   FindByUsername username ->
-    Query.User.byUsername username |> select |> Database.runSelectReturningOne
+    SQL.Query.User.byUsername username
+      |> SQL.select
+      |> Database.runSelectReturningOne
   DoesExistsByUsernameOrEmailAddress username emailAddress -> do
-    let prediction user =
-          (user ^. #username ==. WrappedC.val username)
-            ||. (user ^. #emailAddress ==. WrappedC.val emailAddress)
+    let sieve = SQL.filter
+          (        (#username `SQL.eq` SQL.literal username)
+          `SQL.or` (#emailAddress `SQL.eq` SQL.literal emailAddress)
+          )
 
-    Query.User.existance (filter_ prediction)
-      |> select
+    SQL.Query.existance #users sieve
+      |> SQL.select
       |> Database.runSelectReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
   Create creatable -> do
     encryptedPassword <- creatable ^. #password |> Scrypt.encryptPassword
     insertExpressions [fromParsedCreatableUser encryptedPassword creatable]
-      |> Query.insert #users
+      |> SQL.insert #users
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
       |> fmap toReadableUser
 
 fromParsedCreatableUser :: BeamSqlBackend backend
-                        => Query.TableFieldsFulfillConstraint
+                        => SQL.TableFieldsFulfillConstraint
                              (BeamSqlBackendCanSerialize backend)
                              UserTable
                         => Scrypt.Encrypted Password
                         -> User.ParsedCreatable
                         -> UserTable (Beam.QExpr backend s)
 fromParsedCreatableUser encryptedPassword creatable = UserTable.Row
-  { id                = default_
-  , username          = creatable ^. #username . to WrappedC.val
-  , emailAddress      = creatable ^. #emailAddress . to WrappedC.val
-  , encryptedPassword = WrappedC.val encryptedPassword
-  , createdAt         = default_
-  , updatedAt         = default_
+  { id                = SQL.def
+  , username          = SQL.literal <| creatable ^. #username
+  , emailAddress      = SQL.literal <| creatable ^. #emailAddress
+  , encryptedPassword = SQL.literal encryptedPassword
+  , createdAt         = SQL.def
+  , updatedAt         = SQL.def
   }
 
 toReadableUser :: UserTable.Row -> User.Readable
