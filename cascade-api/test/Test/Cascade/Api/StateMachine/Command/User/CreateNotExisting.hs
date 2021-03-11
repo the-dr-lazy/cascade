@@ -10,29 +10,26 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting
-  ( createNotExisting
-  ) where
+module Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting (createNotExisting) where
 
-import qualified Cascade.Api.Data.User         as User
+import qualified Cascade.Api.Data.User              as User
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Users
-                                               as Cascade.Api.Users
-import           Cascade.Api.Test.Prelude       ( )
-import qualified Cascade.Data.Char             as Char
-import           Control.Lens                   ( (?~)
-                                                , (^.)
-                                                , at
-                                                , hasn't
-                                                , ix
-                                                , to
-                                                )
-import qualified Data.Text                     as Text
+                                                    as Cascade.Api.Users
+import           Cascade.Api.Test.Prelude            ( )
+import qualified Cascade.Data.Char                  as Char
+import           Control.Lens                        ( (?~)
+                                                     , (^.)
+                                                     , at
+                                                     , hasn't
+                                                     , ix
+                                                     , to
+                                                     )
+import qualified Data.Text                          as Text
 import           Hedgehog
-import qualified Hedgehog.Gen                  as Gen
-import           Test.Cascade.Api.StateMachine.Model
-                                                ( Model )
+import qualified Hedgehog.Gen                       as Gen
+import           Test.Cascade.Api.StateMachine.Model ( Model )
 -- brittany-disable-next-binding
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
   { validity  :: Validity
@@ -46,20 +43,16 @@ instance HTraversable CreateNotExisting where
 createNotExisting :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 createNotExisting = Command generator execute [Update update, Ensure ensure]
 
-generator :: MonadGen g
-          => Model Symbolic
-          -> Maybe (g (CreateNotExisting Symbolic))
+generator :: MonadGen g => Model Symbolic -> Maybe (g (CreateNotExisting Symbolic))
 generator model = Just do
   (usernameValidity    , username    ) <- Gen.usernameWithValidity
   (emailAddressValidity, emailAddress) <- Gen.emailAddressWithValidity
   (passwordValidity    , password    ) <- Gen.passwordWithValidity
-  let validity =
-        fold [usernameValidity, emailAddressValidity, passwordValidity]
+  let validity  = fold [usernameValidity, emailAddressValidity, passwordValidity]
       creatable = User.RawCreatable { .. }
 
-  let isUsernameUnique = model |> hasn't (#user . #byUsername . ix username)
-      isEmailAddressUnique =
-        model |> hasn't (#user . #byEmailAddress . ix emailAddress)
+  let isUsernameUnique     = model |> hasn't (#user . #byUsername . ix username)
+      isEmailAddressUnique = model |> hasn't (#user . #byEmailAddress . ix emailAddress)
 
   unless (isUsernameUnique && isEmailAddressUnique) Gen.discard
 
@@ -68,24 +61,18 @@ generator model = Just do
 coverage :: MonadTest m => CreateNotExisting Concrete -> m ()
 coverage (CreateNotExisting Valid   _        ) = pure ()
 coverage (CreateNotExisting Invalid creatable) = do
-  let
-    isUsernameTooShort = creatable ^. #username . to Text.length < 8
-    isUsernameTooLong  = creatable ^. #username . to Text.length > 20
-    isUsernameInvalid =
-      creatable ^. #username |> Text.all Char.isAlphaNumUnderscore |> not
-    isEmailAddressInvalid =
-      creatable ^. #emailAddress |> Text.any (== '@') |> not
-    isPasswordTooShort = creatable ^. #password . to Text.length < 8
+  let isUsernameTooShort    = creatable ^. #username . to Text.length < 8
+      isUsernameTooLong     = creatable ^. #username . to Text.length > 20
+      isUsernameInvalid     = creatable ^. #username |> Text.all Char.isAlphaNumUnderscore |> not
+      isEmailAddressInvalid = creatable ^. #emailAddress |> Text.any (== '@') |> not
+      isPasswordTooShort    = creatable ^. #password . to Text.length < 8
   cover 5 "too short username"    isUsernameTooShort
   cover 5 "too long username"     isUsernameTooLong
   cover 5 "invalid username"      isUsernameInvalid
   cover 5 "invalid email address" isEmailAddressInvalid
   cover 5 "too short password"    isPasswordTooShort
 
-execute :: MonadIO m
-        => MonadTest m
-        => CreateNotExisting Concrete
-        -> m Cascade.Api.Users.CreateResponse
+execute :: MonadIO m => MonadTest m => CreateNotExisting Concrete -> m Cascade.Api.Users.CreateResponse
 execute input@(CreateNotExisting _ creatable) = do
   label "[User/Create Not Existing]"
   coverage input
@@ -94,16 +81,10 @@ execute input@(CreateNotExisting _ creatable) = do
 update :: Model v -> CreateNotExisting v -> Var output v -> Model v
 update model CreateNotExisting { validity = Invalid } _ = model
 update model CreateNotExisting { validity = Valid, creatable } _ =
-  model
-    |> (#user . #byUsername . at username ?~ creatable)
-    |> (#user . #byEmailAddress . at emailAddress ?~ creatable)
+  model |> (#user . #byUsername . at username ?~ creatable) |> (#user . #byEmailAddress . at emailAddress ?~ creatable)
   where User.RawCreatable { username, emailAddress } = creatable
 
-ensure :: Model Concrete
-       -> Model Concrete
-       -> CreateNotExisting Concrete
-       -> Cascade.Api.Users.CreateResponse
-       -> Test ()
+ensure :: Model Concrete -> Model Concrete -> CreateNotExisting Concrete -> Cascade.Api.Users.CreateResponse -> Test ()
 ensure _ _ input response = do
   footnoteShow response
   let statusCode = response ^. #responseStatusCode . #statusCode

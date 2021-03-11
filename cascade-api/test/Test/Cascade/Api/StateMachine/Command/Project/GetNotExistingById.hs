@@ -10,30 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById
-  ( getNotExistingById
-  ) where
+module Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById (getNotExistingById) where
 
 import qualified Cascade.Api.Network.TestClient.Api.Projects
-                                               as Cascade.Api.Projects
-import           Cascade.Api.Test.Prelude       ( )
-import           Control.Lens                   ( (^.)
-                                                , (^@..)
-                                                , has
-                                                , ix
-                                                )
+                                                    as Cascade.Api.Projects
+import           Cascade.Api.Test.Prelude            ( )
+import           Control.Lens                        ( (^.)
+                                                     , (^@..)
+                                                     , has
+                                                     , ix
+                                                     )
 import           Hedgehog
-import qualified Hedgehog.Gen                  as Gen
+import qualified Hedgehog.Gen                       as Gen
 import           Test.Cascade.Api.StateMachine.Command.Project.Types
-import           Test.Cascade.Api.StateMachine.Model
-                                                ( Model )
+import           Test.Cascade.Api.StateMachine.Model ( Model )
 import qualified Test.Cascade.Api.StateMachine.Model.Lens
-                                               as Model.Lens
+                                                    as Model.Lens
 
-getNotExistingById :: MonadGen g
-                   => MonadIO m => MonadTest m => Command g m Model
-getNotExistingById =
-  Command generator execute [Require require, Ensure \_ _ _ -> ensure]
+getNotExistingById :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
+getNotExistingById = Command generator execute [Require require, Ensure \_ _ _ -> ensure]
 
 generator :: MonadGen g => Model Symbolic -> Maybe (g (GetById Symbolic))
 generator model = case getByIds of
@@ -46,13 +41,9 @@ generator model = case getByIds of
     pure GetById { .. }
 
 require :: Model Symbolic -> GetById Symbolic -> Bool
-require model GetById { username } =
-  model |> has (#authToken . #byUsername . ix username)
+require model GetById { username } = model |> has (#authToken . #byUsername . ix username)
 
-execute :: MonadIO m
-        => MonadTest m
-        => GetById Concrete
-        -> m Cascade.Api.Projects.GetByIdResponse
+execute :: MonadIO m => MonadTest m => GetById Concrete -> m Cascade.Api.Projects.GetByIdResponse
 execute GetById { token, id } = do
   label "[Project/Get Not Existing By ID]"
   evalIO $ Cascade.Api.Projects.getById (concrete token) (concrete id)

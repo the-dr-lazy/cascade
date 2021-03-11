@@ -10,14 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Authentication
-  ( commands
-  ) where
+module Test.Cascade.Api.StateMachine.Command.Authentication (commands) where
 
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Command.Authentication.ValidLogin
-import           Test.Cascade.Api.StateMachine.Model
-                                                ( Model )
+import           Test.Cascade.Api.StateMachine.Model ( Model )
 
 commands :: MonadGen g => MonadTest m => MonadIO m => [Command g m Model]
 commands = [validLogin]

@@ -10,15 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Project.Types
-  ( GetById(..)
-  , UpdateById(..)
-  , DeleteById(..)
-  ) where
+module Test.Cascade.Api.StateMachine.Command.Project.Types (GetById(..), UpdateById(..), DeleteById(..)) where
 
-import qualified Cascade.Api.Data.Project      as Project
-import           Cascade.Api.Network.TestClient ( AuthToken )
-import           Data.Generics.Labels           ( )
+import qualified Cascade.Api.Data.Project           as Project
+import           Cascade.Api.Network.TestClient      ( AuthToken )
+import           Data.Generics.Labels                ( )
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Model
 
@@ -31,8 +27,7 @@ data GetById (v :: Type -> Type) = GetById
   deriving stock Show
 
 instance HTraversable GetById where
-  htraverse f GetById {..} =
-    GetById username <$> htraverse f token <*> htraverse f id
+  htraverse f GetById {..} = GetById username <$> htraverse f token <*> htraverse f id
 
 -- brittany-disable-next-binding
 data UpdateById (v :: Type -> Type) = UpdateById
@@ -44,8 +39,7 @@ data UpdateById (v :: Type -> Type) = UpdateById
   deriving stock (Generic, Show)
 
 instance HTraversable UpdateById where
-  htraverse f UpdateById {..} =
-    UpdateById updatable username <$> htraverse f token <*> htraverse f id
+  htraverse f UpdateById {..} = UpdateById updatable username <$> htraverse f token <*> htraverse f id
 
 -- brittany-disable-next-binding
 data DeleteById (v :: Type -> Type) = DeleteById
@@ -56,5 +50,4 @@ data DeleteById (v :: Type -> Type) = DeleteById
   deriving stock (Generic, Show)
 
 instance HTraversable DeleteById where
-  htraverse f DeleteById {..} =
-    DeleteById username <$> htraverse f token <*> htraverse f id
+  htraverse f DeleteById {..} = DeleteById username <$> htraverse f token <*> htraverse f id

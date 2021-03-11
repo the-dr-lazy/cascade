@@ -10,13 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.User
-  ( Routes(..)
-  ) where
+module Cascade.Api.Network.Anatomy.Api.User (Routes(..)) where
 
 import qualified Cascade.Api.Network.Anatomy.Api.User.Projects
-                                               as Projects
-import           Data.Generics.Labels           ( )
+                                                    as Projects
+import           Data.Generics.Labels                ( )
 import           Servant
 import           Servant.API.Generic
 

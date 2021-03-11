@@ -13,26 +13,19 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql.Query
-  ( all
-  , existance
-  ) where
+module Cascade.Api.Database.Sql.Query (all, existance) where
 
 import           Cascade.Api.Database
 import           Cascade.Api.Database.Sql
-import           Control.Lens                   ( (^.) )
-import qualified Database.Beam                 as Beam
-import           Prelude                 hiding ( all )
+import           Control.Lens                        ( (^.) )
+import qualified Database.Beam                      as Beam
+import           Prelude                      hiding ( all )
 
-all :: _
-    => DatabaseEntityGetting backend table
-    -> Q backend s (table (Beam.QExpr backend s))
+all :: _ => DatabaseEntityGetting backend table -> Q backend s (table (Beam.QExpr backend s))
 all = Beam.all_ . (database ^.)
 
 existance :: _
           => DatabaseEntityGetting backend table
-          -> (  Q backend s (table (Beam.QExpr backend s))
-             -> Q backend s (table (Beam.QExpr backend s))
-             )
+          -> (Q backend s (table (Beam.QExpr backend s)) -> Q backend s (table (Beam.QExpr backend s)))
           -> Q backend s (Beam.QExpr backend s Bool)
 existance optic pipe = pure (all optic |> pipe |> Beam.exists_)
