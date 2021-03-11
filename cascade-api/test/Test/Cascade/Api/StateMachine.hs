@@ -10,6 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+
 module Test.Cascade.Api.StateMachine
   ( tests
   ) where
@@ -26,6 +29,8 @@ import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import qualified Network.Socket.Wait           as Socket
+import qualified Test.Cascade.Api.StateMachine.Command.Authentication
+                                               as Command.Authentication
 import qualified Test.Cascade.Api.StateMachine.Command.Project
                                                as Command.Project
 import qualified Test.Cascade.Api.StateMachine.Command.User
@@ -42,9 +47,9 @@ tests = testGroup
   ]
 
 prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 1000 . property $ do
+prop_sequential getPool = withTests 300 . property $ do
   pool    <- evalIO getPool
-  actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
+  actions <- forAll $ Gen.sequential (Range.linear 1 144) initialModel commands
 
   control \runInBase -> flip with pure $ do
     connection <- Resource.withPostgresConnectionInAbortionBracket pool
@@ -54,7 +59,9 @@ prop_sequential getPool = withTests 1000 . property $ do
         Socket.wait "127.0.0.1" 3141
         runInBase $ executeSequential initialModel actions
 
-commands :: MonadGen g
-         => GenBase g ~ Identity
-         => MonadIO m => MonadTest m => [Command g m Model]
-commands = Command.Project.commands <> Command.User.commands
+commands :: _ => [Command g m Model]
+commands = mconcat
+  [ Command.User.commands
+  , Command.Authentication.commands
+  , Command.Project.commands
+  ]

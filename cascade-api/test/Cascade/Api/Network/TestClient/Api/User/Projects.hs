@@ -10,7 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.User.Projects where
+module Cascade.Api.Network.TestClient.Api.User.Projects
+  ( CreateResponse
+  , GetAllResponse
+  , create
+  , getAll
+  ) where
 
 import qualified Cascade.Api.Data.Project      as Project
 import qualified Cascade.Api.Network.Anatomy.Api.User.Projects

@@ -10,15 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Authentication where
+module Test.Cascade.Api.StateMachine.Command.Authentication
+  ( commands
+  ) where
 
-commands :: MonadGen g => MonadIO m => [Command g m Model]
-commands = []
+import           Hedgehog
+import           Test.Cascade.Api.StateMachine.Command.Authentication.ValidLogin
+import           Test.Cascade.Api.StateMachine.Model
+                                                ( Model )
 
-newtype ValidLogin (v :: Type -> Type) = ValidLogin
-  { credential :: Authenticated.RawCredential }
-  deriving stock (Generic, Show)
-
-newtype InvalidLogin (v :: Type -> Type) = InvalidLogin
-  { credential :: Authenticated.RawCredential }
-  deriving stock (Generic, Show)
+commands :: MonadGen g => MonadTest m => MonadIO m => [Command g m Model]
+commands = [validLogin]

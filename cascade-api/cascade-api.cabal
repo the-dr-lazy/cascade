@@ -157,6 +157,7 @@ test-suite cascade-api-test
                      , lifted-base
                      , managed
                      , monad-control
+                     , mtl
                      , port-utils
                      , postgres-options
                      , relude
@@ -178,6 +179,7 @@ test-suite cascade-api-test
                        Cascade.Api.Hedgehog.Gen.Text
                        Cascade.Api.Network.TestClient
                        Cascade.Api.Network.TestClient.Api
+                       Cascade.Api.Network.TestClient.Api.Authentication
                        Cascade.Api.Network.TestClient.Api.Projects
                        Cascade.Api.Network.TestClient.Api.User
                        Cascade.Api.Network.TestClient.Api.User.Projects
@@ -187,9 +189,23 @@ test-suite cascade-api-test
                        Cascade.Api.Test.Prelude.Orphans
                        Cascade.Api.Test.Resource
                        Test.Cascade.Api.StateMachine
+                       Test.Cascade.Api.StateMachine.Command.Authentication
+                       Test.Cascade.Api.StateMachine.Command.Authentication.ValidLogin
                        Test.Cascade.Api.StateMachine.Command.Project
+                       Test.Cascade.Api.StateMachine.Command.Project.Create
+                       Test.Cascade.Api.StateMachine.Command.Project.DeleteExistingById
+                       Test.Cascade.Api.StateMachine.Command.Project.DeleteNotExistingById
+                       Test.Cascade.Api.StateMachine.Command.Project.GetAll
+                       Test.Cascade.Api.StateMachine.Command.Project.GetExistingById
+                       Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById
+                       Test.Cascade.Api.StateMachine.Command.Project.Types
+                       Test.Cascade.Api.StateMachine.Command.Project.UpdateExistingById
+                       Test.Cascade.Api.StateMachine.Command.Project.UpdateNotExistingById
                        Test.Cascade.Api.StateMachine.Command.User
+                       Test.Cascade.Api.StateMachine.Command.User.CreateExisting
+                       Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting
                        Test.Cascade.Api.StateMachine.Model
+                       Test.Cascade.Api.StateMachine.Model.Lens
 
 benchmark cascade-api-benchmark
   import:              common-options
