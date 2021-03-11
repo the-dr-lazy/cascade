@@ -10,9 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen.Prelude
-  ( Validity(..)
-  ) where
+module Cascade.Api.Hedgehog.Gen.Prelude (Validity(..)) where
 
 data Validity
   = Valid

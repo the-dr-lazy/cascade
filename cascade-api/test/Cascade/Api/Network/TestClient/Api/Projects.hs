@@ -17,55 +17,56 @@ module Cascade.Api.Network.TestClient.Api.Projects
   , getById
   , updateById
   , deleteById
+  , tasks
   , testReadableVsCreatable
   , updateCreatable
   ) where
 
-import qualified Cascade.Api.Data.Project      as Project
+import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
-                                               as Api.Projects
-import           Cascade.Api.Network.TestClient ( AuthToken
-                                                , authenticated
-                                                , interpret
-                                                )
-import qualified Cascade.Api.Network.TestClient.Api
-                                               as Client.Api
-import           Control.Lens                   ( (^.) )
-import           Data.Generics.Labels           ( )
-import           Hedgehog                       ( (===)
-                                                , Test
-                                                )
-import           Servant.API                    ( Union )
-import           Servant.Client.Free            ( ResponseF )
+                                                    as Api.Projects
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
+import           Cascade.Api.Network.TestClient      ( AuthToken
+                                                     , authenticated
+                                                     , interpret
+                                                     )
+import qualified Cascade.Api.Network.TestClient.Api as Client.Api
+import           Control.Lens                        ( (^.) )
+import           Control.Monad.Free                  ( Free )
+import           Data.Generics.Labels                ( )
+import           Hedgehog                            ( (===)
+                                                     , Test
+                                                     )
+import           Servant.API                         ( Union )
+import           Servant.API.Generic                 ( fromServant )
+import           Servant.Client.Free                 ( ResponseF )
+import           Servant.Client.Free                 ( ClientF )
+import           Servant.Client.Generic              ( AsClientT )
 
 type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
 
 getById :: AuthToken -> Project.Id -> IO GetByIdResponse
-getById auth = interpret . flip go (authenticated auth)
-  where go = Client.Api.projects ^. #getById
+getById auth = interpret . flip go (authenticated auth) where go = Client.Api.projects ^. #getById
 
 type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
 
-updateById :: AuthToken
-           -> Project.Id
-           -> Project.Updatable
-           -> IO UpdateByIdResponse
-updateById auth id updatable = interpret $ go id updatable (authenticated auth)
-  where go = Client.Api.projects ^. #updateById
+updateById :: AuthToken -> Project.Id -> Project.Updatable -> IO UpdateByIdResponse
+updateById auth id updatable = interpret $ go id updatable (authenticated auth) where go = Client.Api.projects ^. #updateById
 
 type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
 
 deleteById :: AuthToken -> Project.Id -> IO DeleteByIdResponse
-deleteById auth = interpret . flip go (authenticated auth)
-  where go = Client.Api.projects ^. #deleteById
+deleteById auth = interpret . flip go (authenticated auth) where go = Client.Api.projects ^. #deleteById
+
+tasks :: Project.Id -> Api.Projects.Tasks.Routes (AsClientT (Free ClientF))
+tasks projectId = fromServant (Client.Api.projects ^. #tasks $ projectId)
 
 testReadableVsCreatable :: Project.Readable -> Project.Creatable -> Test ()
-testReadableVsCreatable readable creatable =
-  mkCreatableFromReadable readable === creatable
+testReadableVsCreatable readable creatable = mkCreatableFromReadable readable === creatable
 
 mkCreatableFromReadable :: Project.Readable -> Project.Creatable
 mkCreatableFromReadable Project.Readable {..} = Project.Creatable { .. }
 
 updateCreatable :: Project.Updatable -> Project.Creatable -> Project.Creatable
-updateCreatable updatable Project.Creatable {..} =
-  Project.Creatable { name = fromMaybe name $ updatable ^. #name }
+updateCreatable updatable Project.Creatable {..} = Project.Creatable { name = fromMaybe name $ updatable ^. #name }

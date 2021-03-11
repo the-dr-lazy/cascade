@@ -20,13 +20,12 @@ module Cascade.Api.Network.Anatomy.Prelude
   , Delete
   ) where
 
-import           Cascade.Api.Servant.Authentication
-                                                ( Auth )
-import           Servant.API             hiding ( Delete
-                                                , Get
-                                                , Patch
-                                                , Post
-                                                )
+import           Cascade.Api.Servant.Authentication  ( Auth )
+import           Servant.API                  hiding ( Delete
+                                                     , Get
+                                                     , Patch
+                                                     , Post
+                                                     )
 import           Servant.API.Generic
 
 type Get = UVerb 'GET

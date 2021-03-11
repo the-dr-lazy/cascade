@@ -11,8 +11,8 @@ packages=(
 	"cascade-api"
 	"cascade-prelude"
 )
-
 configuration=$(cat cabal.project.local 2>&1 || echo "")
+exitcode=0
 
 for package in "${packages[@]}"; do
 	cat <<EOF >cabal.project.local
@@ -25,19 +25,23 @@ EOF
 
 	cd $package
 
-	cabal new-build "$package-test"
-	cabal new-test "$package-test"
+	if cabal new-build "$package-test" && cabal new-test "$package-test"; then
+		tix=$(find ../dist-newstyle -name $package-*.*.tix)
 
-	tix=$(find ../dist-newstyle -name $package-*.*.tix)
+		mixes=""
+		for mix in $(find ../dist-newstyle -path "*vanilla/mix/$package*" -type d -print); do
+			mixes+="--mix $mix "
+		done
 
-	mixes=""
-	for mix in $(find ../dist-newstyle -name vanilla -print -quit)/mix/$package*; do
-		mixes+="--mix $mix "
-	done
-
-	hpc-codecov $mixes --out=$output/$package.json $tix
+		hpc-codecov $mixes --out=$output/$package.json $tix
+	else
+		exitcode=1
+	fi
 
 	cd ..
-
-	echo $configuration >cabal.project.local
+	cat <<EOF >cabal.project.local
+$configuration
+EOF
 done
+
+exit $exitcode

@@ -13,41 +13,37 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Test.Cascade.Api.StateMachine
-  ( tests
-  ) where
+module Test.Cascade.Api.StateMachine (tests) where
 
 import qualified Cascade.Api
 import           Control.Concurrent.Async.Lifted
 
-import qualified Cascade.Api.Test.Resource     as Resource
+import qualified Cascade.Api.Test.Resource          as Resource
 import           Control.Monad.Managed
 import           Control.Monad.Trans.Control
-import           Data.Pool                      ( Pool )
-import qualified Database.PostgreSQL.Simple    as Postgres
+import           Data.Pool                           ( Pool )
+import qualified Database.PostgreSQL.Simple         as Postgres
 import           Hedgehog
-import qualified Hedgehog.Gen                  as Gen
-import qualified Hedgehog.Range                as Range
-import qualified Network.Socket.Wait           as Socket
+import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Range                     as Range
+import qualified Network.Socket.Wait                as Socket
 import qualified Test.Cascade.Api.StateMachine.Command.Authentication
-                                               as Command.Authentication
+                                                    as Command.Authentication
 import qualified Test.Cascade.Api.StateMachine.Command.Project
-                                               as Command.Project
+                                                    as Command.Project
+import qualified Test.Cascade.Api.StateMachine.Command.Task
+                                                    as Command.Task
 import qualified Test.Cascade.Api.StateMachine.Command.User
-                                               as Command.User
+                                                    as Command.User
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
 tests :: TestTree
-tests = testGroup
-  "Test.Cascade.Api.StateMachine"
-  [ Resource.withTemporaryPostgresConnectionPool
-      (testProperty "Sequential" . prop_sequential)
-  ]
+tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withTemporaryPostgresConnectionPool (testProperty "Sequential" . prop_sequential)]
 
 prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 300 . property $ do
+prop_sequential getPool = withTests 300 . withDiscards 500 . property $ do
   pool    <- evalIO getPool
   actions <- forAll $ Gen.sequential (Range.linear 1 144) initialModel commands
 
@@ -60,8 +56,4 @@ prop_sequential getPool = withTests 300 . property $ do
         runInBase $ executeSequential initialModel actions
 
 commands :: _ => [Command g m Model]
-commands = mconcat
-  [ Command.User.commands
-  , Command.Authentication.commands
-  , Command.Project.commands
-  ]
+commands = mconcat [Command.User.commands, Command.Authentication.commands, Command.Project.commands, Command.Task.commands]

@@ -10,10 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Char
-  ( isAlphaNumUnderscore
-  , module Data.Char
-  ) where
+module Cascade.Data.Char (isAlphaNumUnderscore, module Data.Char) where
 
 import           Data.Char
 

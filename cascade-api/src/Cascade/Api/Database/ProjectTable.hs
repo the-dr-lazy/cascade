@@ -10,20 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.ProjectTable
-  ( ProjectTable(..)
-  , PrimaryKey(..)
-  , Row
-  ) where
+module Cascade.Api.Database.ProjectTable (ProjectTable(..), PrimaryKey(..), Row) where
 
-import qualified Cascade.Api.Data.Project      as Project
-import qualified Cascade.Api.Data.WrappedC     as Wrapped
-import           Data.Generics.Labels           ( )
-import           Database.Beam                  ( Beamable
-                                                , C
-                                                , PrimaryKey
-                                                , Table(..)
-                                                )
+import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.WrappedC          as Wrapped
+import           Control.Lens                        ( _Wrapped'
+                                                     , view
+                                                     )
+import           Data.Generics.Labels                ( )
+import           Database.Beam                       ( Beamable
+                                                     , C
+                                                     , PrimaryKey
+                                                     , Table(..)
+                                                     )
 
 -- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row
@@ -41,8 +40,8 @@ instance Table ProjectTable where
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
 
-deriving newtype instance Show (PrimaryKey ProjectTable Identity)
-deriving newtype instance Eq (PrimaryKey ProjectTable Identity)
+deriving stock instance Show (PrimaryKey ProjectTable Identity)
+deriving stock instance Eq (PrimaryKey ProjectTable Identity)
 
 type Row = ProjectTable Identity
 

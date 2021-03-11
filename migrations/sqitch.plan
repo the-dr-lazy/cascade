@@ -9,3 +9,4 @@ set_updated_at 2021-01-27T16:11:01Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Cr
 users_before_update_trigger [users set_updated_at] 2021-01-27T16:13:50Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Create a before update trigger to update updated_at field in users table.
 user_projects [users projects] 2021-02-07T20:08:44Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Create user_projects join table.
 user_projects_before_update_trigger [user_projects set_updated_at] 2021-02-07T20:17:40Z Mohammad Hasani, MD <the-dr-lazy@pm.me> # Create a before update trigger to update updated_at field in user_projects table.
+tasks [projects uuid-ossp] 2021-02-15T15:29:27Z Mahdi Seyedan <mahdi.se@yahoo.com> # Create tasks table.
