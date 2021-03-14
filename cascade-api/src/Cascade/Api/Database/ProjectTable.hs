@@ -14,9 +14,6 @@ module Cascade.Api.Database.ProjectTable (ProjectTable(..), PrimaryKey(..), Row)
 
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.WrappedC          as Wrapped
-import           Control.Lens                        ( _Wrapped'
-                                                     , view
-                                                     )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( Beamable
                                                      , C

@@ -23,7 +23,6 @@ import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( DatabaseSettings
                                                      , TableEntity
                                                      , dbModification
-                                                     , fieldNamed
                                                      , modifyTableFields
                                                      , setEntityName
                                                      , tableModification

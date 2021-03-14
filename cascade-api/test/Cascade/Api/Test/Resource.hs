@@ -68,6 +68,12 @@ withMigratedDatabaseConfig f =
 
 withPostgresConnectionPool :: HasCallStack => MonadManaged m => TempPostgres.Config -> m (Pool Postgres.Connection)
 withPostgresConnectionPool config = do
+  {- HACK: There is a known issue about temporary postgres database cleanup
+           which occasionally encounters with exception. By catching the exception
+           we only let the tests continue to run but the problem is still alive and the temporary
+           database doesn't cleanup on the host machine.
+           Please see https://github.com/jfischoff/tmp-postgres/issues/266 and https://github.com/jfischoff/tmp-postgres/issues/251
+  -}
   db <- managed $ X.bracket (throwE $ TempPostgres.startConfig config) (\db -> TempPostgres.stop db `X.catch` const @_ @X.IOException mempty)
   liftIO $ createPool (connectPostgreSQL <| TempPostgres.toConnectionString db) Postgres.close 1 1 5
 

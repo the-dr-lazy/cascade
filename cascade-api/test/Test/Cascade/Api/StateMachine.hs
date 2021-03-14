@@ -21,9 +21,7 @@ import           Control.Concurrent.Async.Lifted
 import qualified Cascade.Api.Test.Resource          as Resource
 import           Control.Monad.Managed
 import           Control.Monad.Trans.Control
-import           Data.Pool                           ( Pool )
 import qualified Data.Pool                          as Pool
-import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Database.Postgres.Temp             as TempPostgres
 import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen

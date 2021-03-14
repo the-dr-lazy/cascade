@@ -21,7 +21,6 @@ import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Data.WrappedC
 import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
 import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
 import qualified Cascade.Api.Database.Sql.Query.Task
                                                     as SQL.Query.Task
 import           Cascade.Api.Database.TaskTable      ( TaskTable )
@@ -32,11 +31,7 @@ import           Control.Lens                        ( (^.)
                                                      , to
                                                      )
 import           Database.Beam                       ( (<-.)
-                                                     , (==.)
-                                                     , default_
-                                                     , filter_
                                                      , insertExpressions
-                                                     , select
                                                      , val_
                                                      )
 import qualified Database.Beam                      as Beam
@@ -97,7 +92,7 @@ fromParsedCreatableTask :: BeamSqlBackend backend
                         => Project.Id
                         -> Task.ParsedCreatable
                         -> TaskTable (Beam.QExpr backend s)
-fromParsedCreatableTask projectId creatable = TaskTable.Row { id         = default_
+fromParsedCreatableTask projectId creatable = TaskTable.Row { id         = SQL.def
                                                             , title      = creatable ^. #title . to coerce . to val_
                                                             , deadlineAt = creatable ^. #deadlineAt . to Deadline.un . to val_
                                                             , projectId  = projectId |> coerce |> val_

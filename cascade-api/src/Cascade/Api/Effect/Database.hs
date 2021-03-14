@@ -39,7 +39,6 @@ import           Database.Beam.Postgres              ( Pg
 import qualified Database.PostgreSQL.Simple         as Postgres
 import           Polysemy                            ( Member
                                                      , Sem
-                                                     , inspect
                                                      , interpretH
                                                      , makeSem
                                                      , raise

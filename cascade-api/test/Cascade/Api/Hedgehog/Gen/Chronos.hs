@@ -19,7 +19,7 @@ import           Chronos                             ( Offset(..)
                                                      , timeFromYmdhms
                                                      , timeToOffsetDatetime
                                                      )
-import           Hedgehog                            ( MonadGen(GenBase) )
+import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
 import           Prelude                      hiding ( second )
