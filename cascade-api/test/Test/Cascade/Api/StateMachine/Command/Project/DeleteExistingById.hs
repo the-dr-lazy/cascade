@@ -51,7 +51,7 @@ execute DeleteById { token, id } = do
   evalIO $ Cascade.Api.Projects.deleteById (concrete token) (concrete id)
 
 update :: Ord1 v => Model v -> DeleteById v -> Var Cascade.Api.Projects.DeleteByIdResponse v -> Model v
-update model DeleteById { username, id } _ = model |> #project . #byUsername . ix username %~ sans id
+update model DeleteById { username, id } _ = model |> #project . #byUsername . ix username %~ sans id |> #task . #byProjectId %~ sans id
 
 ensure :: Model Concrete -> Model Concrete -> DeleteById Concrete -> Cascade.Api.Projects.DeleteByIdResponse -> Test ()
 ensure _ _ DeleteById { id } response = do
