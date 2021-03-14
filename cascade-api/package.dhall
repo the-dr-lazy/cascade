@@ -71,6 +71,7 @@ let cascade-api-test =
         , "tmp-postgres"
         , "typed-process"
         , "validation-selective"
+        , "transformers-base"
         ]
       }
 

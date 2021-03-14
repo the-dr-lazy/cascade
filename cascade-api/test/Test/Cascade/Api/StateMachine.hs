@@ -22,7 +22,9 @@ import qualified Cascade.Api.Test.Resource          as Resource
 import           Control.Monad.Managed
 import           Control.Monad.Trans.Control
 import           Data.Pool                           ( Pool )
+import qualified Data.Pool                          as Pool
 import qualified Database.PostgreSQL.Simple         as Postgres
+import qualified Database.Postgres.Temp             as TempPostgres
 import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
@@ -40,17 +42,17 @@ import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
 tests :: TestTree
-tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withTemporaryPostgresConnectionPool (testProperty "Sequential" . prop_sequential)]
+tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withMigratedDatabaseConfig (testProperty "Sequential" . prop_sequential)]
 
-prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 300 . withDiscards 500 . property $ do
-  pool    <- evalIO getPool
-  actions <- forAll $ Gen.sequential (Range.linear 1 144) initialModel commands
+prop_sequential :: IO TempPostgres.Config -> Property
+prop_sequential getMigratedDatabase = withTests 300 . withDiscards 500 . property $ do
+  db      <- evalIO getMigratedDatabase
+  actions <- forAll $ Gen.sequential (Range.exponential 1 144) initialModel commands
 
   control \runInBase -> flip with pure $ do
-    connection <- Resource.withPostgresConnectionInAbortionBracket pool
+    pool <- Resource.withPostgresConnectionPool db
     liftIO $ withAsync
-      (Cascade.Api.main \f -> f connection)
+      (Cascade.Api.main $ Pool.withResource pool)
       \_ -> do
         Socket.wait "127.0.0.1" 3141
         runInBase $ executeSequential initialModel actions
