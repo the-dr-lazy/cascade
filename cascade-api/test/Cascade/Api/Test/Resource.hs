@@ -10,16 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 module Cascade.Api.Test.Resource (withMigratedDatabaseConfig, withPostgresConnectionPool) where
 
 import           Cascade.Api.Test.FilePath           ( findSqitchConfigFileUpward )
 import qualified Control.Exception.Lifted           as X
-import           Control.Lens                        ( _3
+import           Control.Lens                        ( _2
                                                      , view
                                                      )
 import           Control.Monad.Base                  ( MonadBase )
 import           Control.Monad.Managed
-import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
                                                      )
@@ -53,26 +54,22 @@ migrate db = do
 
 withMigratedDatabaseConfig :: (IO TempPostgres.Config -> TestTree) -> TestTree
 withMigratedDatabaseConfig f =
-  let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.DB, TempPostgres.Snapshot)
+  let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.Config)
       acquire = do
-        cache          <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
-        migratedConfig <- throwE
+        cache  <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
+        config <- throwE
           $ TempPostgres.cacheAction "~/.cascade/tmp-postgres" migrate (TempPostgres.defaultConfig <> TempPostgres.cacheConfig cache)
-        db       <- throwE $ TempPostgres.startConfig migratedConfig
-        snapshot <- throwE $ TempPostgres.takeSnapshot db
-        pure (cache, db, snapshot)
+        pure (cache, config)
 
-      release :: (TempPostgres.Cache, TempPostgres.DB, TempPostgres.Snapshot) -> IO ()
-      release (cache, db, snapshot) = do
-        TempPostgres.cleanupSnapshot snapshot
-        TempPostgres.stop db
+      release :: (TempPostgres.Cache, TempPostgres.Config) -> IO ()
+      release (cache, _) = do
         TempPostgres.cleanupInitDbCache cache
-  in  Tasty.withResource acquire release $ f . fmap (TempPostgres.snapshotConfig . view _3)
+  in  Tasty.withResource acquire release $ f . fmap (view _2)
 
-withPostgresConnectionPool :: MonadManaged m => TempPostgres.Config -> m (Pool Postgres.Connection)
+withPostgresConnectionPool :: HasCallStack => MonadManaged m => TempPostgres.Config -> m (Pool Postgres.Connection)
 withPostgresConnectionPool config = do
-  db <- managed $ throwE . TempPostgres.withConfig config
+  db <- managed $ X.bracket (throwE $ TempPostgres.startConfig config) (\db -> TempPostgres.stop db `X.catch` const @_ @X.IOException mempty)
   liftIO $ createPool (connectPostgreSQL <| TempPostgres.toConnectionString db) Postgres.close 1 1 5
 
-throwE :: (MonadBase IO m, Exception e) => m (Either e b) -> m b
+throwE :: HasCallStack => MonadBase IO m => Exception e => m (Either e b) -> m b
 throwE x = either X.throwIO pure =<< x
