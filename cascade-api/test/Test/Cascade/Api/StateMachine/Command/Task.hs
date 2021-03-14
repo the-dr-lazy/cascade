@@ -93,6 +93,9 @@ createValidForExistingProject =
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
 
+      require :: Model Symbolic -> Create Symbolic -> Bool
+      require model Create { projectId } = model |> has (#project . #byUsername . folded . ix projectId)
+
       execute :: Create Concrete -> m Task.Id
       execute (Create projectId creatable) = do
         label "[Task/Create Valid]"
@@ -113,7 +116,7 @@ createValidForExistingProject =
 
       update :: Ord1 v => Model v -> Create v -> Var Task.Id v -> Model v
       update model (Create projectId creatable) id = model |> #task . #byProjectId . at projectId . non Map.empty . at id ?~ creatable
-  in  Command generator execute [Update update]
+  in  Command generator execute [Require require, Update update]
 
 createValidForNonExistingProject :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createValidForNonExistingProject =
@@ -273,7 +276,7 @@ instance HTraversable GetById where
 getExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getExistingById =
   let generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
-      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . ifolded . asIndex of
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
