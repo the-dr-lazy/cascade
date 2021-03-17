@@ -30,6 +30,7 @@ import           Cascade.Api.Effect.Time             ( TimeL )
 import qualified Cascade.Api.Effect.Time            as Time
 
 newtype Deadline = Deadline (Future OffsetDatetime)
+  deriving stock Show
 
 un :: Deadline -> OffsetDatetime
 un (Deadline future) = Future.un future

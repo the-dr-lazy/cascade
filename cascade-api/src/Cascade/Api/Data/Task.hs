@@ -11,6 +11,7 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
+
 module Cascade.Api.Data.Task
   ( Task
   , Id
@@ -31,9 +32,9 @@ import qualified Cascade.Api.Data.Project           as Project
 import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime() )
 import           Cascade.Api.Data.OffsetDatetime.Deadline
                                                      ( Deadline )
+import           Cascade.Api.Data.Text.Title         ( Title )
 import           Cascade.Data.Validation
 import qualified Cascade.Data.Validation            as Validation
-import qualified Cascade.Data.Text                  as Text
 import           Polysemy                            ( Sem
                                                      , Members
                                                      )
@@ -45,7 +46,7 @@ type Id = Data.Id Task
 
 data Readable = Readable
   { id         :: Id
-  , title      :: Text.NonEmpty
+  , title      :: Title
   , deadlineAt :: FormattedOffsetDatetime
   , projectId  :: Project.Id
   }
@@ -53,7 +54,7 @@ data Readable = Readable
   deriving anyclass (FromJSON, ToJSON)
 
 data Creatable v = Creatable
-  { title      :: Validate v Text Text.NonEmpty
+  { title      :: Validate v Text Title
   , deadlineAt :: Validate v FormattedOffsetDatetime Deadline
   }
   deriving stock Generic
@@ -67,13 +68,13 @@ deriving anyclass instance FromJSON (Creatable 'Raw)
 
 type RawCreatableValidationErrors = (Validation.Errors (Creatable 'Raw) (Creatable 'Parsed))
 
-parseRawCreatableTask :: Members (Effects (Creatable 'Raw) (Creatable 'Parsed)) r
+parseRawCreatableTask :: Members (Validation.Effects (Creatable 'Raw) (Creatable 'Parsed)) r
                       => Creatable 'Raw
-                      -> Sem r (Validation (Errors (Creatable 'Raw) (Creatable 'Parsed)) (Creatable 'Parsed))
+                      -> Sem r (Validation RawCreatableValidationErrors (Creatable 'Parsed))
 parseRawCreatableTask = constraint . validate
 
 data Updatable v = Updatable
-  { title      :: Validate v (Maybe Text) (Maybe Text.NonEmpty)
+  { title      :: Validate v (Maybe Text) (Maybe Title)
   , deadlineAt :: Validate v (Maybe FormattedOffsetDatetime) (Maybe Deadline)
   }
   deriving stock Generic
@@ -87,7 +88,7 @@ deriving anyclass instance FromJSON (Updatable 'Raw)
 
 type RawUpdatableValidationErrors = (Validation.Errors (Updatable 'Raw) (Updatable 'Parsed))
 
-parseRawUpdatableTask :: Members (Effects (Creatable 'Raw) (Creatable 'Parsed)) r
+parseRawUpdatableTask :: Members (Validation.Effects (Creatable 'Raw) (Creatable 'Parsed)) r
                       => Updatable 'Raw
-                      -> Sem r (Validation (Errors (Updatable 'Raw) (Updatable 'Parsed)) (Updatable 'Parsed))
+                      -> Sem r (Validation RawUpdatableValidationErrors (Updatable 'Parsed))
 parseRawUpdatableTask = constraint . validate

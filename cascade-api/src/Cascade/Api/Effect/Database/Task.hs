@@ -45,9 +45,8 @@ import qualified Relude.Unsafe                      as Unsafe
                                                      ( fromJust )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                     as Deadline
+import qualified Cascade.Api.Data.Text.Title        as Title
 import           Cascade.Data.Validation             ( Phase(..) )
-
-
 
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]

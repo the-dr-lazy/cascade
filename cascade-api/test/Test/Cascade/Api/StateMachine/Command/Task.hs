@@ -44,7 +44,7 @@ import           Control.Lens                        ( (?~)
 import           Servant.API.UVerb.Union             ( matchUnion )
 import qualified Data.Map                           as Map
 import qualified Cascade.Data.Text                  as Text
-import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
+import qualified Cascade.Api.Data.Text.Title        as Title
 import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen
 import           Test.Cascade.Api.StateMachine.Model ( Model )
@@ -355,7 +355,7 @@ updateExistingByIdValid =
         task ^. #id === id
 
         title <- updatable ^. #title |> evalMaybe
-        task ^. #title . to Text.NonEmpty.un === title
+        task ^. #title . to Title.un === title
 
         deadline <- updatable ^. #deadlineAt |> evalMaybe |> fmap unFormattedOffsetDatetime |> fmap offsetDatetimeToTime
         task ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime === deadline
@@ -480,6 +480,6 @@ updateCreatableTask updatable Task.Creatable {..} =
 
 checkEqReadableRawCreatableTask :: (MonadTest m, HasCallStack) => Task.Readable -> Task.Creatable 'Raw -> m ()
 checkEqReadableRawCreatableTask task creatable = do
-  task ^. #title . to Text.NonEmpty.un === creatable ^. #title
+  task ^. #title . to Title.un === creatable ^. #title
   (task ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime)
     === (creatable ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime)

@@ -22,12 +22,11 @@ import           Database.Beam                       ( Beamable
                                                      )
 import           Cascade.Api.Database.Project        ( ProjectTable )
 import           Chronos                             ( OffsetDatetime )
-import qualified Cascade.Data.Text                  as Text
 
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
   { id         :: Wrapped.C f Task.Id
-  , title      :: Wrapped.C f Text.NonEmpty
+  , title      :: C f Text
   , deadlineAt :: C f OffsetDatetime
   , projectId  :: PrimaryKey ProjectTable f
   }
