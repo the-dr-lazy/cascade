@@ -1,5 +1,5 @@
 {-|
-Module      : Test.Cascade.Api.StateMachine.Command.Authentication.Login
+Module      : Test.Cascade.Api.StateMachine.Command.Authentication.CorrectValidLogin
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
