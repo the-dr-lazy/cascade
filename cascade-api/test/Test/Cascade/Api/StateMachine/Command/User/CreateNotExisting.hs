@@ -61,22 +61,24 @@ generator model = Just do
 coverage :: MonadTest m => CreateNotExisting Concrete -> m ()
 coverage (CreateNotExisting Valid   _        ) = pure ()
 coverage (CreateNotExisting Invalid creatable) = do
-  let isUsernameTooShort    = creatable ^. #username . to Text.length < 8
-      isUsernameTooLong     = creatable ^. #username . to Text.length > 20
-      isUsernameInvalid     = creatable ^. #username |> Text.all Char.isAlphaNumUnderscore |> not
-      isEmailAddressInvalid = creatable ^. #emailAddress |> Text.any (== '@') |> not
-      isPasswordTooShort    = creatable ^. #password . to Text.length < 8
   cover 5 "too short username"    isUsernameTooShort
   cover 5 "too long username"     isUsernameTooLong
   cover 5 "invalid username"      isUsernameInvalid
   cover 5 "invalid email address" isEmailAddressInvalid
   cover 5 "too short password"    isPasswordTooShort
+ where
+  User.RawCreatable { username, emailAddress, password } = creatable
+  isUsernameTooShort    = Text.length username < 8
+  isUsernameTooLong     = Text.length username > 20
+  isUsernameInvalid     = not . Text.all Char.isAlphaNumUnderscore <| username
+  isEmailAddressInvalid = not . Text.any (== '@') <| emailAddress
+  isPasswordTooShort    = Text.length password < 8
 
 execute :: MonadIO m => MonadTest m => CreateNotExisting Concrete -> m Cascade.Api.Users.CreateResponse
 execute input@(CreateNotExisting _ creatable) = do
   label "[User/Create Not Existing]"
   coverage input
-  evalIO $ Cascade.Api.Users.create creatable
+  evalIO . Cascade.Api.Users.create <| creatable
 
 update :: Model v -> CreateNotExisting v -> Var output v -> Model v
 update model CreateNotExisting { validity = Invalid } _ = model
