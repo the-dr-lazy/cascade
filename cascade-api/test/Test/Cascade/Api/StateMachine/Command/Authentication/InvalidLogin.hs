@@ -51,7 +51,7 @@ coverage Authentication.RawCredential { username, password } = do
 
 execute :: MonadIO m => MonadTest m => Login Concrete -> m ()
 execute (Login credential) = do
-  label "[Authentication/Invaid Login]"
+  label "[Authentication/Invalid Login]"
   coverage credential
   ensure =<< (evalIO . Cascade.Api.Authentication.login <| credential)
 

@@ -41,15 +41,14 @@ data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
 instance HTraversable CreateNotExisting where
   htraverse _ = pure . coerce
 
-createNotExisting :: MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
+createNotExisting :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 createNotExisting = Command generator execute [Update update, Ensure ensure]
 
-generator :: MonadGen g => MonadFail g => Model Symbolic -> Maybe (g (CreateNotExisting Symbolic))
+generator :: MonadGen g => Model Symbolic -> Maybe (g (CreateNotExisting Symbolic))
 generator model = Just do
-  [usernameValidity, emailAddressValidity, passwordValidity] <- Gen.replicateAtLeastOne Invalid 3
-  username     <- Gen.username usernameValidity
-  emailAddress <- Gen.emailAddress emailAddressValidity
-  password     <- Gen.password passwordValidity
+  (usernameValidity    , username    ) <- Gen.withValidity Gen.username
+  (emailAddressValidity, emailAddress) <- Gen.withValidity Gen.emailAddress
+  (passwordValidity    , password    ) <- Gen.withValidity Gen.password
   let validity  = fold [usernameValidity, emailAddressValidity, passwordValidity]
       creatable = User.RawCreatable { .. }
 
@@ -77,8 +76,10 @@ coverage (CreateNotExisting Invalid creatable) = do
   isPasswordTooShort    = Text.length password < 8
 
 execute :: MonadIO m => MonadTest m => CreateNotExisting Concrete -> m Cascade.Api.Users.CreateResponse
-execute input@(CreateNotExisting _ creatable) = do
-  label "[User/Create Not Existing]"
+execute input@(CreateNotExisting validity creatable) = do
+  case validity of
+    Valid   -> label "[User/Create Not Existing]"
+    Invalid -> label "[User/Create Invalid]"
   coverage input
   evalIO . Cascade.Api.Users.create <| creatable
 

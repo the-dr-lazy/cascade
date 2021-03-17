@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen (uuid, replicateAtLeastOne) where
+module Cascade.Api.Hedgehog.Gen (uuid, replicateAtLeastOne, withValidity) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
 import           Data.UUID.Util                      ( UnpackedUUID(..) )
@@ -39,3 +39,8 @@ replicateAtLeastOne :: Enum a => Bounded a => MonadGen g => a -> Word8 -> g [a]
 replicateAtLeastOne x n = do
   xs <- Gen.list (Range.singleton . fromIntegral <| n - 1) Gen.enumBounded
   Gen.shuffle <| x : xs
+
+withValidity :: MonadGen g => (Validity -> g a) -> g (Validity, a)
+withValidity g = do
+  validity <- Gen.enumBounded
+  (validity, ) <$> g validity

@@ -66,7 +66,7 @@ require model (Login Authentication.RawCredential { username, password }) = hasU
 
 execute :: MonadIO m => MonadTest m => Login Concrete -> m AuthToken
 execute (Login credential) = do
-  label "[Authentication/Login Valid]"
+  label "[Authentication/Correct Valid Login]"
   ensure =<< evalIO (Cascade.Api.Authentication.login credential)
 
 update :: Model v -> Login v -> Var AuthToken v -> Model v
