@@ -45,7 +45,7 @@ tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withMigratedDatabase
 prop_sequential :: IO TempPostgres.Config -> Property
 prop_sequential getMigratedDatabase = withTests 500 . withDiscards 500 . property $ do
   db      <- evalIO getMigratedDatabase
-  actions <- forAll $ Gen.sequential (Range.linear 1 233) initialModel commands
+  actions <- forAll $ Gen.sequential (Range.linear 1 500) initialModel commands
 
   control \runInBase -> flip with pure $ do
     pool <- Resource.withPostgresConnectionPool db

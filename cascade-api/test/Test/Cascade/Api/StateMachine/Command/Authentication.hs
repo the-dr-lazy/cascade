@@ -13,8 +13,10 @@ Portability : POSIX
 module Test.Cascade.Api.StateMachine.Command.Authentication (commands) where
 
 import           Hedgehog
-import           Test.Cascade.Api.StateMachine.Command.Authentication.ValidLogin
+import           Test.Cascade.Api.StateMachine.Command.Authentication.CorrectValidLogin
+import           Test.Cascade.Api.StateMachine.Command.Authentication.IncorrectValidLogin
+import           Test.Cascade.Api.StateMachine.Command.Authentication.InvalidLogin
 import           Test.Cascade.Api.StateMachine.Model ( Model )
 
-commands :: MonadGen g => MonadTest m => MonadIO m => [Command g m Model]
-commands = [validLogin]
+commands :: MonadGen g => MonadTest m => MonadFail g => MonadIO m => [Command g m Model]
+commands = [invalidLogin, incorrectValidLogin, correctValidLogin]
