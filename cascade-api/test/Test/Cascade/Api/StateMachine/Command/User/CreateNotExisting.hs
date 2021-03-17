@@ -13,6 +13,7 @@ Portability : POSIX
 module Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting (createNotExisting) where
 
 import qualified Cascade.Api.Data.User              as User
+import qualified Cascade.Api.Hedgehog.Gen           as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
 import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Users
@@ -40,14 +41,15 @@ data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
 instance HTraversable CreateNotExisting where
   htraverse _ = pure . coerce
 
-createNotExisting :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
+createNotExisting :: MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
 createNotExisting = Command generator execute [Update update, Ensure ensure]
 
-generator :: MonadGen g => Model Symbolic -> Maybe (g (CreateNotExisting Symbolic))
+generator :: MonadGen g => MonadFail g => Model Symbolic -> Maybe (g (CreateNotExisting Symbolic))
 generator model = Just do
-  (usernameValidity    , username    ) <- Gen.usernameWithValidity
-  (emailAddressValidity, emailAddress) <- Gen.emailAddressWithValidity
-  (passwordValidity    , password    ) <- Gen.passwordWithValidity
+  [usernameValidity, emailAddressValidity, passwordValidity] <- Gen.replicateAtLeastOne Invalid 3
+  username     <- Gen.username usernameValidity
+  emailAddress <- Gen.emailAddress emailAddressValidity
+  password     <- Gen.password passwordValidity
   let validity  = fold [usernameValidity, emailAddressValidity, passwordValidity]
       creatable = User.RawCreatable { .. }
 

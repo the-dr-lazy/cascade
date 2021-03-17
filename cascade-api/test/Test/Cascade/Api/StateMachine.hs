@@ -43,7 +43,7 @@ tests :: TestTree
 tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withMigratedDatabaseConfig (testProperty "Sequential" . prop_sequential)]
 
 prop_sequential :: IO TempPostgres.Config -> Property
-prop_sequential getMigratedDatabase = withTests 500 . withDiscards 500 . property $ do
+prop_sequential getMigratedDatabase = withTests 500 . property $ do
   db      <- evalIO getMigratedDatabase
   actions <- forAll $ Gen.sequential (Range.linear 1 500) initialModel commands
 

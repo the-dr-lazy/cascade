@@ -17,6 +17,7 @@ import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(.
                                                      )
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Hedgehog.Gen           as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
@@ -54,7 +55,7 @@ import qualified Hedgehog.Gen                       as Gen
 import           Servant.API.UVerb.Union             ( matchUnion )
 import           Test.Cascade.Api.StateMachine.Model ( Model )
 
-commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
+commands :: MonadGen g => MonadFail g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
   [ createValidForExistingProject
   , createValidForNonExistingProject
@@ -140,17 +141,16 @@ createValidForNonExistingProject =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
-createInvalid :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
+createInvalid :: forall g m . MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
 createInvalid =
   let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
       generator model = case model ^.. #project . #byUsername . folded . ifolded . asIndex of
         []         -> Nothing
         projectIds -> Just $ do
-          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32
-          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) FormattedOffsetDatetime
-          projectId                        <- Gen.element projectIds
-          let validity = fold [titleValidity, deadlineAtValidity]
-          when (validity == Valid) Gen.discard
+          [titleValidity, deadlineAtValidity] <- Gen.replicateAtLeastOne Invalid 2
+          title                               <- Gen.nonEmptyText 32 titleValidity
+          deadlineAt                          <- FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          projectId                           <- Gen.element projectIds
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
 
@@ -371,17 +371,16 @@ updateExistingByIdValid =
         let creatable = updateCreatableTask updatable in model |> #task . #byProjectId . traversed %~ Map.adjust creatable id
   in  Command generator execute [Require require, Update update, Ensure ensure]
 
-updateExistingByIdInvalid :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+updateExistingByIdInvalid :: forall g m . MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
 updateExistingByIdInvalid =
   let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
       generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Just $ do
-          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32 |> (fmap . fmap) Just
-          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) (Just . FormattedOffsetDatetime)
-          id                               <- Gen.element ids
-          let validity = fold [titleValidity, deadlineAtValidity]
-          when (validity == Valid) Gen.discard
+          [titleValidity, deadlineAtValidity] <- Gen.replicateAtLeastOne Invalid 2
+          title                               <- Just <$> Gen.nonEmptyText 32 titleValidity
+          deadlineAt                          <- Just . FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          id                                  <- Gen.element ids
           let updatable = Task.RawUpdatable { .. }
           pure $ UpdateById { .. }
 
