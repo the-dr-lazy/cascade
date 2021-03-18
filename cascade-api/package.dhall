@@ -27,6 +27,7 @@ let cascade-api =
         [ "attoparsec"
         , "beam-core"
         , "beam-postgres"
+        , "cascade-core"
         , "chronos"
         , "either"
         , "email-validate"

@@ -1,4 +1,8 @@
-packages: cascade-prelude, cascade-api, cascade-cli
+packages:
+    cascade-prelude
+  , cascade-api
+  , cascade-cli
+  , cascade-core
 optimization: False
 documentation: True
 
