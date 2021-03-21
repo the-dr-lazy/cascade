@@ -40,9 +40,9 @@ import           Polysemy                            ( Members
 import qualified Relude.Unsafe                      as Unsafe
 
 data UserL m a where
-  FindByUsername ::User.Username -> UserL m (Maybe UserTable.Row)
+  FindByUsername                     ::User.Username -> UserL m (Maybe UserTable.Row)
   DoesExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
-  Create ::User.ParsedCreatable -> UserL m User.Readable
+  Create                             ::User.ParsedCreatable -> UserL m User.Readable
 
 makeSem ''UserL
 

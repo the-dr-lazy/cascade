@@ -61,7 +61,7 @@ data ProjectL m a where
   Create          ::Project.Creatable -> User.Id -> ProjectL m Project.Readable
   UpdateById      ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
   DeleteById      ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  DoesExistsById ::Project.Id -> ProjectL m Bool
+  DoesExistsById  ::Project.Id -> ProjectL m Bool
 
 makeSem ''ProjectL
 
