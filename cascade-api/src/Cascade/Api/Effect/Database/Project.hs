@@ -10,22 +10,36 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Database.Project (ProjectL(..), findAll, findById, create, updateById, deleteById, doesExistsById, run) where
+module Cascade.Api.Effect.Database.Project
+  ( ProjectL(..)
+  , findAll
+  , findAllByUserId
+  , findById
+  , create
+  , updateById
+  , deleteById
+  , doesExistsById
+  , run
+  ) where
 
 import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.User              as User
 import           Cascade.Api.Data.WrappedC
-import           Cascade.Api.Database.Project        ( ProjectTable )
-import qualified Cascade.Api.Database.Project       as Database.Project
+import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
+import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
+import qualified Cascade.Api.Database.Sql           as SQL
+import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.Project
+                                                    as SQL.Query.Project
+import qualified Cascade.Api.Database.UserProjectTable
+                                                    as UserProjectTable
+import qualified Cascade.Api.Database.UserTable     as UserTable
 import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
 import           Control.Lens                        ( (^.) )
 import           Database.Beam                       ( (<-.)
-                                                     , (==.)
-                                                     , default_
-                                                     , exists_
-                                                     , filter_
                                                      , insertExpressions
-                                                     , select
+                                                     , pk
                                                      , val_
                                                      )
 import qualified Database.Beam                      as Beam
@@ -41,64 +55,73 @@ import qualified Relude.Unsafe                      as Unsafe
                                                      ( fromJust )
 
 data ProjectL m a where
-  FindAll    ::ProjectL m [Project.Readable]
-  FindById   ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  Create     ::Project.Creatable -> ProjectL m Project.Readable
-  UpdateById ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
-  DeleteById ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  DoesExistsById ::Project.Id -> ProjectL m Bool
+  FindAll         ::ProjectL m [Project.Readable]
+  FindAllByUserId ::User.Id -> ProjectL m [Project.Readable]
+  FindById        ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  Create          ::Project.Creatable -> User.Id -> ProjectL m Project.Readable
+  UpdateById      ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
+  DeleteById      ::Project.Id -> ProjectL m (Maybe Project.Readable)
+  DoesExistsById  ::Project.Id -> ProjectL m Bool
 
 makeSem ''ProjectL
 
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
-    => Database.TableFieldsFulfillConstraint (Beam.FromBackendRow backend) ProjectTable
-    => Database.TableFieldsFulfillConstraint (Beam.HasSqlEqualityCheck backend) ProjectTable
-    => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
+    => SQL.TableFieldsFulfillConstraints
+         '[Beam.FromBackendRow backend , Beam.HasSqlEqualityCheck backend , BeamSqlBackendCanSerialize backend]
+         ProjectTable
     => Beam.FromBackendRow backend Bool => Member (DatabaseL backend) r => Sem (ProjectL ': r) a -> Sem r a
 run = interpret \case
-  FindAll -> Database.all #projects |> select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
-  FindById id ->
-    Database.lookup #projects (Database.Project.PrimaryKey $ coerce id) |> Database.runSelectReturningOne |> (fmap . fmap) toReadableProject
-  Create creatable ->
-    insertExpressions [fromCreatableProject creatable]
-      |> Database.insert #projects
+  FindAll -> SQL.Query.all #projects |> SQL.select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
+  FindAllByUserId userId ->
+    SQL.Query.Project.byUserId userId |> SQL.select |> Database.runSelectReturningList |> (fmap . fmap) toReadableProject
+  FindById id             -> SQL.Query.Project.byId id |> SQL.select |> Database.runSelectReturningOne |> (fmap . fmap) toReadableProject
+  Create creatable userId -> Database.withTransaction do
+    project <-
+      insertExpressions [fromCreatableProject creatable]
+      |> SQL.insert #projects
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
-      |> fmap toReadableProject
+    insertExpressions
+        [ UserProjectTable.Row { userId    = UserTable.PrimaryKey <| SQL.literal userId
+                               , projectId = pk <| val_ project
+                               , createdAt = SQL.def
+                               , updatedAt = SQL.def
+                               }
+        ]
+      |> SQL.insert #userProjects
+      |> Database.runInsert
+      |> void
+    pure <| toReadableProject <| project
   UpdateById id updatable -> case updatable of
     Project.Updatable { name = Nothing } -> run $ findById id
     _ ->
-      Database.update #projects (fromUpdatableProject updatable) (\project -> project ^. #id ==. val_ (coerce id))
+      SQL.update #projects (fromUpdatableProject updatable) (#id `SQL.eq` SQL.literal id)
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableProject
-  DeleteById id ->
-    Database.delete #projects (\project -> project ^. #id ==. val_ (coerce id))
-      |> Database.runDeleteReturningOne
-      |> (fmap . fmap) toReadableProject
+  DeleteById     id -> SQL.delete #projects (#id `SQL.eq` SQL.literal id) |> Database.runDeleteReturningOne |> (fmap . fmap) toReadableProject
   DoesExistsById id -> do
-    let query = Database.all #projects |> filter_ \project -> project ^. #id ==. val_ (coerce id)
+    let sieve = SQL.filter <| #id `SQL.eq` SQL.literal id
 
-    exists_ query
-      |> pure
-      |> select
+    SQL.Query.existance #projects sieve
+      |> SQL.select
       |> Database.runSelectReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
 
-toReadableProject :: Database.Project.Row -> Project.Readable
-toReadableProject Database.Project.Row {..} = Project.Readable { id = coerce id, name }
+toReadableProject :: ProjectTable.Row -> Project.Readable
+toReadableProject ProjectTable.Row {..} = Project.Readable { id = coerce id, name }
 
 fromCreatableProject :: BeamSqlBackend backend
-                     => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
+                     => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
                      => Project.Creatable
                      -> ProjectTable (Beam.QExpr backend s)
-fromCreatableProject Project.Creatable {..} = Database.Project.Row { id = default_, name = val_ name }
+fromCreatableProject Project.Creatable {..} = ProjectTable.Row { id = SQL.def, name = SQL.literal name }
 
 fromUpdatableProject :: BeamSqlBackend backend
-                     => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
+                     => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) ProjectTable
                      => Project.Updatable
                      -> (forall s . ProjectTable (Beam.QField s) -> Beam.QAssignment backend s)
 fromUpdatableProject updatable project = mconcat . catMaybes $ [(project ^. #name <-.) . val_ <$> updatable ^. #name]

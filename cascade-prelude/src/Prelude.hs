@@ -17,6 +17,7 @@ import           Data.UUID                           ( UUID )
 import           Flow                                ( (!>)
                                                      , (<!)
                                                      , (<|)
+                                                     , apply
                                                      , (|>)
                                                      )
 import           Relude                       hiding ( id )

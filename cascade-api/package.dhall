@@ -7,7 +7,9 @@ let dependencies =
       , "cascade-prelude"
       , "chronos"
       , "containers"
+      , "cookie"
       , "generic-lens"
+      , "http-types"
       , "lens"
       , "polysemy"
       , "polysemy-plugin"
@@ -26,12 +28,10 @@ let cascade-api =
         , "beam-core"
         , "beam-postgres"
         , "chronos"
-        , "cookie"
         , "either"
         , "email-validate"
         , "generic-monoid"
         , "http-media"
-        , "http-types"
         , "libjwt-typed"
         , "relude"
         , "scrypt"
@@ -48,7 +48,8 @@ let cascade-api-test =
       , main = "Main.hs"
       , ghc-options = [ "-threaded", "-rtsopts", "-with-rtsopts=-N" ]
       , dependencies =
-        [ "cascade-api"
+        [ "binary"
+        , "cascade-api"
         , "directory"
         , "filepath"
         , "free"
@@ -70,6 +71,7 @@ let cascade-api-test =
         , "tmp-postgres"
         , "typed-process"
         , "validation-selective"
+        , "transformers-base"
         ]
       }
 

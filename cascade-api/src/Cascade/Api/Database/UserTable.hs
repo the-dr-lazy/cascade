@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.Task
+Module      : Cascade.Api.Database.UserTable
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,39 +10,40 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.Task (TaskTable(..), PrimaryKey(..), Row) where
+module Cascade.Api.Database.UserTable (UserTable(..), PrimaryKey(..), Row) where
 
-import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Data.WrappedC          as Wrapped
-import           Cascade.Api.Database.Project        ( ProjectTable )
-import qualified Cascade.Data.Text                  as Text
+import qualified Cascade.Api.Effect.Scrypt          as Scrypt
 import           Chronos                             ( OffsetDatetime )
-import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( Beamable
                                                      , C
-                                                     , PrimaryKey
                                                      , Table(..)
                                                      )
 
 -- brittany-disable-next-binding
-data TaskTable (f :: Type -> Type) = Row
-  { id         :: Wrapped.C f Task.Id
-  , title      :: Wrapped.C f Text.NonEmpty
-  , deadlineAt :: C f OffsetDatetime
-  , projectId  :: PrimaryKey ProjectTable f
+data UserTable (f :: Type -> Type) = Row
+  { id                :: Wrapped.C f User.Id
+  , username          :: Wrapped.C f User.Username
+  , emailAddress      :: Wrapped.C f User.EmailAddress
+  , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
+  , createdAt         :: C f OffsetDatetime
+  , updatedAt         :: C f OffsetDatetime
   }
   deriving stock Generic
   deriving anyclass Beamable
 
-instance Table TaskTable where
-  newtype PrimaryKey TaskTable f = PrimaryKey
-    { unPrimaryKey :: Wrapped.C f Task.Id
-    }
+instance Table UserTable where
+  newtype PrimaryKey UserTable f = PrimaryKey
+    { unPrimaryKey :: Wrapped.C f User.Id }
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
 
-type Row = TaskTable Identity
+deriving newtype instance Show (PrimaryKey UserTable Identity)
+deriving newtype instance Eq (PrimaryKey UserTable Identity)
+
+type Row = UserTable Identity
 
 deriving stock instance Show Row
 deriving stock instance Eq Row

@@ -26,7 +26,6 @@ import           Cascade.Api.Servant.Authentication  ( headerAndPayloadCookieNam
 import           Control.Lens                        ( (^.)
                                                      , _Wrapped'
                                                      )
-import qualified Data.ByteString                    as W8
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
@@ -63,20 +62,17 @@ mkLoginResponse (headerAndPayload, sig) = NoContent |> addHeader setHeaderAndPay
   setSignatureCookie        = mkSetSignatureCookie sig
 
 mkSetHeaderAndPayloadCookie :: ByteString -> SetCookie
-mkSetHeaderAndPayloadCookie value =
-  (defaultSetCookie { setCookieName     = headerAndPayloadCookieName
-                    , setCookieValue    = value
-                    , setCookieSecure   = True
-                    , setCookieSameSite = Just Cookie.sameSiteStrict
-                    }
-  )
+mkSetHeaderAndPayloadCookie value = defaultSetCookie { setCookieName     = headerAndPayloadCookieName
+                                                     , setCookieValue    = value
+                                                     , setCookieSecure   = True
+                                                     , setCookieSameSite = Just Cookie.sameSiteStrict
+                                                     }
+
 
 mkSetSignatureCookie :: ByteString -> SetCookie
-mkSetSignatureCookie value =
-  (defaultSetCookie { setCookieName     = signatureCookieName
-                    , setCookieValue    = value
-                    , setCookieHttpOnly = True
-                    , setCookieSecure   = True
-                    , setCookieSameSite = Just Cookie.sameSiteStrict
-                    }
-  )
+mkSetSignatureCookie value = defaultSetCookie { setCookieName     = signatureCookieName
+                                              , setCookieValue    = value
+                                              , setCookieHttpOnly = True
+                                              , setCookieSecure   = True
+                                              , setCookieSameSite = Just Cookie.sameSiteStrict
+                                              }

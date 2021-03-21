@@ -17,6 +17,7 @@ import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(.
                                                      )
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Hedgehog.Gen           as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
@@ -36,10 +37,12 @@ import           Control.Lens                        ( (%~)
                                                      , (^.)
                                                      , (^..)
                                                      , (^?)
+                                                     , asIndex
                                                      , at
                                                      , cons
                                                      , folded
                                                      , has
+                                                     , ifolded
                                                      , ix
                                                      , non
                                                      , sans
@@ -52,7 +55,7 @@ import qualified Hedgehog.Gen                       as Gen
 import           Servant.API.UVerb.Union             ( matchUnion )
 import           Test.Cascade.Api.StateMachine.Model ( Model )
 
-commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
+commands :: MonadGen g => MonadFail g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
   [ createValidForExistingProject
   , createValidForNonExistingProject
@@ -82,7 +85,7 @@ instance HTraversable Create where
 createValidForExistingProject :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createValidForExistingProject =
   let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
-      generator model = case model ^. #project . #creatables . to Map.keys of
+      generator model = case model ^.. #project . #byUsername . folded . ifolded . asIndex of
         []         -> Nothing
         projectIds -> Just $ do
           projectId  <- Gen.element projectIds
@@ -90,6 +93,9 @@ createValidForExistingProject =
           deadlineAt <- FormattedOffsetDatetime <$> Gen.deadline Valid
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
+
+      require :: Model Symbolic -> Create Symbolic -> Bool
+      require model Create { projectId } = model |> has (#project . #byUsername . folded . ix projectId)
 
       execute :: Create Concrete -> m Task.Id
       execute (Create projectId creatable) = do
@@ -111,7 +117,7 @@ createValidForExistingProject =
 
       update :: Ord1 v => Model v -> Create v -> Var Task.Id v -> Model v
       update model (Create projectId creatable) id = model |> #task . #byProjectId . at projectId . non Map.empty . at id ?~ creatable
-  in  Command generator execute [Update update]
+  in  Command generator execute [Require require, Update update]
 
 createValidForNonExistingProject :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createValidForNonExistingProject =
@@ -135,17 +141,16 @@ createValidForNonExistingProject =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
-createInvalid :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
+createInvalid :: forall g m . MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
 createInvalid =
   let generator :: Model Symbolic -> Maybe (g (Create Symbolic))
-      generator model = case model ^. #project . #creatables . to Map.keys of
+      generator model = case model ^.. #project . #byUsername . folded . ifolded . asIndex of
         []         -> Nothing
         projectIds -> Just $ do
-          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32
-          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) FormattedOffsetDatetime
-          projectId                        <- Gen.element projectIds
-          let validity = fold [titleValidity, deadlineAtValidity]
-          when (validity == Valid) Gen.discard
+          [titleValidity, deadlineAtValidity] <- Gen.replicateAtLeastOne Invalid 2
+          title                               <- Gen.nonEmptyText 32 titleValidity
+          deadlineAt                          <- FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          projectId                           <- Gen.element projectIds
           let creatable = Task.RawCreatable { .. }
           pure $ Create { .. }
 
@@ -186,7 +191,7 @@ getAllByProjectIdForExistingProject :: forall g m . MonadGen g => MonadIO m => M
 getAllByProjectIdForExistingProject =
   let
     generator :: Model Symbolic -> Maybe (g (GetAllByProjectId Symbolic))
-    generator model = case model ^. #project . #creatables . to Map.keys of
+    generator model = case model ^.. #project . #byUsername . folded . ifolded . asIndex of
       []         -> Nothing
       projectIds -> Just $ GetAllByProjectId <$> Gen.element projectIds
 
@@ -271,7 +276,7 @@ instance HTraversable GetById where
 getExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getExistingById =
   let generator :: Model Symbolic -> Maybe (g (GetById Symbolic))
-      generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
+      generator model = case model ^.. #task . #byProjectId . folded . ifolded . asIndex of
         []  -> Nothing
         ids -> Gen.element ids |> fmap GetById |> Just
 
@@ -366,17 +371,16 @@ updateExistingByIdValid =
         let creatable = updateCreatableTask updatable in model |> #task . #byProjectId . traversed %~ Map.adjust creatable id
   in  Command generator execute [Require require, Update update, Ensure ensure]
 
-updateExistingByIdInvalid :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
+updateExistingByIdInvalid :: forall g m . MonadGen g => MonadFail g => MonadIO m => MonadTest m => Command g m Model
 updateExistingByIdInvalid =
   let generator :: Model Symbolic -> Maybe (g (UpdateById Symbolic))
       generator model = case model ^.. #task . #byProjectId . folded . to Map.keys |> mconcat of
         []  -> Nothing
         ids -> Just $ do
-          (titleValidity     , title     ) <- Gen.nonEmptyTextWithValidity 32 |> (fmap . fmap) Just
-          (deadlineAtValidity, deadlineAt) <- Gen.deadlineWithValidity |> (fmap . fmap) (Just . FormattedOffsetDatetime)
-          id                               <- Gen.element ids
-          let validity = fold [titleValidity, deadlineAtValidity]
-          when (validity == Valid) Gen.discard
+          [titleValidity, deadlineAtValidity] <- Gen.replicateAtLeastOne Invalid 2
+          title                               <- Just <$> Gen.nonEmptyText 32 titleValidity
+          deadlineAt                          <- Just . FormattedOffsetDatetime <$> Gen.deadline deadlineAtValidity
+          id                                  <- Gen.element ids
           let updatable = Task.RawUpdatable { .. }
           pure $ UpdateById { .. }
 

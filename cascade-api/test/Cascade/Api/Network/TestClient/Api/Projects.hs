@@ -11,61 +11,62 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.TestClient.Api.Projects
-  ( CreateResponse
-  , GetAllResponse
-  , GetByIdResponse
+  ( GetByIdResponse
   , UpdateByIdResponse
   , DeleteByIdResponse
-  , create
-  , getAll
   , getById
   , updateById
   , deleteById
   , tasks
+  , testReadableVsCreatable
+  , updateCreatable
   ) where
 
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                     as Api.Projects
-
 import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
                                                     as Api.Projects.Tasks
-import           Cascade.Api.Network.TestClient      ( interpret )
+import           Cascade.Api.Network.TestClient      ( AuthToken
+                                                     , authenticated
+                                                     , interpret
+                                                     )
 import qualified Cascade.Api.Network.TestClient.Api as Client.Api
 import           Control.Lens                        ( (^.) )
 import           Control.Monad.Free                  ( Free )
 import           Data.Generics.Labels                ( )
-import           Prelude                      hiding ( getAll )
+import           Hedgehog                            ( (===)
+                                                     , Test
+                                                     )
 import           Servant.API                         ( Union )
 import           Servant.API.Generic                 ( fromServant )
 import           Servant.Client.Free                 ( ResponseF )
 import           Servant.Client.Free                 ( ClientF )
 import           Servant.Client.Generic              ( AsClientT )
 
-type CreateResponse = (ResponseF (Union Api.Projects.CreateResponse))
-
-type GetAllResponse = (ResponseF (Union Api.Projects.GetAllResponse))
-
 type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
+
+getById :: AuthToken -> Project.Id -> IO GetByIdResponse
+getById auth = interpret . flip go (authenticated auth) where go = Client.Api.projects ^. #getById
 
 type UpdateByIdResponse = (ResponseF (Union Api.Projects.UpdateByIdResponse))
 
+updateById :: AuthToken -> Project.Id -> Project.Updatable -> IO UpdateByIdResponse
+updateById auth id updatable = interpret $ go id updatable (authenticated auth) where go = Client.Api.projects ^. #updateById
+
 type DeleteByIdResponse = (ResponseF (Union Api.Projects.DeleteByIdResponse))
 
-create :: Project.Creatable -> IO CreateResponse
-create = interpret . go where go = Client.Api.projects ^. #create
-
-getAll :: IO GetAllResponse
-getAll = interpret go where go = Client.Api.projects ^. #getAll
-
-getById :: Project.Id -> IO GetByIdResponse
-getById = interpret . go where go = Client.Api.projects ^. #getById
-
-updateById :: Project.Id -> Project.Updatable -> IO UpdateByIdResponse
-updateById id updatable = interpret $ go id updatable where go = Client.Api.projects ^. #updateById
-
-deleteById :: Project.Id -> IO DeleteByIdResponse
-deleteById = interpret . go where go = Client.Api.projects ^. #deleteById
+deleteById :: AuthToken -> Project.Id -> IO DeleteByIdResponse
+deleteById auth = interpret . flip go (authenticated auth) where go = Client.Api.projects ^. #deleteById
 
 tasks :: Project.Id -> Api.Projects.Tasks.Routes (AsClientT (Free ClientF))
 tasks projectId = fromServant (Client.Api.projects ^. #tasks $ projectId)
+
+testReadableVsCreatable :: Project.Readable -> Project.Creatable -> Test ()
+testReadableVsCreatable readable creatable = mkCreatableFromReadable readable === creatable
+
+mkCreatableFromReadable :: Project.Readable -> Project.Creatable
+mkCreatableFromReadable Project.Readable {..} = Project.Creatable { .. }
+
+updateCreatable :: Project.Updatable -> Project.Creatable -> Project.Creatable
+updateCreatable updatable Project.Creatable {..} = Project.Creatable { name = fromMaybe name $ updatable ^. #name }

@@ -37,6 +37,7 @@ handleCreate = validation (respond . Response.Unprocessable) go . parseRawCreata
   go :: Members '[Database.UserL , ScryptL] r => User.ParsedCreatable -> Sem r (Union CreateResponse)
   go creatable = do
     hasConflict <- Database.User.doesExistsByUsernameOrEmailAddress (creatable ^. #username) (creatable ^. #emailAddress)
+    -- FIXME: boolean blindness
     if hasConflict then respond Response.Conflict else (respond . Response.Created) =<< Database.User.create creatable
 
 server :: Members '[Database.UserL , ScryptL] r => ToServant Routes (AsServerT (Sem r))

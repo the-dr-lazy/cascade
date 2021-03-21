@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api (projects, tasks, users, authentication) where
+module Cascade.Api.Network.TestClient.Api (projects, users, authentication, user, tasks) where
 
 import qualified Cascade.Api.Network.Anatomy.Api.Authentication
                                                     as Api.Authentication
@@ -18,6 +18,8 @@ import qualified Cascade.Api.Network.Anatomy.Api.Projects
                                                     as Api.Projects
 import qualified Cascade.Api.Network.Anatomy.Api.Tasks
                                                     as Api.Tasks
+import qualified Cascade.Api.Network.Anatomy.Api.User
+                                                    as Api.User
 import qualified Cascade.Api.Network.Anatomy.Api.Users
                                                     as Api.Users
 import qualified Cascade.Api.Network.TestClient     as Client
@@ -38,3 +40,6 @@ users = fromServant $ Client.api ^. #users
 
 authentication :: Api.Authentication.Routes (AsClientT (Free ClientF))
 authentication = fromServant $ Client.api ^. #authentication
+
+user :: Api.User.Routes (AsClientT (Free ClientF))
+user = fromServant $ Client.api ^. #user
