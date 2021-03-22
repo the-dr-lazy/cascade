@@ -15,15 +15,15 @@ module Cascade.Api.Network.Anatomy.Api.Projects.Tasks (Routes(..), CreateRespons
 import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Data.Validation            as Validation
 import           Data.Generics.Labels                ( )
-import           Cascade.Data.Validation             ( Phase(..) )
 
-type CreateResponse = '[Response.Created Task.Readable , Response.Unprocessable Task.RawCreatableValidationErrors , Response.NotFound]
+type CreateResponse = '[Response.Created Task.Readable , Response.Unprocessable (Task.Creatable 'Validation.Error) , Response.NotFound]
 
 type GetAllByProjectIdResponse = '[Response.Ok [Task.Readable] , Response.NotFound]
 
 data Routes route = Routes
-  { create            :: route :- ReqBody '[JSON] (Task.Creatable 'Raw) :> Post '[JSON] CreateResponse
+  { create            :: route :- ReqBody '[JSON] (Task.Creatable 'Validation.Raw) :> Post '[JSON] CreateResponse
   , getAllByProjectId :: route :- Get '[JSON] GetAllByProjectIdResponse
   }
   deriving stock Generic

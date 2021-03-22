@@ -10,9 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, ValidationError(..), un, mk) where
+module Cascade.Api.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, Error(..), un, mk, parse) where
 
-import           Cascade.Data.Validation
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
+                                                    as Aeson
+import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
@@ -31,19 +33,17 @@ pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
 
-data ValidationError = IsInvalid
+data Error = IsInvalid
   deriving stock (Generic, Data, Show)
-  deriving ToJSON via (ApiErrorFormat ValidationError)
+  deriving ToJSON via Aeson.FieldErrorFormat Error
+  deriving FromJSON via Aeson.FieldErrorFormat Error
 
-instance Validation.ToMessage ValidationError where
-  toMessage IsInvalid = "invalid email address"
+type Errors = NonEmpty Error
 
-type ValidationErrors = NonEmpty ValidationError
+type instance Validation.Errors Text EmailAddress = Errors
 
 mk :: Text -> Maybe EmailAddress
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8
 
-instance Validatable Text EmailAddress where
-  type Errors Text EmailAddress = ValidationErrors
-
-  parse = pure . maybeToSuccess (IsInvalid :| []) . mk
+parse :: Text -> Validation Errors EmailAddress
+parse = Validation.maybeToSuccess (IsInvalid :| []) . mk

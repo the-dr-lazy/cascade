@@ -18,6 +18,7 @@ import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Data.Validation            as Validation
 import           Polysemy                            ( Member
                                                      , Members
                                                      , Sem
@@ -28,15 +29,14 @@ import           Servant.Server.Generic              ( AsServerT
                                                      , genericServerT
                                                      )
 import           Validation                          ( validation )
-import           Cascade.Data.Validation             ( Phase(..) )
 
 handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
 handleGetById id = Database.Task.findById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleUpdateById :: Members '[TaskL , TimeL] r => Task.Id -> Task.Updatable 'Raw -> Sem r (Union UpdateByIdResponse)
-handleUpdateById id updatable = Task.parseRawUpdatableTask updatable >>= validation (respond . Response.Unprocessable) go
+handleUpdateById :: Members '[TaskL , TimeL] r => Task.Id -> Task.Updatable 'Validation.Raw -> Sem r (Union UpdateByIdResponse)
+handleUpdateById id updatable = Task.parseRawUpdatable updatable >>= validation (respond . Response.Unprocessable) go
  where
-  go :: Members '[TaskL , TimeL] r => Task.Updatable 'Parsed -> Sem r (Union UpdateByIdResponse)
+  go :: Members '[TaskL , TimeL] r => Task.Updatable 'Validation.Parsed -> Sem r (Union UpdateByIdResponse)
   go parsedUpdatable = Database.Task.updateById id parsedUpdatable >>= maybe (respond Response.notFound) (respond . Response.ok)
 
 handleDeleteById :: Member TaskL r => Task.Id -> Sem r (Union DeleteByIdResponse)

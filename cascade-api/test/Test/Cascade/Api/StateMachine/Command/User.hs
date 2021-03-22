@@ -19,7 +19,7 @@ import qualified Cascade.Api.Network.TestClient.Api.Users
                                                     as Cascade.Api.Users
 import           Cascade.Api.Test.Prelude            ( )
 import qualified Cascade.Data.Char                  as Char
-import           Cascade.Data.Validation             ( Phase(..) )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (?~)
                                                      , (^.)
                                                      , _2
@@ -39,7 +39,7 @@ commands = [createNotExisting, createExisting]
 -- brittany-disable-next-binding
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
   { validity  :: Validity
-  , creatable :: User.Creatable 'Raw
+  , creatable :: User.Creatable 'Validation.Raw
   }
   deriving stock (Generic, Show)
 
@@ -103,7 +103,7 @@ createNotExisting =
 
 -- brittany-disable-next-binding
 newtype CreateExisting (v :: Type -> Type) = CreateExisting
-  { creatable :: User.Creatable 'Raw }
+  { creatable :: User.Creatable 'Validation.Raw }
   deriving stock Show
 
 instance HTraversable CreateExisting where

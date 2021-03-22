@@ -13,24 +13,29 @@ Portability : POSIX
 {-# LANGUAGE UndecidableInstances #-}
 module Cascade.Api.Data.Authentication (Credential(..), parseRawCredential) where
 
+import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
+                                                    as Aeson
+import qualified Cascade.Api.Data.ByteString.Password
+                                                    as Password
+import qualified Cascade.Api.Data.Text.Username     as Username
 import qualified Cascade.Api.Data.User              as User
-import           Cascade.Data.Validation
+import           Cascade.Data.Validation             ( Validate
+                                                     , Validation
+                                                     )
+import qualified Cascade.Data.Validation            as Validation
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import qualified Polysemy
 
 -- brittany-disable-next-binding
-data Credential (v :: Phase) = Credential
-  { username :: Validate v Text User.Username
-  , password :: Validate v Text User.Password
+data Credential (p :: Validation.Phase) = Credential
+  { username :: Validate p Text User.Username
+  , password :: Validate p Text User.Password
   }
-  deriving stock (Generic)
+  deriving stock Generic
 
-deriving via (Generically (Credential 'Parsed)) instance Validatable (Credential 'Raw) (Credential 'Parsed)
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance ToJSON (Credential 'Validation.Raw)
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance FromJSON (Credential 'Validation.Raw)
 
-deriving anyclass instance ToJSON (Credential 'Raw)
-deriving anyclass instance FromJSON (Credential 'Raw)
-
-parseRawCredential :: Credential 'Raw -> Validation () (Credential 'Parsed)
-parseRawCredential = first mempty . Polysemy.run . validate
+parseRawCredential :: Credential 'Validation.Raw -> Validation () (Credential 'Validation.Parsed)
+parseRawCredential = first mempty . Validation.parseRecord Credential { username = Username.mk, password = Password.mk }

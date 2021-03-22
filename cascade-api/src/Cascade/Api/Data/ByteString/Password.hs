@@ -10,15 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.ByteString.Password (Password, pattern Password, ValidationError(..), ValidationErrors, mk, un) where
+module Cascade.Api.Data.ByteString.Password (Password, pattern Password, Error(..), Errors, mk, un) where
 
-import           Cascade.Data.Validation
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
+                                                    as Aeson
+import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Selective                   ( ifS )
-import           Data.Aeson                          ( ToJSON )
-import           Data.Data                           ( Data )
+import           Data.Aeson                          ( FromJSON
+                                                     , ToJSON
+                                                     )
 import qualified Data.Text                          as Text
-import qualified Polysemy
 
 newtype Password = Mk
   { un :: ByteString }
@@ -28,23 +30,19 @@ pattern Password :: ByteString -> Password
 pattern Password a <- Mk a
 {-# COMPLETE Password #-}
 
-data ValidationError
+data Error
   = IsEmpty
   | IsShort
-  deriving stock (Generic, Data, Show)
-  deriving ToJSON via (ApiErrorFormat ValidationError)
+  deriving stock (Generic, Show)
+  deriving ToJSON via Aeson.FieldErrorFormat Error
+  deriving FromJSON via Aeson.FieldErrorFormat Error
 
-instance Validation.ToMessage ValidationError where
-  toMessage = \case
-    IsEmpty -> "can't be empty"
-    IsShort -> "should have at least 8 characters"
+type Errors = NonEmpty Error
 
-type ValidationErrors = NonEmpty ValidationError
+type instance Validation.Errors Text Password = Errors
 
-mk :: Text -> Validation ValidationErrors Password
-mk = Polysemy.run . validate
+mk :: Text -> Validation Errors Password
+mk input = Mk (encodeUtf8 input) <$ validate input
 
-instance Validatable Text Password where
-  type Errors Text Password = ValidationErrors
-
-  parse input = pure $ Mk (encodeUtf8 input) <$ ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)
+validate :: Text -> Validation Errors ()
+validate input = ifS (pure $ Text.null input) (Validation.failure IsEmpty) (Validation.failureIf (Text.length input < 8) IsShort)

@@ -16,12 +16,11 @@ import qualified Cascade.Api.Data.User              as User
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Api.Servant.Response       as Response
 import qualified Cascade.Data.Validation            as Validation
-import           Cascade.Data.Validation             ( Phase(..) )
 import           Data.Generics.Labels                ( )
 
-type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable User.RawCreatableValidationErrors]
+type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable (User.Creatable 'Validation.Error)]
 
 data Routes route = Routes
-  { create :: route :- ReqBody '[JSON] (User.Creatable 'Raw) :> Post '[JSON] CreateResponse
+  { create :: route :- ReqBody '[JSON] (User.Creatable 'Validation.Raw) :> Post '[JSON] CreateResponse
   }
   deriving stock Generic

@@ -10,20 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.Username (Username, ValidationError(..), ValidationErrors, pattern Username, un, mk) where
+module Cascade.Api.Data.Text.Username (Username, Error(..), Errors, pattern Username, un, mk) where
 
 
 import qualified Cascade.Data.Char                  as Char
-import           Cascade.Data.Validation
+import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens.TH                     ( makeWrapped )
 import           Control.Selective                   ( ifS )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Data.Data                           ( Data )
+
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
+                                                    as Aeson
 import qualified Data.Text                          as Text
-import qualified Polysemy
 
 newtype Username = Mk
   { un :: Text }
@@ -35,31 +36,28 @@ pattern Username :: Text -> Username
 pattern Username a <- Mk a
 {-# COMPLETE Username #-}
 
-data ValidationError
+data Error
   = IsEmpty
   | IsShort
   | IsLong
   | IsInvalid
-  deriving stock (Generic, Data, Show)
-  deriving ToJSON via (ApiErrorFormat ValidationError)
+  deriving stock (Generic, Show)
+  deriving ToJSON via Aeson.FieldErrorFormat Error
+  deriving FromJSON via Aeson.FieldErrorFormat Error
 
-instance Validation.ToMessage ValidationError where
-  toMessage = \case
-    IsEmpty   -> "can't be empty"
-    IsShort   -> "should have at least 8 characters"
-    IsLong    -> "should not exceed 20 characters"
-    IsInvalid -> "invalid characters"
+type Errors = NonEmpty Error
 
-type ValidationErrors = NonEmpty ValidationError
+mk :: Text -> Validation Errors Username
+mk input = Mk input <$ validate input
 
-mk :: Text -> Validation ValidationErrors Username
-mk = Polysemy.run . validate
+type instance Validation.Errors Text Username = Errors
 
-instance Validatable Text Username where
-  type Errors Text Username = ValidationErrors
-
-  parse input = pure $ Mk input <$ ifS
-    (pure $ Text.null input)
-    (failure IsEmpty)
-    (failureIf (l > 20) IsLong *> failureIf (l < 8) IsShort *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid)
-    where l = Text.length input
+validate :: Text -> Validation Errors ()
+validate input = ifS
+  (pure $ Text.null input)
+  (Validation.failure IsEmpty)
+  (  Validation.failureIf (l > 20) IsLong
+  *> Validation.failureIf (l < 8) IsShort
+  *> Validation.failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid
+  )
+  where l = Text.length input

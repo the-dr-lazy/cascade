@@ -15,7 +15,7 @@ module Test.Cascade.Api.StateMachine.Model (Model, initialModel) where
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.User              as User
-import           Cascade.Data.Validation             ( Phase(..) )
+import qualified Cascade.Data.Validation            as Validation
 import           Data.Generics.Labels                ( )
 import qualified Data.Map.Strict                    as Map
 import           Hedgehog.Internal.State             ( Var )
@@ -43,14 +43,14 @@ data ProjectModel (v :: Type -> Type) = ProjectModel
 
 -- brittany-disable-next-binding
 data UserModel (v :: Type -> Type) = UserModel
-  { byUsername     :: Map Text (User.Creatable 'Raw)
-  , byEmailAddress :: Map Text (User.Creatable 'Raw)
+  { byUsername     :: Map Text (User.Creatable 'Validation.Raw)
+  , byEmailAddress :: Map Text (User.Creatable 'Validation.Raw)
   }
   deriving stock Generic
 
 -- brittany-disable-next-binding
 data TaskModel (v :: Type -> Type) = TaskModel
-  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) (Task.Creatable 'Raw))
+  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) (Task.Creatable 'Validation.Raw))
   , notExistingIds :: [Var Task.Id v]
   }
   deriving stock Generic

@@ -23,7 +23,7 @@ import           Cascade.Api.Network.Anatomy.Api.Authentication
 import           Cascade.Api.Servant.Authentication  ( headerAndPayloadCookieName
                                                      , signatureCookieName
                                                      )
-import           Cascade.Data.Validation             ( Phase(..) )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , _Wrapped'
                                                      )
@@ -43,10 +43,10 @@ import           Validation                          ( validation )
 import           Web.Cookie
 import qualified Web.Cookie                         as Cookie
 
-handleLogin :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Raw -> Sem r LoginResponse
-handleLogin = validation (const $ throw err422) go . parseRawCredential
+handleLogin :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Validation.Raw -> Sem r LoginResponse
+handleLogin = validation (const $ throw err422) go . Authentication.parseRawCredential
  where
-  go :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Parsed -> Sem r LoginResponse
+  go :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Validation.Parsed -> Sem r LoginResponse
   go credential = Database.User.findByUsername (credential ^. #username) >>= maybe
     (throw err401)
     \user -> do

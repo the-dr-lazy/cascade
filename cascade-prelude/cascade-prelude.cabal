@@ -111,7 +111,6 @@ library
                        Cascade.Data.Text.NonEmpty
                        Cascade.Data.Chronos.Future
                        Cascade.Data.Validation
-                       Cascade.Polysemy
   build-depends:       base-noprelude
                      , containers
                      , flow

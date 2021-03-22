@@ -12,46 +12,46 @@ Portability : POSIX
 
 module Test.Cascade.Api.StateMachine.Command.Task (commands) where
 
-import           Cascade.Api.Test.Prelude
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.Task              as Task
 import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..)
                                                      , unFormattedOffsetDatetime
                                                      )
-import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
+import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.Task              as Task
+import qualified Cascade.Api.Data.Text.Title        as Title
 import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
 import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
+import           Cascade.Api.Hedgehog.Gen.Prelude
+import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects.Tasks
                                                     as Cascade.Api.Projects.Tasks
 import qualified Cascade.Api.Network.TestClient.Api.Tasks
                                                     as Cascade.Api.Tasks
-import           Control.Lens                        ( (?~)
-                                                     , (^.)
-                                                     , (^..)
-                                                     , (%~)
-                                                     , (^?)
-                                                     , at
-                                                     , to
-                                                     , folded
-                                                     , traversed
-                                                     , cons
-                                                     , sans
-                                                     , non
-                                                     , ix
-                                                     , has
-                                                     )
-import           Servant.API.UVerb.Union             ( matchUnion )
-import qualified Data.Map                           as Map
-import qualified Cascade.Data.Text                  as Text
-import qualified Cascade.Api.Data.Text.Title        as Title
-import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Test.Cascade.Api.StateMachine.Model ( Model )
 import qualified Cascade.Api.Servant.Response       as Response
+import           Cascade.Api.Test.Prelude
+import qualified Cascade.Data.Text                  as Text
+import qualified Cascade.Data.Validation            as Validation
 import qualified Chronos
 import           Chronos                             ( offsetDatetimeToTime )
-import           Cascade.Data.Validation             ( Phase(..) )
+import           Control.Lens                        ( (%~)
+                                                     , (?~)
+                                                     , (^.)
+                                                     , (^..)
+                                                     , (^?)
+                                                     , at
+                                                     , cons
+                                                     , folded
+                                                     , has
+                                                     , ix
+                                                     , non
+                                                     , sans
+                                                     , to
+                                                     , traversed
+                                                     )
+import qualified Data.Map                           as Map
+import           Hedgehog
+import qualified Hedgehog.Gen                       as Gen
+import           Servant.API.UVerb.Union             ( matchUnion )
+import           Test.Cascade.Api.StateMachine.Model ( Model )
 
 commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
@@ -73,7 +73,7 @@ commands =
 -- brittany-disable-next-binding
 data Create (v :: Type -> Type) = Create
   { projectId  :: Var Project.Id v
-  , creatable  :: Task.Creatable 'Raw
+  , creatable  :: Task.Creatable 'Validation.Raw
   }
   deriving stock (Generic, Show)
 
@@ -169,7 +169,7 @@ createInvalid =
       ensure _before _after _input response = do
         footnoteShow response
 
-        (response ^. #responseBody) |> matchUnion @(Response.Unprocessable Task.RawCreatableValidationErrors) |> evalMaybe
+        (response ^. #responseBody) |> matchUnion @(Response.Unprocessable (Task.Creatable Validation.Error)) |> evalMaybe
 
         response ^. #responseStatusCode . #statusCode === 422
   in  Command generator execute [Ensure ensure]
@@ -319,7 +319,7 @@ getNotExistingById =
 -- brittany-disable-next-binding
 data UpdateById (v :: Type -> Type) = UpdateById
   { id :: Var Task.Id v
-  , updatable :: Task.Updatable 'Raw
+  , updatable :: Task.Updatable 'Validation.Raw
   }
   deriving stock (Generic, Show)
 
@@ -393,7 +393,7 @@ updateExistingByIdInvalid =
       ensure _before _after _input response = do
         footnoteShow response
 
-        (response ^. #responseBody) |> matchUnion @(Response.Unprocessable Task.RawUpdatableValidationErrors) |> evalMaybe
+        (response ^. #responseBody) |> matchUnion @(Response.Unprocessable (Task.Updatable Validation.Error)) |> evalMaybe
 
         response ^. #responseStatusCode . #statusCode === 422
   in  Command generator execute [Require require, Ensure ensure]
@@ -474,11 +474,11 @@ deleteNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
-updateCreatableTask :: Task.Updatable 'Raw -> Task.Creatable 'Raw -> Task.Creatable 'Raw
+updateCreatableTask :: Task.Updatable 'Validation.Raw -> Task.Creatable 'Validation.Raw -> Task.Creatable 'Validation.Raw
 updateCreatableTask updatable Task.Creatable {..} =
   Task.Creatable { title = fromMaybe title $ updatable ^. #title, deadlineAt = fromMaybe deadlineAt $ updatable ^. #deadlineAt }
 
-checkEqReadableRawCreatableTask :: (MonadTest m, HasCallStack) => Task.Readable -> Task.Creatable 'Raw -> m ()
+checkEqReadableRawCreatableTask :: (MonadTest m, HasCallStack) => Task.Readable -> Task.Creatable 'Validation.Raw -> m ()
 checkEqReadableRawCreatableTask task creatable = do
   task ^. #title . to Title.un === creatable ^. #title
   (task ^. #deadlineAt . to unFormattedOffsetDatetime . to offsetDatetimeToTime)

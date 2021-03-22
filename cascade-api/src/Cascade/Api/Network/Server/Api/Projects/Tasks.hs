@@ -12,16 +12,17 @@ Portability : POSIX
 
 module Cascade.Api.Network.Server.Api.Projects.Tasks (server) where
 
-import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Effect.Database.Task   as Database.Task
+import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
-import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Database.Project ( ProjectL )
+import qualified Cascade.Api.Effect.Database.Task   as Database.Task
+import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Data.Validation            as Validation
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
@@ -31,12 +32,11 @@ import           Servant.Server.Generic              ( AsServerT
                                                      , genericServerT
                                                      )
 import           Validation                          ( validation )
-import           Cascade.Data.Validation             ( Phase(..) )
 
-handleCreate :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> Task.Creatable 'Raw -> Sem r (Union CreateResponse)
-handleCreate projectId creatable = Task.parseRawCreatableTask creatable >>= validation (respond . Response.Unprocessable) go
+handleCreate :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> Task.Creatable 'Validation.Raw -> Sem r (Union CreateResponse)
+handleCreate projectId creatable = Task.parseRawCreatable creatable >>= validation (respond . Response.Unprocessable) go
  where
-  go :: Members '[TaskL , ProjectL , TimeL] r => Task.Creatable 'Parsed -> Sem r (Union CreateResponse)
+  go :: Members '[TaskL , ProjectL , TimeL] r => Task.Creatable 'Validation.Parsed -> Sem r (Union CreateResponse)
   go parsedCreatable = do
     projectExists <- Database.Project.doesExistsById projectId
     if projectExists then Database.Task.create parsedCreatable projectId >>= respond . Response.created else respond Response.notFound

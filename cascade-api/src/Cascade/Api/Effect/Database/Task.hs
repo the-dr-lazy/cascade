@@ -12,25 +12,29 @@ Portability : POSIX
 
 module Cascade.Api.Effect.Database.Task (TaskL(..), findByProjectId, findById, create, updateById, deleteById, run) where
 
+import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
+import qualified Cascade.Api.Data.OffsetDatetime.Deadline
+                                                    as Deadline
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
+import qualified Cascade.Api.Data.Text.Title        as Title
 import           Cascade.Api.Data.WrappedC
+import qualified Cascade.Api.Database.Project       as Database.Project
 import           Cascade.Api.Database.Task           ( TaskTable )
 import qualified Cascade.Api.Database.Task          as Database.Task
-import qualified Cascade.Api.Database.Project       as Database.Project
 import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , to
                                                      )
 import           Database.Beam                       ( (<-.)
                                                      , (==.)
                                                      , default_
+                                                     , filter_
                                                      , insertExpressions
                                                      , select
                                                      , val_
-                                                     , filter_
                                                      )
 import qualified Database.Beam                      as Beam
 import           Database.Beam.Backend               ( BeamSqlBackend
@@ -43,16 +47,12 @@ import           Polysemy                            ( Member
                                                      )
 import qualified Relude.Unsafe                      as Unsafe
                                                      ( fromJust )
-import qualified Cascade.Api.Data.OffsetDatetime.Deadline
-                                                    as Deadline
-import qualified Cascade.Api.Data.Text.Title        as Title
-import           Cascade.Data.Validation             ( Phase(..) )
 
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
   FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
-  Create          ::Task.Creatable 'Parsed -> Project.Id -> TaskL m Task.Readable
-  UpdateById      ::Task.Id -> Task.Updatable 'Parsed -> TaskL m (Maybe Task.Readable)
+  Create          ::Task.Creatable 'Validation.Parsed -> Project.Id -> TaskL m Task.Readable
+  UpdateById      ::Task.Id -> Task.Updatable 'Validation.Parsed -> TaskL m (Maybe Task.Readable)
   DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
@@ -96,7 +96,7 @@ toReadableTask Database.Task.Row {..} =
 fromParsedCreatableTask :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
                         => Project.Id
-                        -> Task.Creatable 'Parsed
+                        -> Task.Creatable 'Validation.Parsed
                         -> TaskTable (Beam.QExpr backend s)
 fromParsedCreatableTask projectId creatable = Database.Task.Row { id         = default_
                                                                 , title      = creatable ^. #title . to coerce . to val_
@@ -106,7 +106,7 @@ fromParsedCreatableTask projectId creatable = Database.Task.Row { id         = d
 
 fromParsedUpdatableTask :: BeamSqlBackend backend
                         => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
-                        => Task.Updatable 'Parsed
+                        => Task.Updatable 'Validation.Parsed
                         -> (forall s . TaskTable (Beam.QField s) -> Beam.QAssignment backend s)
 fromParsedUpdatableTask updatable task =
   mconcat
