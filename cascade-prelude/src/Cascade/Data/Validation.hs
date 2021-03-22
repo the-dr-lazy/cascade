@@ -45,13 +45,7 @@ parseRecord (from -> parser) (from -> raw) = bimap to to <| genericParseRecord p
 class GenericParseRecord parser raw error parsed where
   genericParseRecord :: parser p -> raw p -> Validation (error p) (parsed p)
 
-instance GenericParseRecord parser raw error parsed => GenericParseRecord (D1 m parser) (D1 m raw) (D1 m error) (D1 m parsed) where
-  genericParseRecord (M1 f) (M1 x) = bimap M1 M1 (genericParseRecord f x)
-
-instance GenericParseRecord parser raw error parsed => GenericParseRecord (C1 m parser) (C1 m raw) (C1 m error) (C1 m parsed) where
-  genericParseRecord (M1 f) (M1 x) = bimap M1 M1 (genericParseRecord f x)
-
-instance GenericParseRecord parser raw error parsed => GenericParseRecord (S1 m parser) (S1 m raw) (S1 m error) (S1 m parsed) where
+instance GenericParseRecord parser raw error parsed => GenericParseRecord (M1 i m parser) (M1 i m raw) (M1 i m error) (M1 i m parsed) where
   genericParseRecord (M1 f) (M1 x) = bimap M1 M1 (genericParseRecord f x)
 
 instance GenericParseRecord (Rec0 (raw -> Validation error parsed)) (Rec0 (Maybe raw)) (Rec0 (Maybe error)) (Rec0 (Maybe parsed)) where
