@@ -1,3 +1,15 @@
+{-|
+Module      : Cascade.Api.Data.Text.Title
+Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
+Copyright   : (c) 2020-2021 Cascade
+License     : MPL 2.0
+Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
+Stability   : Stable
+Portability : POSIX
+
+!!! INSERT MODULE LONG DESCRIPTION !!!
+-}
+
 module Cascade.Api.Data.Text.Title (Title(..), mk, parse) where
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
@@ -9,7 +21,6 @@ import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Data.Data                           ( Data )
 
 newtype Title = Mk
   { un :: Text }
@@ -25,7 +36,7 @@ mk t = case Text.NonEmpty.mk t of
   Nothing -> Nothing
 
 data Error = IsEmpty
-  deriving stock (Generic, Data, Show)
+  deriving stock (Generic, Show)
   deriving (ToJSON, FromJSON) via (Aeson.FieldErrorFormat Error)
 
 type Errors = NonEmpty Error

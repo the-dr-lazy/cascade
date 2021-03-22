@@ -19,6 +19,7 @@ import qualified Cascade.Api.Effect.Database.Project
 import           Cascade.Api.Effect.Database.Project ( ProjectL )
 import qualified Cascade.Api.Effect.Database.Task   as Database.Task
 import           Cascade.Api.Effect.Database.Task    ( TaskL )
+import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
@@ -39,11 +40,13 @@ handleCreate projectId creatable = Task.parseRawCreatable creatable >>= validati
   go :: Members '[TaskL , ProjectL , TimeL] r => Task.Creatable 'Validation.Parsed -> Sem r (Union CreateResponse)
   go parsedCreatable = do
     projectExists <- Database.Project.doesExistsById projectId
+    -- FIXME: boolean blindness
     if projectExists then Database.Task.create parsedCreatable projectId >>= respond . Response.created else respond Response.notFound
 
 handleGetAllByProjectId :: Members '[TaskL , ProjectL] r => Project.Id -> Sem r (Union GetAllByProjectIdResponse)
 handleGetAllByProjectId projectId = do
   projectExists <- Database.Project.doesExistsById projectId
+  -- FIXME: boolean blindness
   if projectExists then Database.Task.findByProjectId projectId >>= respond . Response.ok else respond Response.notFound
 
 server :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> ToServant Routes (AsServerT (Sem r))

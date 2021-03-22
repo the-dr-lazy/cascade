@@ -1,208 +1,248 @@
-cabal-version:       2.4
-name:                cascade-api
-version:             0.0.0.0
-synopsis:            Cascade Web API
-description:         Cascade Web API
-license:             MPL-2.0
-license-file:        LICENSE
-author:              Mohammad Hasani
-maintainer:          Mohammad Hasani <the-dr-lazy@pm.me>
-copyright:           2021 Mohammad Hasani
-category:            Web
-build-type:          Custom
-extra-doc-files:     CHANGELOG.md
-tested-with:         GHC == 8.8.4
+cabal-version: 1.18
 
-common common-options
-  build-depends:       aeson
-                     , base-noprelude
-                     , bytestring
-                     , cascade-prelude
-                     , containers
-                     , generic-lens
-                     , lens
-                     , polysemy
-                     , polysemy-plugin
-                     , postgresql-simple
-                     , servant
-                     , text
-                     , uuid
-                     , word8
+-- This file has been generated from package.dhall by hpack version 0.34.3.
+--
+-- see: https://github.com/sol/hpack
 
-  default-language:    Haskell2010
-  -- Based on
-  -- https://lexi-lambda.github.io/blog/2018/02/10/an-opinionated-guide-to-haskell-in-2018/
-  --
-  -- Trivial lifting of standards-imposed limitations
-  default-extensions:  EmptyCase
-                       FlexibleContexts
-                       FlexibleInstances
-                       InstanceSigs
-                       MultiParamTypeClasses
-                       -- Syntactic conveniences
-                       LambdaCase
-                       MultiWayIf
-                       NamedFieldPuns
-                       TupleSections
-                       ApplicativeDo
-                       PatternSynonyms
-                       BangPatterns
-                       KindSignatures
-                       TypeOperators
-                       DefaultSignatures
-                       Arrows
-                       BlockArguments
-                       RecordWildCards
-                       -- Extensions to the deriving mechanism
-                       DeriveFoldable
-                       DeriveFunctor
-                       DeriveGeneric
-                       DeriveLift
-                       DeriveDataTypeable
-                       DeriveTraversable
-                       DeriveAnyClass
-                       DerivingVia
-                       DerivingStrategies
-                       GeneralizedNewtypeDeriving
-                       StandaloneDeriving
-                       -- Polymorphic string literals
-                       OverloadedStrings
-                       -- Extensions to aid type annotation
-                       ScopedTypeVariables
-                       TypeApplications
-                       -- Extensions to the Haskell type system
-                       ConstraintKinds
-                       RankNTypes
-                       GADTs
-                       ExistentialQuantification
-                       FunctionalDependencies
-                       DataKinds
-                       PolyKinds
-                       TypeFamilies
-                       TypeFamilyDependencies
-                       -- Extension to boilerplate generation
-                       TemplateHaskell
-                       -- Extensions to the generic-lens!
-                       DuplicateRecordFields
-                       OverloadedLabels
-                       -- Make laziness your power
-                       StrictData
-  -- For details on warnings:
-  -- https://downloads.haskell.org/~ghc/master/users-guide/using-warnings.html
-  -- This list taken from https://medium.com/mercury-bank/enable-all-the-warnings-a0517bc081c3#
-  -- Enable all warnings with -Weverything, then disable the ones we don’t care about
-  ghc-options:         -Weverything
-                       -- missing-exported-signatures turns off the more strict -Wmissing-signatures.
-                       -- See https://ghc.haskell.org/trac/ghc/ticket/14794#ticket
-                       -Wno-missing-exported-signatures
-                       -- Requires explicit imports of _every_ function (e.g. ‘$’); too strict
-                       -Wno-missing-import-lists
-                       -- Don't warn implicit prelude
-                       -Wno-implicit-prelude
-                       -- When GHC can’t specialize a polymorphic function. No big deal and requires fixing underlying libraries to solve.
-                       -Wno-missed-specialisations
-                       -- See missed-specialisations
-                       -Wno-all-missed-specialisations
-                       -- Don’t use Safe Haskell warnings
-                       -Wno-unsafe
-                       -Wno-safe
-                       -- Warning for polymorphic local bindings; nothing wrong with those.
-                       -Wno-missing-local-signatures
-                       -- Don’t warn if the monomorphism restriction is used
-                       -Wno-monomorphism-restriction
-
-
-custom-setup
-  setup-depends:       base
-                     , autopack
+name:           cascade-api
+version:        0.0.0
+synopsis:       Cascade Web API
+description:    Cascade Web API
+category:       Web
+author:         Mohammad Hasani <the-dr-lazy@pm.me>
+maintainer:     Mohammad Hasani <the-dr-lazy@pm.me>
+copyright:      2021 Mohammad Hasani
+license:        MPL-2.0
+license-file:   LICENSE
+build-type:     Simple
+tested-with:
+    GHC == 8.8.4
+extra-source-files:
+    package.dhall
+extra-doc-files:
+    CHANGELOG.md
 
 library
-  import:              common-options
-  hs-source-dirs:      src
-  build-depends:       attoparsec
-                     , beam-core
-                     , beam-postgres
-                     , chronos
-                     , cookie
-                     , either
-                     , email-validate
-                     , generic-monoid
-                     , http-media
-                     , http-types
-                     , libjwt-typed
-                     , relude
-                     , scrypt
-                     , selective
-                     , servant-server
-                     , typerep-map
-                     , validation-selective
-                     , wai
-                     , warp
-
-  -- Enable polysemy-plugin
-  ghc-options:         -fplugin=Polysemy.Plugin
+  exposed-modules:
+      Cascade.Api
+      Cascade.Api.Data.Aeson.FieldErrorFormat
+      Cascade.Api.Data.Aeson.RecordErrorFormat
+      Cascade.Api.Data.Authentication
+      Cascade.Api.Data.ByteString.Password
+      Cascade.Api.Data.Id
+      Cascade.Api.Data.Jwt
+      Cascade.Api.Data.OffsetDatetime
+      Cascade.Api.Data.OffsetDatetime.Deadline
+      Cascade.Api.Data.Prelude
+      Cascade.Api.Data.Project
+      Cascade.Api.Data.Session
+      Cascade.Api.Data.Task
+      Cascade.Api.Data.Text.EmailAddress
+      Cascade.Api.Data.Text.Title
+      Cascade.Api.Data.Text.Username
+      Cascade.Api.Data.User
+      Cascade.Api.Data.WrappedC
+      Cascade.Api.Database
+      Cascade.Api.Database.ProjectTable
+      Cascade.Api.Database.Sql
+      Cascade.Api.Database.Sql.Query
+      Cascade.Api.Database.Sql.Query.Project
+      Cascade.Api.Database.Sql.Query.Task
+      Cascade.Api.Database.Sql.Query.User
+      Cascade.Api.Database.TaskTable
+      Cascade.Api.Database.UserProjectTable
+      Cascade.Api.Database.UserTable
+      Cascade.Api.Effect.Database
+      Cascade.Api.Effect.Database.Project
+      Cascade.Api.Effect.Database.Task
+      Cascade.Api.Effect.Database.User
+      Cascade.Api.Effect.Scrypt
+      Cascade.Api.Effect.Time
+      Cascade.Api.Network.Anatomy
+      Cascade.Api.Network.Anatomy.Api
+      Cascade.Api.Network.Anatomy.Api.Authentication
+      Cascade.Api.Network.Anatomy.Api.Projects
+      Cascade.Api.Network.Anatomy.Api.Projects.Tasks
+      Cascade.Api.Network.Anatomy.Api.Tasks
+      Cascade.Api.Network.Anatomy.Api.User
+      Cascade.Api.Network.Anatomy.Api.User.Projects
+      Cascade.Api.Network.Anatomy.Api.Users
+      Cascade.Api.Network.Anatomy.Prelude
+      Cascade.Api.Network.Server
+      Cascade.Api.Network.Server.Api
+      Cascade.Api.Network.Server.Api.Authentication
+      Cascade.Api.Network.Server.Api.Projects
+      Cascade.Api.Network.Server.Api.Projects.Tasks
+      Cascade.Api.Network.Server.Api.Tasks
+      Cascade.Api.Network.Server.Api.User
+      Cascade.Api.Network.Server.Api.User.Projects
+      Cascade.Api.Network.Server.Api.Users
+      Cascade.Api.Network.Wai.Application
+      Cascade.Api.Orphans
+      Cascade.Api.Servant.Authentication
+      Cascade.Api.Servant.Response
+  other-modules:
+      Paths_cascade_api
+  hs-source-dirs:
+      src
+  default-extensions: ApplicativeDo Arrows BangPatterns BlockArguments ConstraintKinds DataKinds DefaultSignatures DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveLift DeriveTraversable DerivingStrategies DerivingVia DuplicateRecordFields EmptyCase ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedLabels OverloadedStrings PatternSynonyms PolyKinds RankNTypes RecordWildCards ScopedTypeVariables StandaloneDeriving StrictData TemplateHaskell TupleSections TypeApplications TypeFamilies TypeFamilyDependencies TypeOperators
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-implicit-prelude -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -fplugin=Polysemy.Plugin
+  build-depends:
+      aeson
+    , attoparsec
+    , base-noprelude
+    , beam-core
+    , beam-postgres
+    , bytestring
+    , cascade-prelude
+    , chronos
+    , containers
+    , cookie
+    , either
+    , email-validate
+    , generic-lens
+    , generic-monoid
+    , http-media
+    , http-types
+    , lens
+    , libjwt-typed
+    , polysemy
+    , polysemy-plugin
+    , postgresql-simple
+    , relude
+    , scrypt
+    , selective
+    , servant
+    , servant-server
+    , text
+    , uuid
+    , validation-selective
+    , wai
+    , warp
+    , word8
+  default-language: Haskell2010
 
 test-suite cascade-api-test
-  import:              common-options
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Main.hs
-  build-depends:       cascade-api
-                     , chronos
-                     , directory
-                     , filepath
-                     , free
-                     , hedgehog
-                     , http-client
-                     , http-types
-                     , lifted-async
-                     , lifted-base
-                     , managed
-                     , monad-control
-                     , port-utils
-                     , postgres-options
-                     , relude
-                     , resource-pool
-                     , servant-client
-                     , servant-client-core
-                     , tasty
-                     , tasty-hedgehog
-                     , tmp-postgres
-                     , typed-process
-                     , validation-selective
-
-  ghc-options:         -threaded
-                       -rtsopts
-                       -with-rtsopts=-N
-  other-modules:       Cascade.Api.Hedgehog.Gen
-                       Cascade.Api.Hedgehog.Gen.Api.Project
-                       Cascade.Api.Hedgehog.Gen.Id
-                       Cascade.Api.Hedgehog.Gen.Prelude
-                       Cascade.Api.Hedgehog.Gen.Text
-                       Cascade.Api.Hedgehog.Gen.Chronos
-                       Cascade.Api.Network.TestClient
-                       Cascade.Api.Network.TestClient.Api
-                       Cascade.Api.Network.TestClient.Api.Projects
-                       Cascade.Api.Network.TestClient.Api.Tasks
-                       Cascade.Api.Network.TestClient.Api.Projects.Tasks
-                       Cascade.Api.Network.TestClient.Api.Users
-                       Cascade.Api.Test.FilePath
-                       Cascade.Api.Test.Prelude
-                       Cascade.Api.Test.Prelude.Orphans
-                       Cascade.Api.Test.Resource
-                       Test.Cascade.Api.StateMachine
-                       Test.Cascade.Api.StateMachine.Command.Project
-                       Test.Cascade.Api.StateMachine.Command.User
-                       Test.Cascade.Api.StateMachine.Command.Task
-                       Test.Cascade.Api.StateMachine.Model
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Cascade.Api.Hedgehog.Gen
+      Cascade.Api.Hedgehog.Gen.Api.Project
+      Cascade.Api.Hedgehog.Gen.Chronos
+      Cascade.Api.Hedgehog.Gen.Id
+      Cascade.Api.Hedgehog.Gen.Prelude
+      Cascade.Api.Hedgehog.Gen.Text
+      Cascade.Api.Network.TestClient
+      Cascade.Api.Network.TestClient.Api
+      Cascade.Api.Network.TestClient.Api.Authentication
+      Cascade.Api.Network.TestClient.Api.Projects
+      Cascade.Api.Network.TestClient.Api.Projects.Tasks
+      Cascade.Api.Network.TestClient.Api.Tasks
+      Cascade.Api.Network.TestClient.Api.User
+      Cascade.Api.Network.TestClient.Api.User.Projects
+      Cascade.Api.Network.TestClient.Api.Users
+      Cascade.Api.Test.FilePath
+      Cascade.Api.Test.Prelude
+      Cascade.Api.Test.Prelude.Orphans
+      Cascade.Api.Test.Resource
+      Test.Cascade.Api.Data.OffsetDatetime
+      Test.Cascade.Api.StateMachine
+      Test.Cascade.Api.StateMachine.Command.Authentication
+      Test.Cascade.Api.StateMachine.Command.Authentication.CorrectValidLogin
+      Test.Cascade.Api.StateMachine.Command.Authentication.IncorrectValidLogin
+      Test.Cascade.Api.StateMachine.Command.Authentication.InvalidLogin
+      Test.Cascade.Api.StateMachine.Command.Authentication.Types
+      Test.Cascade.Api.StateMachine.Command.Project
+      Test.Cascade.Api.StateMachine.Command.Project.Create
+      Test.Cascade.Api.StateMachine.Command.Project.DeleteExistingById
+      Test.Cascade.Api.StateMachine.Command.Project.DeleteNotExistingById
+      Test.Cascade.Api.StateMachine.Command.Project.GetAll
+      Test.Cascade.Api.StateMachine.Command.Project.GetExistingById
+      Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById
+      Test.Cascade.Api.StateMachine.Command.Project.Types
+      Test.Cascade.Api.StateMachine.Command.Project.UpdateExistingById
+      Test.Cascade.Api.StateMachine.Command.Project.UpdateNotExistingById
+      Test.Cascade.Api.StateMachine.Command.Task
+      Test.Cascade.Api.StateMachine.Command.User
+      Test.Cascade.Api.StateMachine.Command.User.CreateExisting
+      Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting
+      Test.Cascade.Api.StateMachine.Model
+      Test.Cascade.Api.StateMachine.Model.Lens
+      Paths_cascade_api
+  hs-source-dirs:
+      test
+  default-extensions: ApplicativeDo Arrows BangPatterns BlockArguments ConstraintKinds DataKinds DefaultSignatures DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveLift DeriveTraversable DerivingStrategies DerivingVia DuplicateRecordFields EmptyCase ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedLabels OverloadedStrings PatternSynonyms PolyKinds RankNTypes RecordWildCards ScopedTypeVariables StandaloneDeriving StrictData TemplateHaskell TupleSections TypeApplications TypeFamilies TypeFamilyDependencies TypeOperators
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-implicit-prelude -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base-noprelude
+    , binary
+    , bytestring
+    , cascade-api
+    , cascade-prelude
+    , chronos
+    , containers
+    , cookie
+    , directory
+    , filepath
+    , free
+    , generic-lens
+    , hedgehog
+    , http-client
+    , http-types
+    , lens
+    , lifted-async
+    , lifted-base
+    , managed
+    , monad-control
+    , polysemy
+    , polysemy-plugin
+    , port-utils
+    , postgres-options
+    , postgresql-simple
+    , relude
+    , resource-pool
+    , servant
+    , servant-client
+    , servant-client-core
+    , tasty
+    , tasty-hedgehog
+    , text
+    , tmp-postgres
+    , transformers-base
+    , typed-process
+    , uuid
+    , validation-selective
+    , word8
+  default-language: Haskell2010
 
 benchmark cascade-api-benchmark
-  import:              common-options
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      benchmark
-  main-is:             Main.hs
-  build-depends:       gauge
-                     , cascade-api
-  ghc-options:         -threaded
-                       -rtsopts
-                       -with-rtsopts=-N
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_cascade_api
+  hs-source-dirs:
+      benchmark
+  default-extensions: ApplicativeDo Arrows BangPatterns BlockArguments ConstraintKinds DataKinds DefaultSignatures DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveLift DeriveTraversable DerivingStrategies DerivingVia DuplicateRecordFields EmptyCase ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedLabels OverloadedStrings PatternSynonyms PolyKinds RankNTypes RecordWildCards ScopedTypeVariables StandaloneDeriving StrictData TemplateHaskell TupleSections TypeApplications TypeFamilies TypeFamilyDependencies TypeOperators
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-implicit-prelude -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base-noprelude
+    , bytestring
+    , cascade-api
+    , cascade-prelude
+    , chronos
+    , containers
+    , cookie
+    , gauge
+    , generic-lens
+    , http-types
+    , lens
+    , polysemy
+    , polysemy-plugin
+    , postgresql-simple
+    , servant
+    , text
+    , uuid
+    , word8
+  default-language: Haskell2010

@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Jwt (Jwt, PrivateClaims, mk, decode, dissociate, reassociate, getPrivateClaims) where
+module Cascade.Api.Data.Jwt (Jwt, PrivateClaims, JwtSections, mk, decode, dissociate, reassociate, getPrivateClaims) where
 
 import qualified Cascade.Api.Data.User              as User
 import           Control.Exception                   ( handle )
@@ -66,7 +66,9 @@ data PrivateClaims = PrivateClaims
 
 type Jwt = Libjwt.Jwt PrivateClaimsList ( 'Libjwt.SomeNs Namespace)
 
-mk :: User.Id -> (ByteString, ByteString)
+type JwtSections = (ByteString, ByteString)
+
+mk :: User.Id -> JwtSections
 mk userId = Libjwt.sign algorithm payload |> Libjwt.getToken |> dissociate
  where
   payload = Libjwt.ClaimsSet { iss           = Libjwt.Iss Nothing
@@ -97,7 +99,7 @@ isSeparator :: Word8 -> Bool
 isSeparator = (==) separator
 {-# INLINE isSeparator #-}
 
-dissociate :: ByteString -> (ByteString, ByteString)
+dissociate :: ByteString -> JwtSections
 dissociate jwt = W8.breakEnd isSeparator jwt |> _1 %~ W8.init
 {-# INLINE dissociate #-}
 

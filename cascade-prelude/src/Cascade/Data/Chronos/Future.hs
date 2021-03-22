@@ -12,13 +12,13 @@ Portability : POSIX
 
 module Cascade.Data.Chronos.Future (Future, pattern Future, un, mk) where
 
+import           Chronos                             ( OffsetDatetime
+                                                     , Time
+                                                     , offsetDatetimeToTime
+                                                     )
 import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
-                                                     )
-import           Chronos                             ( Time
-                                                     , OffsetDatetime
-                                                     , offsetDatetimeToTime
                                                      )
 
 newtype Future a = Mk

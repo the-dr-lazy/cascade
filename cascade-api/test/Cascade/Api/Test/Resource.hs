@@ -10,17 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Test.Resource (withPostgresConnectionInAbortionBracket, withTemporaryPostgresConnectionPool) where
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
+module Cascade.Api.Test.Resource (withMigratedDatabaseConfig, withPostgresConnectionPool) where
 
 import           Cascade.Api.Test.FilePath           ( findSqitchConfigFileUpward )
-import           Control.Exception.Lifted            ( bracket
-                                                     , throwIO
-                                                     )
-import           Control.Lens                        ( _3
+import qualified Control.Exception.Lifted           as X
+import           Control.Lens                        ( _2
                                                      , view
                                                      )
+import           Control.Monad.Base                  ( MonadBase )
 import           Control.Monad.Managed
-import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
                                                      )
@@ -52,30 +52,30 @@ migrate db = do
     "postgresql:///" <> Unsafe.fromJust (coerce dbname) <> "?host=" <> Unsafe.fromJust (coerce host) <> "&port=" <> show @String @Int
       (Unsafe.fromJust $ coerce port)
 
-withTemporaryPostgresConnectionPool :: (IO (Pool Postgres.Connection) -> TestTree) -> TestTree
-withTemporaryPostgresConnectionPool f =
-  let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection)
+withMigratedDatabaseConfig :: (IO TempPostgres.Config -> TestTree) -> TestTree
+withMigratedDatabaseConfig f =
+  let acquire :: HasCallStack => IO (TempPostgres.Cache, TempPostgres.Config)
       acquire = do
-        cache          <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
-        migratedConfig <- throwE
+        cache  <- TempPostgres.setupInitDbCache TempPostgres.defaultCacheConfig
+        config <- throwE
           $ TempPostgres.cacheAction "~/.cascade/tmp-postgres" migrate (TempPostgres.defaultConfig <> TempPostgres.cacheConfig cache)
-        db   <- throwE $ TempPostgres.startConfig migratedConfig
-        pool <- createPool (connectPostgreSQL $ TempPostgres.toConnectionString db) Postgres.close 1 1 10
-        pure (cache, db, pool)
+        pure (cache, config)
 
-      release :: (TempPostgres.Cache, TempPostgres.DB, Pool Postgres.Connection) -> IO ()
-      release (cache, db, pool) = do
-        Pool.destroyAllResources pool
-        TempPostgres.stop db
+      release :: (TempPostgres.Cache, TempPostgres.Config) -> IO ()
+      release (cache, _) = do
         TempPostgres.cleanupInitDbCache cache
-  in  Tasty.withResource acquire release $ f . fmap (view _3)
-  where throwE x = either throwIO pure =<< x
+  in  Tasty.withResource acquire release $ f . fmap (view _2)
 
-withPostgresConnection :: MonadManaged m => Pool Postgres.Connection -> m Postgres.Connection
-withPostgresConnection pool = managed $ Pool.withResource pool
+withPostgresConnectionPool :: HasCallStack => MonadManaged m => TempPostgres.Config -> m (Pool Postgres.Connection)
+withPostgresConnectionPool config = do
+  {- HACK: There is a known issue about temporary postgres database cleanup
+           which occasionally encounters with exception. By catching the exception
+           we only let the tests continue to run but the problem is still alive and the temporary
+           database doesn't cleanup on the host machine.
+           Please see https://github.com/jfischoff/tmp-postgres/issues/266 and https://github.com/jfischoff/tmp-postgres/issues/251
+  -}
+  db <- managed $ X.bracket (throwE $ TempPostgres.startConfig config) (\db -> TempPostgres.stop db `X.catch` const @_ @X.IOException mempty)
+  liftIO $ createPool (connectPostgreSQL <| TempPostgres.toConnectionString db) Postgres.close 1 1 5
 
-withPostgresConnectionInAbortionBracket :: MonadManaged m => Pool Postgres.Connection -> m Postgres.Connection
-withPostgresConnectionInAbortionBracket pool = do
-  connection <- withPostgresConnection pool
-  managed $ bracket (Postgres.begin connection) (const $ Postgres.rollback connection)
-  pure connection
+throwE :: HasCallStack => MonadBase IO m => Exception e => m (Either e b) -> m b
+throwE x = either X.throwIO pure =<< x

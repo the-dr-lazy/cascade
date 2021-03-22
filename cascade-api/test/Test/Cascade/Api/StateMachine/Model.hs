@@ -10,41 +10,61 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Model (Model, initialModel) where
+module Test.Cascade.Api.StateMachine.Model
+  ( Model
+  , Username
+  , EmailAddress
+  , Password
+  , initialModel
+  , mapUsernameTokenProjectIdAList
+  , getUsernameTokenProjectIdAList
+  ) where
 
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.User              as User
+import           Cascade.Api.Network.TestClient      ( AuthToken )
 import qualified Cascade.Data.Validation            as Validation
+import           Control.Lens                        ( (^..)
+                                                     , at
+                                                     , foldMapOf
+                                                     , folded
+                                                     , to
+                                                     )
 import           Data.Generics.Labels                ( )
 import qualified Data.Map.Strict                    as Map
 import           Hedgehog.Internal.State             ( Var )
 
 -- brittany-disable-next-binding
 data Model (v :: Type -> Type) = Model
-  { project :: ProjectModel v
-  , user    :: UserModel v
-  , task    :: TaskModel v
+  { project   :: ProjectModel v
+  , user      :: UserModel
+  , task      :: TaskModel v
+  , authToken :: AuthTokenModel v
   }
   deriving stock Generic
 
 initialModel :: Model v
-initialModel = Model { project = ProjectModel { creatables = Map.empty, notExistingIds = mempty }
-                     , user    = UserModel { byUsername = Map.empty, byEmailAddress = Map.empty }
-                     , task    = TaskModel { byProjectId = Map.empty, notExistingIds = mempty }
+initialModel = Model { authToken = AuthTokenModel { byUsername = Map.empty }
+                     , project   = ProjectModel { byUsername = Map.empty, notExistingIds = mempty }
+                     , task      = TaskModel { byProjectId = Map.empty, notExistingIds = mempty }
+                     , user      = UserModel { byUsername = Map.empty, byEmailAddress = Map.empty }
                      }
 
+type Username = Text
+type EmailAddress = Text
+type Password = Text
+
 -- brittany-disable-next-binding
-data ProjectModel (v :: Type -> Type) = ProjectModel
-  { creatables     :: Map (Var Project.Id v) Project.Creatable
-  , notExistingIds :: [Var Project.Id v]
+data AuthTokenModel (v :: Type -> Type) = AuthTokenModel
+  { byUsername :: Map Text (Var AuthToken v)
   }
   deriving stock Generic
 
 -- brittany-disable-next-binding
-data UserModel (v :: Type -> Type) = UserModel
-  { byUsername     :: Map Text (User.Creatable 'Validation.Raw)
-  , byEmailAddress :: Map Text (User.Creatable 'Validation.Raw)
+data ProjectModel (v :: Type -> Type) = ProjectModel
+  { notExistingIds :: [Var Project.Id v]
+  , byUsername     :: Map Username (Map (Var Project.Id v) Project.Creatable)
   }
   deriving stock Generic
 
@@ -54,3 +74,20 @@ data TaskModel (v :: Type -> Type) = TaskModel
   , notExistingIds :: [Var Task.Id v]
   }
   deriving stock Generic
+
+data UserModel = UserModel
+  { byUsername     :: Map Username (User.Creatable 'Validation.Raw)
+  , byEmailAddress :: Map EmailAddress (User.Creatable 'Validation.Raw)
+  }
+  deriving stock Generic
+
+mapUsernameTokenProjectIdAList :: ((Username, Var AuthToken v, Var Project.Id v) -> a) -> Model v -> [a]
+mapUsernameTokenProjectIdAList f model = model |> foldMapOf
+  (#project . #byUsername . to Map.toList . folded)
+  \(username, byProjectId) -> do
+    token     <- model ^.. #authToken . #byUsername . at username . folded
+    projectId <- Map.keys byProjectId
+    pure $ f (username, token, projectId)
+
+getUsernameTokenProjectIdAList :: Model v -> [(Username, Var AuthToken v, Var Project.Id v)]
+getUsernameTokenProjectIdAList = mapUsernameTokenProjectIdAList identity

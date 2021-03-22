@@ -13,17 +13,19 @@ Portability : POSIX
 module Cascade.Api.Network.Server.Api.Projects (server) where
 
 import qualified Cascade.Api.Data.Project           as Project
+import qualified Cascade.Api.Data.Session           as Session
+import           Cascade.Api.Data.Session            ( Session )
 import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
-import qualified Cascade.Api.Network.Server.Api.Projects.Tasks
-                                                    as Api.Projects.Tasks
 import           Cascade.Api.Effect.Database.Project ( ProjectL )
 import           Cascade.Api.Effect.Database.Task    ( TaskL )
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects
+import qualified Cascade.Api.Network.Server.Api.Projects.Tasks
+                                                    as Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
-import           Polysemy                            ( Members
-                                                     , Member
+import           Polysemy                            ( Member
+                                                     , Members
                                                      , Sem
                                                      )
 import           Servant
@@ -32,26 +34,20 @@ import           Servant.Server.Generic              ( AsServerT
                                                      , genericServerT
                                                      )
 
-handleCreate :: Member ProjectL r => Project.Creatable -> Sem r (Union CreateResponse)
-handleCreate creatable = Database.Project.create creatable >>= respond . Response.created
+handleGetById :: Member ProjectL r => Project.Id -> Session -> Sem r (Union GetByIdResponse)
+handleGetById id = Session.withAuthenticated \_ -> Database.Project.findById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleGetAll :: Member ProjectL r => Sem r (Union GetAllResponse)
-handleGetAll = Database.Project.findAll >>= respond . Response.ok
+handleUpdateById :: Member ProjectL r => Project.Id -> Project.Updatable -> Session -> Sem r (Union UpdateByIdResponse)
+handleUpdateById id updatable =
+  Session.withAuthenticated \_ -> Database.Project.updateById id updatable >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleGetById :: Member ProjectL r => Project.Id -> Sem r (Union GetByIdResponse)
-handleGetById id = Database.Project.findById id >>= maybe (respond Response.notFound) (respond . Response.ok)
+handleDeleteById :: Member ProjectL r => Project.Id -> Session -> Sem r (Union DeleteByIdResponse)
+handleDeleteById id =
+  Session.withAuthenticated \_ -> Database.Project.deleteById id >>= maybe (respond Response.notFound) (respond . Response.ok)
 
-handleUpdateById :: Member ProjectL r => Project.Id -> Project.Updatable -> Sem r (Union UpdateByIdResponse)
-handleUpdateById id updatable = Database.Project.updateById id updatable >>= maybe (respond Response.notFound) (respond . Response.ok)
-
-handleDeleteById :: Member ProjectL r => Project.Id -> Sem r (Union DeleteByIdResponse)
-handleDeleteById id = Database.Project.deleteById id >>= maybe (respond Response.notFound) (respond . Response.ok)
-
-server :: Members '[ProjectL, TaskL, TimeL] r => ToServant Routes (AsServerT (Sem r))
-server = genericServerT Routes { getAll     = handleGetAll
-                               , getById    = handleGetById
-                               , create     = handleCreate
-                               , updateById = handleUpdateById
-                               , deleteById = handleDeleteById
+server :: Members '[ProjectL , TaskL , TimeL] r => ToServant Routes (AsServerT (Sem r))
+server = genericServerT Routes { deleteById = handleDeleteById
                                , tasks      = Api.Projects.Tasks.server
+                               , updateById = handleUpdateById
+                               , getById    = handleGetById
                                }

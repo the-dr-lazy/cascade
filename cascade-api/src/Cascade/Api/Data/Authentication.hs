@@ -34,6 +34,7 @@ data Credential (p :: Validation.Phase) = Credential
   }
   deriving stock Generic
 
+deriving stock instance Show (Credential 'Validation.Raw)
 deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance ToJSON (Credential 'Validation.Raw)
 deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance FromJSON (Credential 'Validation.Raw)
 

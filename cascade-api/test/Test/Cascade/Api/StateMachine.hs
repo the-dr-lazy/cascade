@@ -10,6 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+
 module Test.Cascade.Api.StateMachine (tests) where
 
 import qualified Cascade.Api
@@ -18,37 +21,39 @@ import           Control.Concurrent.Async.Lifted
 import qualified Cascade.Api.Test.Resource          as Resource
 import           Control.Monad.Managed
 import           Control.Monad.Trans.Control
-import           Data.Pool                           ( Pool )
-import qualified Database.PostgreSQL.Simple         as Postgres
+import qualified Data.Pool                          as Pool
+import qualified Database.Postgres.Temp             as TempPostgres
 import           Hedgehog
 import qualified Hedgehog.Gen                       as Gen
 import qualified Hedgehog.Range                     as Range
 import qualified Network.Socket.Wait                as Socket
+import qualified Test.Cascade.Api.StateMachine.Command.Authentication
+                                                    as Command.Authentication
 import qualified Test.Cascade.Api.StateMachine.Command.Project
                                                     as Command.Project
-import qualified Test.Cascade.Api.StateMachine.Command.User
-                                                    as Command.User
 import qualified Test.Cascade.Api.StateMachine.Command.Task
                                                     as Command.Task
+import qualified Test.Cascade.Api.StateMachine.Command.User
+                                                    as Command.User
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 
 tests :: TestTree
-tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withTemporaryPostgresConnectionPool (testProperty "Sequential" . prop_sequential)]
+tests = testGroup "Test.Cascade.Api.StateMachine" [Resource.withMigratedDatabaseConfig (testProperty "Sequential" . prop_sequential)]
 
-prop_sequential :: IO (Pool Postgres.Connection) -> Property
-prop_sequential getPool = withTests 1000 . withDiscards 500 . property $ do
-  pool    <- evalIO getPool
-  actions <- forAll $ Gen.sequential (Range.linear 1 100) initialModel commands
+prop_sequential :: IO TempPostgres.Config -> Property
+prop_sequential getMigratedDatabase = withTests 500 . property $ do
+  db      <- evalIO getMigratedDatabase
+  actions <- forAll $ Gen.sequential (Range.linear 1 500) initialModel commands
 
   control \runInBase -> flip with pure $ do
-    connection <- Resource.withPostgresConnectionInAbortionBracket pool
+    pool <- Resource.withPostgresConnectionPool db
     liftIO $ withAsync
-      (Cascade.Api.main \f -> f connection)
+      (Cascade.Api.main $ Pool.withResource pool)
       \_ -> do
         Socket.wait "127.0.0.1" 3141
         runInBase $ executeSequential initialModel actions
 
-commands :: MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
-commands = Command.Project.commands <> Command.User.commands <> Command.Task.commands
+commands :: _ => [Command g m Model]
+commands = mconcat [Command.User.commands, Command.Authentication.commands, Command.Project.commands, Command.Task.commands]

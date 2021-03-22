@@ -11,8 +11,10 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Data.WrappedC (WrappedC(..), C) where
+module Cascade.Api.Data.WrappedC (WrappedC(..), C, literal) where
 
 import           Control.Lens                        ( Unwrapped
                                                      , Wrapped
@@ -30,7 +32,7 @@ import qualified Database.PostgreSQL.Simple.FromField
                                                      ( FromField(fromField) )
 
 newtype WrappedC a = WrappedC
-  { unWrappedC :: a }
+  { un :: a }
   deriving stock Generic
   deriving newtype (Show, Eq, Ord)
 
@@ -59,3 +61,6 @@ instance (Wrapped a, Beam.HasSqlValueSyntax backend (Unwrapped a)) =>
 
 type family C (f :: Type -> Type) (a :: Type) :: Type where
   C f x = Beam.C f (WrappedC x)
+
+literal :: _ => a -> Beam.QGenExpr context backend s (WrappedC a)
+literal = Beam.val_ . WrappedC

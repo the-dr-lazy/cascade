@@ -17,6 +17,7 @@ module Cascade.Api.Servant.Response
   , Unprocessable(..)
   , Conflict(..)
   , Forbidden(..)
+  , Unauthorized(..)
   , notFound
   , ok
   , created
@@ -27,7 +28,7 @@ import           Data.Aeson                          ( (.=)
                                                      , ToJSON(..)
                                                      , object
                                                      )
-import           Servant
+import           Servant                      hiding ( Unauthorized )
 
 data NotFound = NotFound
   deriving stock Show
@@ -94,3 +95,15 @@ instance ToJSON Forbidden where
 
 instance HasStatus Forbidden where
   type StatusOf Forbidden = 403
+
+data Unauthorized = Unauthorized
+  deriving stock Show
+
+instance FromJSON Unauthorized where
+  parseJSON _ = pure Unauthorized
+
+instance ToJSON Unauthorized where
+  toJSON _ = object ["title" .= ("Unauthorized" :: Text)]
+
+instance HasStatus Unauthorized where
+  type StatusOf Unauthorized = 401

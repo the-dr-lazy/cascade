@@ -20,7 +20,6 @@ import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Data.Data                           ( Data )
 import           Text.Email.Validate                 ( canonicalizeEmail )
 
 newtype EmailAddress = Mk
@@ -34,7 +33,7 @@ pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
 
 data Error = IsInvalid
-  deriving stock (Generic, Data, Show)
+  deriving stock (Generic, Show)
   deriving ToJSON via Aeson.FieldErrorFormat Error
   deriving FromJSON via Aeson.FieldErrorFormat Error
 

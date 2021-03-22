@@ -17,7 +17,9 @@ module Cascade.Api.Data.Task (Task, Id, Readable(..), Creatable(..), Updatable(.
 import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
                                                     as Aeson
 import qualified Cascade.Api.Data.Id                as Data
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(unFormattedOffsetDatetime) )
+import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime
+                                                     , unFormattedOffsetDatetime
+                                                     )
 import           Cascade.Api.Data.OffsetDatetime.Deadline
                                                      ( Deadline )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline

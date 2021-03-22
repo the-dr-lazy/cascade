@@ -26,24 +26,29 @@ jobs:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.10.2"
           cabal-version: "3.2"
 
+      - uses: actions/checkout@v2
+
       - name: Install Brittany
         run: |
           curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
-          unzip brittany.zip
+          echo 28b272de3f895f1b7e19e7a7dd91c3e1  brittany.zip | md5sum --check -
+
+          unzip brittany.zip -d brittany
           rm brittany.zip
-          sudo chmod +x brittany
-          sudo mv brittany /usr/bin/
+
+          sudo chmod +x ./brittany/brittany
+          sudo mv ./brittany/brittany /usr/bin/
+          rm -rf brittany
 
       - name: Check formatting
-        run: brittany -c **/*.hs
+        run: |
+          brittany -c $(find . -name \*.hs)
 
   build:
     name: Build ${{ matrix.os }}
@@ -58,40 +63,50 @@ jobs:
           - macOS-latest
 
     steps:
-      - uses: actions/checkout@v2
-
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.8.4"
           cabal-version: "3.2"
 
-      - name: Setup environment
-        uses: knicknic/os-specific-run@v1.0.2
-        with:
-          linux: |
-            sudo apt-get update
-            sudo apt-get --yes install libjwt-dev
-
-          macos: |
-            export HOMEBREW_NO_AUTO_UPDATE=1
-            export HOMEBREW_NO_INSTALL_CLEANUP=1
-
-            brew install libjwt
-
-      - name: Configure
-        run: |
-          cabal new-configure --disable-documentation \
-                              --disable-optimization \
-                              --enable-tests \
-                              --enable-benchmarks \
-                              --test-show-details=direct
+      - uses: actions/checkout@v2
 
       - uses: actions/cache@v2.1.3
         name: Cache ~/.cabal/store
         with:
           path: ${{ steps.haskell.outputs.cabal-store }}
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
+
+      - name: Setup environment (OS specific)
+        uses: knicknic/os-specific-run@v1.0.2
+        with:
+          linux: |
+            sudo apt-get update
+            sudo apt-get --yes install libjwt-dev
+          macos: |
+            export HOMEBREW_NO_AUTO_UPDATE=1
+            export HOMEBREW_NO_INSTALL_CLEANUP=1
+
+            brew install libjwt
+
+      - name: Setup environment (common)
+        run: |
+          echo "~/.cabal/bin" >> $GITHUB_PATH
+
+          ./scripts/ci/environment
+
+      - name: Verify environment
+        run: |
+          dhall-hpack-cabal --version
+
+      - name: Configure
+        run: |
+          make setup
+          cabal new-configure --disable-documentation \
+                              --disable-optimization \
+                              --enable-tests \
+                              --enable-benchmarks \
+                              --test-show-details=direct
 
       - name: Install dependencies
         run: |
@@ -111,15 +126,21 @@ jobs:
         os: [macOS-latest]
 
     steps:
-      - uses: actions/checkout@v2
-
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.8.4"
           cabal-version: "3.2"
 
-      - name: Setup environment
+      - uses: actions/checkout@v2
+
+      - name: Cache ~/.cabal/store
+        uses: actions/cache@v2.1.3
+        with:
+          path: ${{ steps.haskell.outputs.cabal-store }}
+          key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
+
+      - name: Setup environment (OS specific)
         uses: knicknic/os-specific-run@v1.0.2
         with:
           linux: |
@@ -142,14 +163,20 @@ jobs:
             brew tap sqitchers/sqitch
             brew install sqitch --with-postgres-support
 
-            postgres --version
-
-      - name: Setup $PATH
+      - name: Setup environment (common)
         run: |
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
+          ./scripts/ci/environment
+
+      - name: Verify environment
+        run: |
+          postgres --version
+          dhall-hpack-cabal --version
+
       - name: Configure
         run: |
+          make setup
           cabal new-configure --disable-documentation \
                               --enable-optimization=2 \
                               --enable-tests \
@@ -160,12 +187,6 @@ jobs:
                               # thus we will not be able to generate code coverages
                               # TODO: Enable code coverage when it's possible!
                               # --disable-per-component
-
-      - name: Cache ~/.cabal/store
-        uses: actions/cache@v2.1.3
-        with:
-          path: ${{ steps.haskell.outputs.cabal-store }}
-          key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
       - name: Install dependencies
         run: |

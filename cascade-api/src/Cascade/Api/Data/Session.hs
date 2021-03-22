@@ -28,6 +28,6 @@ withAnonymous :: Applicative m => IsMember Response.Forbidden as => m (Union as)
 withAnonymous m Anonymous         = m
 withAnonymous _ (Authenticated _) = respond Response.Forbidden
 
-withAuthenticated :: Applicative m => IsMember Response.Forbidden as => (Jwt.PrivateClaims -> m (Union as)) -> Session -> m (Union as)
+withAuthenticated :: Applicative m => IsMember Response.Unauthorized as => (Jwt.PrivateClaims -> m (Union as)) -> Session -> m (Union as)
 withAuthenticated m (Authenticated x) = m x
-withAuthenticated _ Anonymous         = respond Response.Forbidden
+withAuthenticated _ Anonymous         = respond Response.Unauthorized

@@ -19,9 +19,12 @@ import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.Text.Title        as Title
 import           Cascade.Api.Data.WrappedC
-import qualified Cascade.Api.Database.Project       as Database.Project
-import           Cascade.Api.Database.Task           ( TaskTable )
-import qualified Cascade.Api.Database.Task          as Database.Task
+import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
+import qualified Cascade.Api.Database.Sql           as SQL
+import qualified Cascade.Api.Database.Sql.Query.Task
+                                                    as SQL.Query.Task
+import           Cascade.Api.Database.TaskTable      ( TaskTable )
+import qualified Cascade.Api.Database.TaskTable     as TaskTable
 import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
 import qualified Cascade.Data.Validation            as Validation
@@ -29,11 +32,7 @@ import           Control.Lens                        ( (^.)
                                                      , to
                                                      )
 import           Database.Beam                       ( (<-.)
-                                                     , (==.)
-                                                     , default_
-                                                     , filter_
                                                      , insertExpressions
-                                                     , select
                                                      , val_
                                                      )
 import qualified Database.Beam                      as Beam
@@ -60,22 +59,17 @@ makeSem ''TaskL
 run :: forall backend r a
      . BeamSqlBackend backend
     => Beam.HasQBuilder backend
-    => Database.TableFieldsFulfillConstraint (Beam.FromBackendRow backend) TaskTable
-    => Database.TableFieldsFulfillConstraint (Beam.HasSqlEqualityCheck backend) TaskTable
-    => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
+    => SQL.TableFieldsFulfillConstraints
+         '[Beam.FromBackendRow backend , Beam.HasSqlEqualityCheck backend , BeamSqlBackendCanSerialize backend]
+         TaskTable
     => Member (DatabaseL backend) r => Sem (TaskL ': r) a -> Sem r a
 run = interpret \case
   FindByProjectId projectId ->
-    Database.all #tasks
-      |> filter_ (\task -> task ^. #projectId ==. val_ (coerce projectId))
-      |> select
-      |> Database.runSelectReturningList
-      |> (fmap . fmap) toReadableTask
-  FindById id ->
-    Database.lookup #tasks (Database.Task.PrimaryKey $ coerce id) |> Database.runSelectReturningOne |> (fmap . fmap) toReadableTask
+    SQL.Query.Task.byProjectId projectId |> SQL.select |> Database.runSelectReturningList |> (fmap . fmap) toReadableTask
+  FindById id -> SQL.Query.Task.byId id |> SQL.select |> Database.runSelectReturningOne |> (fmap . fmap) toReadableTask
   Create creatable projectId ->
     insertExpressions [fromParsedCreatableTask projectId creatable]
-      |> Database.insert #tasks
+      |> SQL.insert #tasks
       |> Database.runInsertReturningOne
       -- Only @Just@ is acceptable.
       |> fmap Unsafe.fromJust
@@ -83,29 +77,28 @@ run = interpret \case
   UpdateById id updatable -> case updatable of
     Task.Updatable { title = Nothing, deadlineAt = Nothing } -> run $ findById id
     _ ->
-      Database.update #tasks (fromParsedUpdatableTask updatable) (\task -> task ^. #id ==. val_ (coerce id))
+      SQL.update #tasks (fromParsedUpdatableTask updatable) (#id `SQL.eq` SQL.literal id)
         |> Database.runUpdateReturningOne
         |> (fmap . fmap) toReadableTask
-  DeleteById id ->
-    Database.delete #tasks (\task -> task ^. #id ==. val_ (coerce id)) |> Database.runDeleteReturningOne |> (fmap . fmap) toReadableTask
+  DeleteById id -> SQL.delete #tasks (#id `SQL.eq` SQL.literal id) |> Database.runDeleteReturningOne |> (fmap . fmap) toReadableTask
 
-toReadableTask :: Database.Task.Row -> Task.Readable
-toReadableTask Database.Task.Row {..} =
+toReadableTask :: TaskTable.Row -> Task.Readable
+toReadableTask TaskTable.Row {..} =
   Task.Readable { id = coerce id, title = coerce title, deadlineAt = coerce deadlineAt, projectId = coerce projectId }
 
 fromParsedCreatableTask :: BeamSqlBackend backend
-                        => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
+                        => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
                         => Project.Id
                         -> Task.Creatable 'Validation.Parsed
                         -> TaskTable (Beam.QExpr backend s)
-fromParsedCreatableTask projectId creatable = Database.Task.Row { id         = default_
-                                                                , title      = creatable ^. #title . to coerce . to val_
-                                                                , deadlineAt = creatable ^. #deadlineAt . to Deadline.un . to val_
-                                                                , projectId  = projectId |> coerce |> val_
-                                                                }
+fromParsedCreatableTask projectId creatable = TaskTable.Row { id         = SQL.def
+                                                            , title      = creatable ^. #title . to coerce . to val_
+                                                            , deadlineAt = creatable ^. #deadlineAt . to Deadline.un . to val_
+                                                            , projectId  = projectId |> coerce |> val_
+                                                            }
 
 fromParsedUpdatableTask :: BeamSqlBackend backend
-                        => Database.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
+                        => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
                         => Task.Updatable 'Validation.Parsed
                         -> (forall s . TaskTable (Beam.QField s) -> Beam.QAssignment backend s)
 fromParsedUpdatableTask updatable task =

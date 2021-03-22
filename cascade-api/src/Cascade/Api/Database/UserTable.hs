@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.User
+Module      : Cascade.Api.Database.UserTable
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.User (UserTable(..), Row) where
+module Cascade.Api.Database.UserTable (UserTable(..), PrimaryKey(..), Row) where
 
 import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Data.WrappedC          as Wrapped
@@ -39,6 +39,9 @@ instance Table UserTable where
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
+
+deriving newtype instance Show (PrimaryKey UserTable Identity)
+deriving newtype instance Eq (PrimaryKey UserTable Identity)
 
 type Row = UserTable Identity
 
