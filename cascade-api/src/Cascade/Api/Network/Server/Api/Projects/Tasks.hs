@@ -23,6 +23,7 @@ import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Data.Validation            as Validation
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
@@ -33,10 +34,10 @@ import           Servant.Server.Generic              ( AsServerT
                                                      )
 import           Validation                          ( validation )
 
-handleCreate :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> Task.RawCreatable -> Sem r (Union CreateResponse)
-handleCreate projectId creatable = Time.now >>= validation (respond . Response.Unprocessable) go . Task.parseRawCreatableTask creatable
+handleCreate :: Members '[TaskL , ProjectL , TimeL] r => Project.Id -> Task.Creatable 'Validation.Raw -> Sem r (Union CreateResponse)
+handleCreate projectId creatable = Task.parseRawCreatable creatable >>= validation (respond . Response.Unprocessable) go
  where
-  go :: Members '[TaskL , ProjectL , TimeL] r => Task.ParsedCreatable -> Sem r (Union CreateResponse)
+  go :: Members '[TaskL , ProjectL , TimeL] r => Task.Creatable 'Validation.Parsed -> Sem r (Union CreateResponse)
   go parsedCreatable = do
     projectExists <- Database.Project.doesExistsById projectId
     -- FIXME: boolean blindness

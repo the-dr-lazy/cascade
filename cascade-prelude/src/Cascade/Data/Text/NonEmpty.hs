@@ -10,6 +10,8 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Cascade.Data.Text.NonEmpty (NonEmpty, pattern NonEmpty, un, mk) where
 
 

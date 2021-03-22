@@ -10,14 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.ByteString.Password (Password, pattern Password, ValidationError(..), ValidationErrors, mk, un) where
+module Cascade.Api.Data.ByteString.Password (Password, pattern Password, Error(..), Errors, mk, un) where
 
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
+                                                    as Aeson
+import           Cascade.Data.Validation             ( Validation )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Selective                   ( ifS )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
 import qualified Data.Text                          as Text
-import           Validation
 
 newtype Password = Mk
   { un :: ByteString }
@@ -27,16 +30,19 @@ pattern Password :: ByteString -> Password
 pattern Password a <- Mk a
 {-# COMPLETE Password #-}
 
-data ValidationError
+data Error
   = IsEmpty
   | IsShort
   deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving ToJSON via Aeson.FieldErrorFormat Error
+  deriving FromJSON via Aeson.FieldErrorFormat Error
 
-type ValidationErrors = NonEmpty ValidationError
+type Errors = NonEmpty Error
 
-mk :: Text -> Validation ValidationErrors Password
+type instance Validation.Errors Text Password = Errors
+
+mk :: Text -> Validation Errors Password
 mk input = Mk (encodeUtf8 input) <$ validate input
 
-validate :: Text -> Validation ValidationErrors ()
-validate input = ifS (pure $ Text.null input) (failure IsEmpty) (failureIf (Text.length input < 8) IsShort)
+validate :: Text -> Validation Errors ()
+validate input = ifS (pure $ Text.null input) (Validation.failure IsEmpty) (Validation.failureIf (Text.length input < 8) IsShort)

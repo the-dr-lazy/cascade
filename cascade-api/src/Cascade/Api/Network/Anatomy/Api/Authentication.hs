@@ -14,12 +14,13 @@ module Cascade.Api.Network.Anatomy.Api.Authentication (Routes(..), LoginResponse
 
 import qualified Cascade.Api.Data.Authentication    as Authentication
 import           Cascade.Api.Network.Anatomy.Prelude
+import qualified Cascade.Data.Validation            as Validation
 import           Data.Generics.Labels                ( )
 import           Web.Cookie                          ( SetCookie )
 
 type LoginResponse = Headers '[Header "Set-Cookie" SetCookie , Header "Set-Cookie" SetCookie] NoContent
 
 data Routes route = Routes
-  { login :: route :- "login" :> ReqBody '[JSON] Authentication.RawCredential :> Verb 'POST 204 '[JSON] LoginResponse
+  { login :: route :- "login" :> ReqBody '[JSON] (Authentication.Credential 'Validation.Raw) :> Verb 'POST 204 '[JSON] LoginResponse
   }
   deriving stock Generic

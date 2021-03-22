@@ -10,32 +10,33 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Authentication (RawCredential(..), ParsedCredential, parseRawCredential) where
+{-# LANGUAGE UndecidableInstances #-}
+module Cascade.Api.Data.Authentication (Credential(..), parseRawCredential) where
 
+import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
+                                                    as Aeson
 import qualified Cascade.Api.Data.ByteString.Password
                                                     as Password
 import qualified Cascade.Api.Data.Text.Username     as Username
 import qualified Cascade.Api.Data.User              as User
+import           Cascade.Data.Validation             ( Validate
+                                                     , Validation
+                                                     )
+import qualified Cascade.Data.Validation            as Validation
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Validation
 
-data RawCredential = RawCredential
-  { username :: Text
-  , password :: Text
+-- brittany-disable-next-binding
+data Credential (p :: Validation.Phase) = Credential
+  { username :: Validate p Text User.Username
+  , password :: Validate p Text User.Password
   }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving stock Generic
 
-data ParsedCredential = ParsedCredential
-  { username :: User.Username
-  , password :: User.Password
-  }
-  deriving stock (Generic, Show, Eq)
+deriving stock instance Show (Credential 'Validation.Raw)
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance ToJSON (Credential 'Validation.Raw)
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance FromJSON (Credential 'Validation.Raw)
 
-parseRawCredential :: RawCredential -> Validation () ParsedCredential
-parseRawCredential RawCredential {..} =
-  let validateUsername = Username.mk username |> first mempty
-      validatePassword = Password.mk password |> first mempty
-  in  ParsedCredential <$> validateUsername <*> validatePassword
+parseRawCredential :: Credential 'Validation.Raw -> Validation () (Credential 'Validation.Parsed)
+parseRawCredential = first mempty . Validation.parseRecord Credential { username = Username.mk, password = Password.mk }

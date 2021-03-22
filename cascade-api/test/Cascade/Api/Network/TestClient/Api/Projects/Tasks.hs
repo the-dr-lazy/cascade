@@ -19,6 +19,7 @@ import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
 import           Cascade.Api.Network.TestClient      ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api.Projects
                                                     as Client.Api.Projects
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.) )
 import           Data.Generics.Labels                ( )
 import           Servant.API                         ( Union )
@@ -28,7 +29,7 @@ type CreateResponse = ResponseF (Union Api.Projects.Tasks.CreateResponse)
 
 type GetAllByProjectIdResponse = ResponseF (Union Api.Projects.Tasks.GetAllByProjectIdResponse)
 
-create :: Project.Id -> Task.RawCreatable -> IO CreateResponse
+create :: Project.Id -> Task.Creatable 'Validation.Raw -> IO CreateResponse
 create projectId = interpret . go where go = Client.Api.Projects.tasks projectId ^. #create
 
 getAllByProjectId :: Project.Id -> IO GetAllByProjectIdResponse
