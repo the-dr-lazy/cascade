@@ -5,7 +5,10 @@ let dependencies =
 
 let cascade-core =
       { source-dirs = "src"
-      , other-modules = [ "Cascade.Core.Internal.Data.Text.Username" ]
+      , other-modules =
+        [ "Cascade.Core.Internal.Data.Text.EmailAddress"
+        , "Cascade.Core.Internal.Data.Text.Username"
+        ]
       , ghc-options = [ "-fplugin=Polysemy.Plugin" ]
       , dependencies =
         [ "beam-core"
