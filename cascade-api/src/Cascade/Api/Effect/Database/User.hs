@@ -24,8 +24,8 @@ import qualified Cascade.Api.Database.UserTable     as UserTable
 import           Cascade.Api.Database.UserTable      ( UserTable )
 import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
-import           Cascade.Api.Effect.Scrypt           ( ScryptL )
+import qualified Cascade.Core.Effect.Scrypt         as Scrypt
+import           Cascade.Core.Effect.Scrypt          ( ScryptL )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.) )
 import           Database.Beam                       ( insertExpressions )

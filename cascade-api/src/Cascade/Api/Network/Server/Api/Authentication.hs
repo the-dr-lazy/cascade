@@ -18,11 +18,11 @@ import qualified Cascade.Api.Data.Jwt               as Jwt
 import qualified Cascade.Api.Effect.Database.User   as Database
                                                      ( UserL )
 import qualified Cascade.Api.Effect.Database.User   as Database.User
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
 import           Cascade.Api.Network.Anatomy.Api.Authentication
 import           Cascade.Api.Servant.Authentication  ( headerAndPayloadCookieName
                                                      , signatureCookieName
                                                      )
+import qualified Cascade.Core.Effect.Scrypt         as Scrypt
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , _Wrapped'

@@ -14,7 +14,7 @@ module Cascade.Api.Database.UserTable (UserTable(..), PrimaryKey(..), Row) where
 
 import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Data.WrappedC          as Wrapped
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
+import qualified Cascade.Core.Effect.Scrypt         as Scrypt
 import           Chronos                             ( OffsetDatetime )
 import           Database.Beam                       ( Beamable
                                                      , C

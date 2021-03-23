@@ -16,9 +16,9 @@ import qualified Cascade.Api.Data.User              as User
 import qualified Cascade.Api.Effect.Database.User   as Database
                                                      ( UserL )
 import qualified Cascade.Api.Effect.Database.User   as Database.User
-import           Cascade.Api.Effect.Scrypt           ( ScryptL )
 import           Cascade.Api.Network.Anatomy.Api.Users
 import qualified Cascade.Api.Servant.Response       as Response
+import           Cascade.Core.Effect.Scrypt          ( ScryptL )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.) )
 import           Polysemy                            ( Members

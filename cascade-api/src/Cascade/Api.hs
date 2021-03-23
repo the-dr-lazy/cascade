@@ -17,10 +17,10 @@ import qualified Cascade.Api.Effect.Database.Project
                                                     as Database.Project
 import qualified Cascade.Api.Effect.Database.Task   as Database.Task
 import qualified Cascade.Api.Effect.Database.User   as Database.User
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
 import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Network.Wai.Application
 import           Cascade.Api.Orphans                 ( )
+import qualified Cascade.Core.Effect.Scrypt         as Scrypt
 import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Network.Wai.Handler.Warp           as Warp
 import           Polysemy                            ( runFinal )

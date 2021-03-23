@@ -46,6 +46,7 @@ let default-extensions =
       , "TypeFamilies"
       , "TypeFamilyDependencies"
       , "TypeOperators"
+      , "ViewPatterns"
       ]
 
 let ghc-options =

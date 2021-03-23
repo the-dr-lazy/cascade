@@ -19,7 +19,6 @@ import qualified Cascade.Api.Effect.Database.Task   as Database
                                                      ( TaskL )
 import qualified Cascade.Api.Effect.Database.User   as Database
                                                      ( UserL )
-import           Cascade.Api.Effect.Scrypt           ( ScryptL )
 import           Cascade.Api.Effect.Time             ( TimeL )
 import           Cascade.Api.Network.Anatomy.Api
 import qualified Cascade.Api.Network.Server.Api.Authentication
@@ -32,6 +31,7 @@ import qualified Cascade.Api.Network.Server.Api.User
                                                     as User
 import qualified Cascade.Api.Network.Server.Api.Users
                                                     as Users
+import           Cascade.Core.Effect.Scrypt          ( ScryptL )
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
