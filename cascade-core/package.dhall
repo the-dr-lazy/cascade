@@ -1,9 +1,11 @@
 let Cascade = ../package.dhall
 
-let dependencies = [ "base-noprelude", "cascade-prelude", "chronos", "relude" ]
+let dependencies =
+      [ "base-noprelude", "cascade-prelude", "chronos", "relude", "text" ]
 
 let cascade-core =
       { source-dirs = "src"
+      , other-modules = [ "Cascade.Core.Internal.Data.Text.Username" ]
       , ghc-options = [ "-fplugin=Polysemy.Plugin" ]
       , dependencies =
         [ "beam-core"
@@ -15,6 +17,8 @@ let cascade-core =
         , "polysemy-plugin"
         , "postgresql-simple"
         , "scrypt"
+        , "selective"
+        , "validation-selective"
         ]
       }
 

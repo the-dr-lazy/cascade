@@ -36,6 +36,7 @@ let default-extensions =
       , "PolyKinds"
       , "RankNTypes"
       , "RecordWildCards"
+      , "RoleAnnotations"
       , "ScopedTypeVariables"
       , "StandaloneDeriving"
       , "StrictData"
