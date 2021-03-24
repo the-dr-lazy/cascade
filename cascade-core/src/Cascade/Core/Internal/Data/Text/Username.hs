@@ -51,5 +51,5 @@ validate input = ifS
   )
   where l = Text.length input
 
-unsafePhaseCoerce :: Username p1 -> Username p2
+unsafePhaseCoerce :: Username p -> Username p'
 unsafePhaseCoerce = coerce

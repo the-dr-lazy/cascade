@@ -26,5 +26,5 @@ pattern EmailAddress a <- Mk a
 mk :: Text -> Maybe (EmailAddress 'Phase.Unknown)
 mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8
 
-unsafePhaseCoerce :: EmailAddress p1 -> EmailAddress p2
+unsafePhaseCoerce :: EmailAddress p -> EmailAddress p'
 unsafePhaseCoerce = coerce
