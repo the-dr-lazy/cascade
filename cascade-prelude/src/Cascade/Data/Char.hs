@@ -10,9 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Char (isAlphaNumUnderscore, module Data.Char) where
+module Cascade.Data.Char (isAlphaNumUnderscore, isAlphaNumDash, module Data.Char) where
 
 import           Data.Char
 
 isAlphaNumUnderscore :: Char -> Bool
 isAlphaNumUnderscore c = isAlphaNum c || c == '_'
+
+isAlphaNumDash :: Char -> Bool
+isAlphaNumDash c = isAlphaNum c || c == '-'
