@@ -12,7 +12,8 @@ Portability : POSIX
 
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Cascade.Data.Text (module Data.Text, NonEmpty) where
+module Cascade.Data.Text (module Data.Text, Finite, NonEmpty) where
 
+import           Cascade.Data.Text.Finite            ( Finite )
 import           Cascade.Data.Text.NonEmpty          ( NonEmpty )
 import           Data.Text
