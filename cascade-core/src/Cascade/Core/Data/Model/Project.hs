@@ -15,6 +15,7 @@ module Cascade.Core.Data.Model.Project (Project(..)) where
 import           Cascade.Core.Data                   ( Id
                                                      , Slug
                                                      )
+import {-# SOURCE #-} Cascade.Core.Data.Model.Stage  ( Stage )
 import {-# SOURCE #-} Cascade.Core.Data.Model.User   ( User )
 import           Cascade.Core.Data.Phase             ( Suitable )
 import qualified Cascade.Data.Text                  as Text
@@ -26,6 +27,7 @@ data Project phase = Project
   , slug      :: Slug phase
   , name      :: Text.Finite 1 233
   , users     :: List.NonEmpty (phase `Suitable` Id User)
+  , stages    :: List.NonEmpty (phase `Suitable` Stage)
   , createdAt :: Time
   , updatedAt :: Time
   }
