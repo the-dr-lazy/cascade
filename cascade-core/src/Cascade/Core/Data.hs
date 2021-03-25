@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data (Id, Phase, Username, EmailAddress, Hashed, Password) where
+module Cascade.Core.Data (Id, Phase, Username, EmailAddress, Hashed, Password, Slug) where
 
 import           Cascade.Core.Data.ByteString.Password
                                                      ( Password )
@@ -18,4 +18,5 @@ import           Cascade.Core.Data.Hashed            ( Hashed )
 import           Cascade.Core.Data.Id                ( Id )
 import           Cascade.Core.Data.Phase             ( Phase )
 import           Cascade.Core.Data.Text.EmailAddress ( EmailAddress )
+import           Cascade.Core.Data.Text.Slug         ( Slug )
 import           Cascade.Core.Data.Text.Username     ( Username )
