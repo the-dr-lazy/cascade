@@ -10,6 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Phase (Phase(..)) where
+module Cascade.Core.Data.Phase (Phase(..), SomePhase(..), Suitable) where
 
 data Phase = Unknown | New | Persisted
+
+data SomePhase (a :: Phase -> Type) where
+  SomeNew       ::a 'New       -> SomePhase a
+  SomePersisted ::a 'Persisted -> SomePhase a
+
+type family Suitable (phase :: Phase) (f :: Phase -> Type) :: Type where
+  Suitable 'New       f = SomePhase f
+  Suitable 'Persisted f = f 'Persisted
