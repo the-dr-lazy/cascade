@@ -33,7 +33,7 @@ data Unit phase = Unit
   , description :: Maybe (Text.Finite 1 2584)
   , pomodoro    :: Pomodoro
   , status      :: Status
-  , labels      :: [phase `Suitable` Id Label]
+  , labels      :: [Id Label 'Phase.Persisted]
   , deadlineAt  :: Maybe Time
   , createdAt   :: Time
   , updatedAt   :: Time
