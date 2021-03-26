@@ -18,6 +18,7 @@ import           Cascade.Core.Data                   ( Id
 import {-# SOURCE #-} Cascade.Core.Data.Model.Stage  ( Stage )
 import {-# SOURCE #-} Cascade.Core.Data.Model.User   ( User )
 import           Cascade.Core.Data.Phase             ( Suitable )
+import qualified Cascade.Core.Data.Phase            as Phase
 import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 import qualified Relude.List                        as List
@@ -26,7 +27,7 @@ data Project phase = Project
   { id        :: Id Project phase
   , slug      :: Slug phase
   , name      :: Text.Finite 1 233
-  , users     :: List.NonEmpty (phase `Suitable` Id User)
+  , users     :: List.NonEmpty (Id User 'Phase.Persisted)
   , stages    :: List.NonEmpty (phase `Suitable` Stage)
   , createdAt :: Time
   , updatedAt :: Time

@@ -20,7 +20,7 @@ import           Cascade.Core.Data                   ( EmailAddress
                                                      )
 import {-# SOURCE #-} Cascade.Core.Data.Model.Project
                                                      ( Project )
-import           Cascade.Core.Data.Phase             ( Suitable )
+import qualified Cascade.Core.Data.Phase            as Phase
 import           Chronos                             ( Time )
 
 data User phase = User
@@ -28,7 +28,7 @@ data User phase = User
   , username       :: Username phase
   , emailAddress   :: EmailAddress phase
   , hashedPassword :: Hashed Password
-  , projects       :: [phase `Suitable` Id Project]
+  , projects       :: [Id Project 'Phase.Persisted]
   , createdAt      :: Time
   , updatedAt      :: Time
   }
