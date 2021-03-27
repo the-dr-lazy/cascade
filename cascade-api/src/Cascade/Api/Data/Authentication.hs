@@ -35,8 +35,11 @@ data Credential (p :: Validation.Phase) = Credential
   deriving stock Generic
 
 deriving stock instance Show (Credential 'Validation.Raw)
-deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance ToJSON (Credential 'Validation.Raw)
-deriving via Aeson.RecordErrorFormat (Credential 'Validation.Raw) instance FromJSON (Credential 'Validation.Raw)
+deriving anyclass instance ToJSON (Credential 'Validation.Raw)
+deriving anyclass instance FromJSON (Credential 'Validation.Raw)
 
-parseRawCredential :: Credential 'Validation.Raw -> Validation () (Credential 'Validation.Parsed)
-parseRawCredential = first mempty . Validation.parseRecord Credential { username = Username.mk, password = Password.mk }
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Error) instance ToJSON (Credential 'Validation.Error)
+deriving via Aeson.RecordErrorFormat (Credential 'Validation.Error) instance FromJSON (Credential 'Validation.Error)
+
+parseRawCredential :: Credential 'Validation.Raw -> Validation (Credential 'Validation.Error) (Credential 'Validation.Parsed)
+parseRawCredential = Validation.parseRecord Credential { username = Username.mk, password = Password.mk }
