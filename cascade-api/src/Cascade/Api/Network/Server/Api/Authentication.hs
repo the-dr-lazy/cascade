@@ -27,6 +27,7 @@ import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , _Wrapped'
                                                      )
+import qualified Data.Aeson                         as Aeson
 import           Polysemy                            ( Members
                                                      , Sem
                                                      )
@@ -42,11 +43,14 @@ import           Validation                          ( validation )
 import           Web.Cookie
 import qualified Web.Cookie                         as Cookie
 
-handleLogin :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Validation.Raw -> Sem r LoginResponse
-handleLogin = validation (const $ throw err422) go . Authentication.parseRawCredential
+handleLogin :: forall r . Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Validation.Raw -> Sem r LoginResponse
+handleLogin = validation onValidationFailure onValidationSuccess . Authentication.parseRawCredential
  where
-  go :: Members '[Database.UserL , Error ServerError] r => Authentication.Credential 'Validation.Parsed -> Sem r LoginResponse
-  go credential = Database.User.findByUsername (credential ^. #username) >>= maybe
+  onValidationFailure :: Authentication.Credential 'Validation.Error -> Sem r a
+  onValidationFailure (Aeson.encode -> body) = throw err422 { errBody = body }
+
+  onValidationSuccess :: Authentication.Credential 'Validation.Parsed -> Sem r LoginResponse
+  onValidationSuccess credential = Database.User.findByUsername (credential ^. #username) >>= maybe
     (throw err401)
     \user -> do
       let doesPasswordsMatch = Scrypt.verifyPassword (credential ^. #password) (user ^. #encryptedPassword . _Wrapped')
