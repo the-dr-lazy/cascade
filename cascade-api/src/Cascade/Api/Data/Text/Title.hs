@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Data.Text.EmailAddress
+Module      : Cascade.Api.Data.Text.Title
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,39 +10,38 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, Error(..), un, mk, parse) where
+module Cascade.Api.Data.Text.Title (Title(..), mk, parse) where
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
                                                     as Aeson
+import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
 import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens.TH                     ( makeWrapped )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
-import           Text.Email.Validate                 ( canonicalizeEmail )
 
-newtype EmailAddress = Mk
+newtype Title = Mk
   { un :: Text }
-  deriving newtype (Show, Eq, FromJSON, ToJSON)
+  deriving stock Show
+  deriving newtype (Eq, FromJSON, ToJSON)
 
-makeWrapped ''EmailAddress
+-- FIXME: constructor leak
+makeWrapped ''Title
 
-pattern EmailAddress :: Text -> EmailAddress
-pattern EmailAddress a <- Mk a
-{-# COMPLETE EmailAddress #-}
+mk :: Text -> Maybe Title
+mk t = case Text.NonEmpty.mk t of
+  Just _  -> Just $ Mk t
+  Nothing -> Nothing
 
-data Error = IsInvalid
+data Error = IsEmpty
   deriving stock (Generic, Show)
-  deriving ToJSON via Aeson.FieldErrorFormat Error
-  deriving FromJSON via Aeson.FieldErrorFormat Error
+  deriving (ToJSON, FromJSON) via (Aeson.FieldErrorFormat Error)
 
 type Errors = NonEmpty Error
 
-type instance Validation.Errors Text EmailAddress = Errors
+type instance Validation.Errors Text Title = Errors
 
-mk :: Text -> Maybe EmailAddress
-mk = fmap Mk . fmap decodeUtf8 . canonicalizeEmail . encodeUtf8
-
-parse :: Text -> Validation Errors EmailAddress
-parse = Validation.maybeToSuccess (IsInvalid :| []) . mk
+parse :: Text -> Validation Errors Title
+parse = Validation.maybeToSuccess (IsEmpty :| []) . mk

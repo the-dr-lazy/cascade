@@ -10,17 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.Username (Username, ValidationError(..), ValidationErrors, pattern Username, un, mk) where
+module Cascade.Api.Data.Text.Username (Username, Error(..), Errors, pattern Username, un, mk) where
 
 
 import qualified Cascade.Data.Char                  as Char
+import           Cascade.Data.Validation             ( Validation )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens.TH                     ( makeWrapped )
 import           Control.Selective                   ( ifS )
 import           Data.Aeson                          ( FromJSON
                                                      , ToJSON
                                                      )
+
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
+                                                    as Aeson
 import qualified Data.Text                          as Text
-import           Validation
 
 newtype Username = Mk
   { un :: Text }
@@ -32,22 +36,28 @@ pattern Username :: Text -> Username
 pattern Username a <- Mk a
 {-# COMPLETE Username #-}
 
-data ValidationError
+data Error
   = IsEmpty
   | IsShort
   | IsLong
   | IsInvalid
   deriving stock (Generic, Show)
-  deriving anyclass (FromJSON, ToJSON)
+  deriving ToJSON via Aeson.FieldErrorFormat Error
+  deriving FromJSON via Aeson.FieldErrorFormat Error
 
-type ValidationErrors = NonEmpty ValidationError
+type Errors = NonEmpty Error
 
-mk :: Text -> Validation ValidationErrors Username
+mk :: Text -> Validation Errors Username
 mk input = Mk input <$ validate input
 
-validate :: Text -> Validation ValidationErrors ()
+type instance Validation.Errors Text Username = Errors
+
+validate :: Text -> Validation Errors ()
 validate input = ifS
   (pure $ Text.null input)
-  (failure IsEmpty)
-  (failureIf (l > 20) IsLong *> failureIf (l < 8) IsShort *> failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid)
+  (Validation.failure IsEmpty)
+  (  Validation.failureIf (l > 20) IsLong
+  *> Validation.failureIf (l < 8) IsShort
+  *> Validation.failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid
+  )
   where l = Text.length input

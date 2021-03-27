@@ -18,6 +18,7 @@ import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Users
                                                     as Cascade.Api.Users
 import           Cascade.Api.Test.Prelude            ( )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , has
                                                      , ix
@@ -33,7 +34,7 @@ createExisting = Command generator execute [Require require, Ensure ensure]
 
 -- brittany-disable-next-binding
 newtype CreateExisting (v :: Type -> Type) = CreateExisting
-  { creatable :: User.RawCreatable }
+  { creatable :: User.Creatable 'Validation.Raw }
   deriving stock Show
 
 instance HTraversable CreateExisting where
@@ -45,10 +46,10 @@ generator model | null usernames || null emailAddresses = Nothing
  where
   usernames      = model ^. #user . #byUsername . to Map.keys
   emailAddresses = model ^. #user . #byEmailAddress . to Map.keys
-  creatable      = User.RawCreatable <$> Gen.element usernames <*> Gen.element emailAddresses <*> Gen.password Valid
+  creatable      = User.Creatable <$> Gen.element usernames <*> Gen.element emailAddresses <*> Gen.password Valid
 
 require :: Model Symbolic -> CreateExisting Symbolic -> Bool
-require model (CreateExisting User.RawCreatable { username, emailAddress }) = doesUsernameExist || doesEmailAddressExist
+require model (CreateExisting User.Creatable { username, emailAddress }) = doesUsernameExist || doesEmailAddressExist
  where
   doesUsernameExist     = model |> has (#user . #byUsername . ix username)
   doesEmailAddressExist = model |> has (#user . #byEmailAddress . ix emailAddress)
@@ -57,7 +58,6 @@ execute :: MonadIO m => MonadTest m => CreateExisting Concrete -> m Cascade.Api.
 execute (CreateExisting creatable) = do
   label "[User/Create Existing]"
   evalIO $ Cascade.Api.Users.create creatable
-
 
 ensure :: Model Concrete -> Model Concrete -> CreateExisting Concrete -> Cascade.Api.Users.CreateResponse -> Test ()
 ensure _ _ _ response = do

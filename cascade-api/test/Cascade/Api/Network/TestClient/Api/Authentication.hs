@@ -17,10 +17,11 @@ import qualified Cascade.Api.Network.Anatomy.Api.Authentication
                                                     as Api.Authentication
 import           Cascade.Api.Network.TestClient      ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api as Client.Api
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.) )
 import           Servant.Client                      ( ResponseF )
 
 type LoginResponse = ResponseF Api.Authentication.LoginResponse
 
-login :: Authentication.RawCredential -> IO LoginResponse
+login :: Authentication.Credential 'Validation.Raw -> IO LoginResponse
 login = interpret . go where go = Client.Api.authentication ^. #login

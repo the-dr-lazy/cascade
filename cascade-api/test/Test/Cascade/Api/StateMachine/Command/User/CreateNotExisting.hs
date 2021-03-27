@@ -20,6 +20,7 @@ import qualified Cascade.Api.Network.TestClient.Api.Users
                                                     as Cascade.Api.Users
 import           Cascade.Api.Test.Prelude            ( )
 import qualified Cascade.Data.Char                  as Char
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (?~)
                                                      , (^.)
                                                      , at
@@ -34,7 +35,7 @@ import           Test.Cascade.Api.StateMachine.Model ( Model )
 -- brittany-disable-next-binding
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
   { validity  :: Validity
-  , creatable :: User.RawCreatable
+  , creatable :: User.Creatable 'Validation.Raw
   }
   deriving stock (Generic, Show)
 
@@ -50,7 +51,7 @@ generator model = Just do
   (emailAddressValidity, emailAddress) <- Gen.withValidity Gen.emailAddress
   (passwordValidity    , password    ) <- Gen.withValidity Gen.password
   let validity  = fold [usernameValidity, emailAddressValidity, passwordValidity]
-      creatable = User.RawCreatable { .. }
+      creatable = User.Creatable { .. }
 
   let isUsernameUnique     = model |> hasn't (#user . #byUsername . ix username)
       isEmailAddressUnique = model |> hasn't (#user . #byEmailAddress . ix emailAddress)
@@ -68,12 +69,12 @@ coverage (CreateNotExisting Invalid creatable) = do
   cover 5 "invalid email address" isEmailAddressInvalid
   cover 5 "too short password"    isPasswordTooShort
  where
-  User.RawCreatable { username, emailAddress, password } = creatable
-  isUsernameTooShort    = Text.length username < 8
-  isUsernameTooLong     = Text.length username > 20
-  isUsernameInvalid     = not . Text.all Char.isAlphaNumUnderscore <| username
-  isEmailAddressInvalid = not . Text.any (== '@') <| emailAddress
-  isPasswordTooShort    = Text.length password < 8
+  User.Creatable { username, emailAddress, password } = creatable
+  isUsernameTooShort                                  = Text.length username < 8
+  isUsernameTooLong                                   = Text.length username > 20
+  isUsernameInvalid                                   = not . Text.all Char.isAlphaNumUnderscore <| username
+  isEmailAddressInvalid                               = not . Text.any (== '@') <| emailAddress
+  isPasswordTooShort                                  = Text.length password < 8
 
 execute :: MonadIO m => MonadTest m => CreateNotExisting Concrete -> m Cascade.Api.Users.CreateResponse
 execute input@(CreateNotExisting validity creatable) = do
@@ -87,7 +88,7 @@ update :: Model v -> CreateNotExisting v -> Var output v -> Model v
 update model CreateNotExisting { validity = Invalid } _ = model
 update model CreateNotExisting { validity = Valid, creatable } _ =
   model |> (#user . #byUsername . at username ?~ creatable) |> (#user . #byEmailAddress . at emailAddress ?~ creatable)
-  where User.RawCreatable { username, emailAddress } = creatable
+  where User.Creatable { username, emailAddress } = creatable
 
 ensure :: Model Concrete -> Model Concrete -> CreateNotExisting Concrete -> Cascade.Api.Users.CreateResponse -> Test ()
 ensure _ _ input response = do

@@ -27,7 +27,7 @@ import           Database.Beam                       ( Beamable
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
   { id         :: Wrapped.C f Task.Id
-  , title      :: Wrapped.C f Text.NonEmpty
+  , title      :: C f Text
   , deadlineAt :: C f OffsetDatetime
   , projectId  :: PrimaryKey ProjectTable f
   }

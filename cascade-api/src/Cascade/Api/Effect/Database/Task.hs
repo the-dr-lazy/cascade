@@ -17,7 +17,7 @@ import qualified Cascade.Api.Data.OffsetDatetime.Deadline
                                                     as Deadline
 import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
-
+import qualified Cascade.Api.Data.Text.Title        as Title
 import           Cascade.Api.Data.WrappedC
 import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
 import qualified Cascade.Api.Database.Sql           as SQL
@@ -27,6 +27,7 @@ import           Cascade.Api.Database.TaskTable      ( TaskTable )
 import qualified Cascade.Api.Database.TaskTable     as TaskTable
 import qualified Cascade.Api.Effect.Database        as Database
 import           Cascade.Api.Effect.Database         ( DatabaseL )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.)
                                                      , to
                                                      )
@@ -46,13 +47,11 @@ import           Polysemy                            ( Member
 import qualified Relude.Unsafe                      as Unsafe
                                                      ( fromJust )
 
-
-
 data TaskL m a where
   FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
   FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
-  Create          ::Task.ParsedCreatable -> Project.Id -> TaskL m Task.Readable
-  UpdateById      ::Task.Id -> Task.ParsedUpdatable -> TaskL m (Maybe Task.Readable)
+  Create          ::Task.Creatable 'Validation.Parsed -> Project.Id -> TaskL m Task.Readable
+  UpdateById      ::Task.Id -> Task.Updatable 'Validation.Parsed -> TaskL m (Maybe Task.Readable)
   DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
@@ -76,7 +75,7 @@ run = interpret \case
       |> fmap Unsafe.fromJust
       |> fmap toReadableTask
   UpdateById id updatable -> case updatable of
-    Task.ParsedUpdatable { title = Nothing, deadlineAt = Nothing } -> run $ findById id
+    Task.Updatable { title = Nothing, deadlineAt = Nothing } -> run $ findById id
     _ ->
       SQL.update #tasks (fromParsedUpdatableTask updatable) (#id `SQL.eq` SQL.literal id)
         |> Database.runUpdateReturningOne
@@ -90,7 +89,7 @@ toReadableTask TaskTable.Row {..} =
 fromParsedCreatableTask :: BeamSqlBackend backend
                         => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
                         => Project.Id
-                        -> Task.ParsedCreatable
+                        -> Task.Creatable 'Validation.Parsed
                         -> TaskTable (Beam.QExpr backend s)
 fromParsedCreatableTask projectId creatable = TaskTable.Row { id         = SQL.def
                                                             , title      = creatable ^. #title . to coerce . to val_
@@ -100,7 +99,7 @@ fromParsedCreatableTask projectId creatable = TaskTable.Row { id         = SQL.d
 
 fromParsedUpdatableTask :: BeamSqlBackend backend
                         => SQL.TableFieldsFulfillConstraint (BeamSqlBackendCanSerialize backend) TaskTable
-                        => Task.ParsedUpdatable
+                        => Task.Updatable 'Validation.Parsed
                         -> (forall s . TaskTable (Beam.QField s) -> Beam.QAssignment backend s)
 fromParsedUpdatableTask updatable task =
   mconcat

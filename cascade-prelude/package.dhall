@@ -12,6 +12,7 @@ let cascade-prelude =
         , "relude"
         , "text"
         , "uuid"
+        , "validation-selective"
         , "word8"
         ]
       }

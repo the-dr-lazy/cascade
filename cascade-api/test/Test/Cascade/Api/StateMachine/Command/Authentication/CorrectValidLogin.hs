@@ -56,10 +56,10 @@ generator model = case inputs of
  where
   inputs = do
     (username, password) <- model ^@.. Model.Lens.indexPasswordByUsername
-    pure . Login <| Authentication.RawCredential { .. }
+    pure . Login <| Authentication.Credential { .. }
 
 require :: Model Symbolic -> Login Symbolic -> Bool
-require model (Login Authentication.RawCredential { username, password }) = hasUserBeenCreated && isPasswordCorrect
+require model (Login Authentication.Credential { username, password }) = hasUserBeenCreated && isPasswordCorrect
  where
   hasUserBeenCreated = model |> has (#user . #byUsername . ix username)
   isPasswordCorrect  = Just password == model ^? #user . #byUsername . ix username . #password
@@ -70,7 +70,7 @@ execute (Login credential) = do
   ensure =<< evalIO (Cascade.Api.Authentication.login credential)
 
 update :: Model v -> Login v -> Var AuthToken v -> Model v
-update model (Login Authentication.RawCredential { username }) token = model |> #authToken . #byUsername . at username ?~ token
+update model (Login Authentication.Credential { username }) token = model |> #authToken . #byUsername . at username ?~ token
 
 ensure :: MonadTest m => Cascade.Api.Authentication.LoginResponse -> m AuthToken
 ensure response = do

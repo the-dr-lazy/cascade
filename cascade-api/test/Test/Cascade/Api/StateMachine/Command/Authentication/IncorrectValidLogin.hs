@@ -40,7 +40,7 @@ generator model = Just do
   username <- Gen.choice . catMaybes <| [fmap Gen.element usernames, Just <| Gen.username Valid]
   password <- Gen.password Valid |> Gen.filterT \password -> Just password /= model ^? #user . #byUsername . ix username . #password
 
-  pure . Login <| Authentication.RawCredential { .. }
+  pure . Login <| Authentication.Credential { .. }
 
 execute :: MonadIO m => MonadTest m => Login Concrete -> m ()
 execute (Login credential) = do

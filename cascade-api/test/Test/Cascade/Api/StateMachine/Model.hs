@@ -24,6 +24,7 @@ import qualified Cascade.Api.Data.Project           as Project
 import qualified Cascade.Api.Data.Task              as Task
 import qualified Cascade.Api.Data.User              as User
 import           Cascade.Api.Network.TestClient      ( AuthToken )
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^..)
                                                      , at
                                                      , foldMapOf
@@ -69,14 +70,14 @@ data ProjectModel (v :: Type -> Type) = ProjectModel
 
 -- brittany-disable-next-binding
 data TaskModel (v :: Type -> Type) = TaskModel
-  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) Task.RawCreatable)
+  { byProjectId    :: Map (Var Project.Id v) (Map (Var Task.Id v) (Task.Creatable 'Validation.Raw))
   , notExistingIds :: [Var Task.Id v]
   }
   deriving stock Generic
 
 data UserModel = UserModel
-  { byUsername     :: Map Username User.RawCreatable
-  , byEmailAddress :: Map EmailAddress User.RawCreatable
+  { byUsername     :: Map Username (User.Creatable 'Validation.Raw)
+  , byEmailAddress :: Map EmailAddress (User.Creatable 'Validation.Raw)
   }
   deriving stock Generic
 

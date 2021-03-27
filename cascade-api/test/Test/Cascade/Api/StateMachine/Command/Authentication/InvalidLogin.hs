@@ -20,6 +20,7 @@ import qualified Cascade.Api.Network.TestClient.Api.Authentication
                                                     as Cascade.Api.Authentication
 import           Cascade.Api.Test.Prelude            ( )
 import qualified Cascade.Data.Char                  as Char
+import qualified Cascade.Data.Validation            as Validation
 import           Control.Lens                        ( (^.) )
 import qualified Data.Text                          as Text
 import           Hedgehog
@@ -35,10 +36,10 @@ generator _ = Just do
   username                             <- Gen.username usernameValidity
   password                             <- Gen.password passwordValidity
 
-  pure . Login <| Authentication.RawCredential { .. }
+  pure . Login <| Authentication.Credential { .. }
 
-coverage :: MonadTest m => Authentication.RawCredential -> m ()
-coverage Authentication.RawCredential { username, password } = do
+coverage :: MonadTest m => Authentication.Credential 'Validation.Raw -> m ()
+coverage Authentication.Credential { username, password } = do
   cover 5 "too short username" isUsernameTooShort
   cover 5 "too long username"  isUsernameTooLong
   cover 5 "invalid username"   isUsernameInvalid
