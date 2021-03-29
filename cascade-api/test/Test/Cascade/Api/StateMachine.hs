@@ -50,7 +50,7 @@ prop_sequential getMigratedDatabase = withTests 500 . property $ do
   control \runInBase -> flip with pure $ do
     pool <- Resource.withPostgresConnectionPool db
     liftIO $ withAsync
-      (Cascade.Api.main $ Pool.withResource pool)
+      (Cascade.Api.main 3141 $ Pool.withResource pool)
       \_ -> do
         Socket.wait "127.0.0.1" 3141
         runInBase $ executeSequential initialModel actions

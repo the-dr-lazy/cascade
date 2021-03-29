@@ -1,4 +1,4 @@
-module Cascade.CLI (cascadeCli) where
+module Cascade.CLI (main) where
 
 import qualified Cascade.Api
 import qualified Data.Pool                          as Pool
@@ -33,60 +33,67 @@ import           Development.GitRev                  ( gitCommitDate
                                                      , gitHash
                                                      )
 
-mkDatabaseConnectionPool :: Options -> IO (Pool Postgres.Connection)
-mkDatabaseConnectionPool Options {..} = do
+mkDatabaseConnectionPool :: PostgresOptions -> IO (Pool Postgres.Connection)
+mkDatabaseConnectionPool PostgresOptions {..} = do
   createPool acquire Postgres.close 1 10 10
  where
-  acquire =
-    Postgres.connectPostgreSQL
-      $  "postgresql://"
-      <> postgresUser
-      <> ":"
-      <> postgresPassword
-      <> "@"
-      <> postgresHost
-      <> ":"
-      <> show postgresPort
-      <> "/"
-      <> postgresDatabase
+  connectionInfo = Postgres.ConnectInfo { connectHost     = postgresHost
+                                        , connectPort     = postgresPort
+                                        , connectUser     = postgresUser
+                                        , connectPassword = postgresPassword
+                                        , connectDatabase = postgresDatabase
+                                        }
+  acquire = Postgres.connect connectionInfo
 
 runCascadeApi :: Options -> IO ()
-runCascadeApi options@Options {..} = do
-  databaseConnectionPool <- mkDatabaseConnectionPool options
-  Cascade.Api.main httpPort $ Pool.withResource databaseConnectionPool
+runCascadeApi Options {..} = do
+  databaseConnectionPool <- mkDatabaseConnectionPool postgresOptions
+  Cascade.Api.main <| Cascade.Api.Config { port = httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
 cascadeVersion :: Version -> String
 cascadeVersion version = intercalate "\n" [cVersion, cHash, cDate]
  where
   cVersion, cHash, cDate :: String
-  cVersion = "Cascade CLI " <> "v" <> showVersion version
+  cVersion = "Cascade CLI v" <> showVersion version
   cHash    = "Git revision: " <> $(gitHash)
   cDate    = "Last commit: " <> $(gitCommitDate)
 
 versionP :: Version -> Parser (a -> a)
-versionP version = infoOption (cascadeVersion version) $ long "version" <> short 'v' <> help "Show cascade's version"
+versionP version = infoOption (cascadeVersion version) <| mconcat [long "version", short 'v', help "Show cascade's version"]
 
-data Options = Options
-  { httpPort         :: !Int
-  , postgresHost     :: !ByteString
-  , postgresPort     :: !Int
-  , postgresUser     :: !ByteString
-  , postgresPassword :: !ByteString
-  , postgresDatabase :: !ByteString
+data PostgresOptions = PostgresOptions
+  { postgresHost     :: !String
+  , postgresPort     :: !Word16
+  , postgresUser     :: !String
+  , postgresPassword :: !String
+  , postgresDatabase :: !String
   }
 
-cascadeP :: Parser Options
-cascadeP =
+data Options = Options
+  { httpPort        :: !Int
+  , postgresOptions :: PostgresOptions
+  }
+
+optionsP :: Parser Options
+optionsP =
   Options
-    <$> option auto (long "http-port" <> metavar "INT" <> value 3141 <> showDefault <> help "Port number of Cascade Api")
-    <*> strOption (long "postgres-host" <> metavar "STRING" <> value "localhost" <> showDefault <> help "Postgresql host")
-    <*> option auto (long "postgres-port" <> metavar "INT" <> value 5432 <> showDefault <> help "Postgres port")
-    <*> strOption (long "postgres-user" <> metavar "STRING" <> value "cascade" <> showDefault <> help "Postgresql user")
-    <*> strOption (long "postgres-password" <> metavar "STRING" <> value "" <> showDefault <> help "Postgresql passowrd")
-    <*> strOption (long "postgres-database" <> metavar "STRING" <> value "cascade-api" <> showDefault <> help "Postgresql database")
+    <$> option auto (mconcat [long "http-port", metavar "CASCADE_HTTP_PORT", value 3141, showDefault, help "Port number of Cascade Api"])
+    <*> postgresOpts
+ where
+  postgresOpts :: Parser PostgresOptions
+  postgresOpts =
+    PostgresOptions
+      <$> strOption (mconcat [long "postgres-host", metavar "CASCADE_POSTGRES_HOST", value "localhost", showDefault, help "PostgreSQL host"])
+      <*> option auto (mconcat [long "postgres-port", metavar "CASCADE_POSTGRES_PORT", value 5432, showDefault, help "Postgres port"])
+      <*> strOption (mconcat [long "postgres-user", metavar "CASCADE_POSTGRES_USER", value "cascade", showDefault, help "PostgreSQL user"])
+      <*> strOption (mconcat [long "postgres-password", metavar "CASCADE_POSTGRES_PASSWORD", value "", showDefault, help "PostgreSQL passowrd"])
+      <*> strOption
+            (mconcat
+              [long "postgres-database", metavar "CASCADE_POSTGRES_DATABASE", value "cascade-api", showDefault, help "PostgreSQL database"]
+            )
 
 cliParser :: Version -> ParserInfo Options
-cliParser version = info (helper <*> versionP version <*> cascadeP) $ fullDesc <> progDesc "Cascade Cli"
+cliParser version = info (helper <*> versionP version <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
 
-cascadeCli :: IO ()
-cascadeCli = execParser (cliParser Meta.version) >>= runCascadeApi
+main :: IO ()
+main = execParser (cliParser Meta.version) >>= runCascadeApi

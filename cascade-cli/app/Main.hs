@@ -12,11 +12,11 @@ Portability : POSIX
 
 module Main (main) where
 
-import           Cascade.CLI                         ( cascadeCli )
+import qualified Cascade.CLI                        as CLI
 import           System.IO                           ( hSetEncoding
                                                      , utf8
                                                      )
 
 main :: IO ()
 main = do
-  hSetEncoding stdout utf8 >> cascadeCli
+  hSetEncoding stdout utf8 >> CLI.main
