@@ -6,7 +6,13 @@ let cascade =
       { source-dirs = "app"
       , main = "Main.hs"
       , ghc-options = [ "-threaded", "-rtsopts", "-with-rtsopts=-N" ]
-      , dependencies = [ "cascade-api", "postgresql-simple", "resource-pool" ]
+      , dependencies = [ "cascade-cli" ]
+      }
+
+let cascade-cli =
+      { source-dirs = "src"
+      , dependencies = [ "cascade-api", "postgresql-simple", "resource-pool", "optparse-applicative", "gitrev"]
+      , generated-other-modules = ["Paths_cascade_cli"]
       }
 
 let cascade-cli-test =
@@ -22,5 +28,6 @@ in    Cascade.package
       , category = "CLI"
       , dependencies
       , executables.cascade = cascade
+      , library = cascade-cli
       , tests.cascade-cli-test = cascade-cli-test
       }

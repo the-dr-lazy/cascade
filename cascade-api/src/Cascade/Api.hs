@@ -28,9 +28,9 @@ import           Polysemy.Error                      ( errorToIOFinal )
 import           Polysemy.Final                      ( embedToFinal )
 import qualified Servant
 
-main :: (forall a . (Postgres.Connection -> IO a) -> IO a) -> IO ()
-main withDatabaseConnection = do
-  Warp.run 3141 $ application
+main :: Int -> (forall a . (Postgres.Connection -> IO a) -> IO a) -> IO ()
+main port withDatabaseConnection = do
+  Warp.run port $ application
     ( Servant.Handler
     . ExceptT
     . runFinal
