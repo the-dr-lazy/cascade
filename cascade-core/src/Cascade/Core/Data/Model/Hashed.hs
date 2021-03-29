@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Data.Hashed
+Module      : Cascade.Core.Data.Model.Hashed
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -23,4 +23,4 @@ pattern Hashed a <- Mk a
 {-# COMPLETE Hashed #-}
 
 mk :: Coercible ByteString a => a -> IO (Hashed a)
-mk x = Scrypt.encryptPassIO' (coerce x) |> coerce |> fmap Mk
+mk = fmap Mk . coerce . Scrypt.encryptPassIO' . coerce
