@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Internal.Data.Text.Slug (Slug, pattern Slug, mk, un, unsafePhaseCoerce) where
+module Cascade.Core.Internal.Data.Model.Project.Slug (Slug, pattern Slug, mk, un, unsafePhaseCoerce) where
 
 import           Cascade.Core.Data.Phase             ( Phase )
 import qualified Cascade.Core.Data.Phase            as Phase

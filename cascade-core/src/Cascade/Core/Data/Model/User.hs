@@ -10,25 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.User (User(..)) where
+module Cascade.Core.Data.Model.User (User(..), EmailAddress, Password, Username) where
 
-import           Cascade.Core.Data                   ( EmailAddress
-                                                     , Hashed
-                                                     , Id
-                                                     , Password
-                                                     , Username
-                                                     )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Project
-                                                     ( Project )
-import qualified Cascade.Core.Data.Phase            as Phase
+import           Cascade.Core.Data.Model.Hashed      ( Hashed )
+import           Cascade.Core.Data.Model.Id          ( Id )
+import           Cascade.Core.Data.Model.User.EmailAddress
+                                                     ( EmailAddress )
+import           Cascade.Core.Data.Model.User.Password
+                                                     ( Password )
+import           Cascade.Core.Data.Model.User.Username
+                                                     ( Username )
 import           Chronos                             ( Time )
 
 data User phase = User
-  { id             :: Id User phase
+  { id             :: User `Id` phase
   , username       :: Username phase
   , emailAddress   :: EmailAddress phase
   , hashedPassword :: Hashed Password
-  , projects       :: [Id Project 'Phase.Persisted]
   , createdAt      :: Time
   , updatedAt      :: Time
   }
+
+type role User nominal

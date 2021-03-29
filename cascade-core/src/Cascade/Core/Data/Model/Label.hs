@@ -12,13 +12,10 @@ Portability : POSIX
 
 module Cascade.Core.Data.Model.Label (Label(..)) where
 
-import           Cascade.Core.Data                   ( Id )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Task   ( Task )
-import qualified Cascade.Core.Data.Phase            as Phase
+import           Cascade.Core.Data.Model.Id          ( Id )
 import qualified Cascade.Data.Text                  as Text
 
 data Label phase = Label
-  { id    :: Id Label phase
-  , name  :: Text.Finite 1 233
-  , tasks :: [Id Task 'Phase.Persisted]
+  { id   :: Id Label phase
+  , name :: Text.Finite 1 233
   }

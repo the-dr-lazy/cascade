@@ -10,8 +10,8 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Id (Id) where
+module Cascade.Core.Data.Model.Id (Id) where
 
-import           Cascade.Core.Data.Phase             ( Phase )
+import           Cascade.Core.Data.Model.Phase       ( Phase )
 
-data family Id (entity :: k) (phase :: Phase)
+data family (entity :: k) `Id` (phase :: Phase)

@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Internal.Data.Text.Username (Username, Error(..), Errors, pattern Username, un, mk, unsafePhaseCoerce) where
+module Cascade.Core.Internal.Data.Model.User.Username (Username, Error(..), Errors, pattern Username, un, mk, unsafePhaseCoerce) where
 
 import           Cascade.Core.Data.Phase             ( Phase )
 import qualified Cascade.Core.Data.Phase            as Phase

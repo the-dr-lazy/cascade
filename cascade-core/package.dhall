@@ -1,17 +1,21 @@
 let Cascade = ../package.dhall
 
 let dependencies =
-      [ "base-noprelude", "cascade-prelude", "chronos", "relude", "text" ]
+      [ "base-noprelude"
+      , "cascade-prelude"
+      , "chronos"
+      , "relude"
+      , "text"
+      , "uuid"
+      ]
 
 let cascade-core =
       { source-dirs = "src"
-      , other-modules =
-        [ "Cascade.Core.Internal.Data.Text.EmailAddress"
-        , "Cascade.Core.Internal.Data.Text.Username"
-        ]
+      , exposed-modules = [] : List Text
       , ghc-options = [ "-fplugin=Polysemy.Plugin" ]
       , dependencies =
-        [ "beam-core"
+        [ "attoparsec"
+        , "beam-core"
         , "beam-postgres"
         , "email-validate"
         , "generic-lens"

@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.ByteString.Password (Password, pattern Password, Error(..), Errors, mk, un) where
+module Cascade.Core.Data.Model.User.Password (Password, pattern Password, Error(..), Errors, mk, un) where
 
 import           Control.Selective                   ( ifS )
 import qualified Data.Text                          as Text

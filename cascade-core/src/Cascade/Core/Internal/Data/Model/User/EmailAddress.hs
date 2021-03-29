@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Internal.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, un, mk, unsafePhaseCoerce) where
+module Cascade.Core.Internal.Data.Model.User.EmailAddress (EmailAddress, pattern EmailAddress, un, mk, unsafePhaseCoerce) where
 
 import           Cascade.Core.Data.Phase             ( Phase )
 import qualified Cascade.Core.Data.Phase            as Phase

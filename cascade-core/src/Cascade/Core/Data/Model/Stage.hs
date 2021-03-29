@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Data.Model.Stage
+Module      : Cascade.Core.Data.Stage
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,21 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.Stage (Stage(..)) where
+module Cascade.Core.Data.Stage (Stage(..), Name) where
 
-import           Cascade.Core.Data                   ( Id )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Project
-                                                     ( Project )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Task   ( Task )
-import           Cascade.Core.Data.Phase             ( Suitable )
+import {-# SOURCE #-} Cascade.Core.Data.Model        ( Task )
+import           Cascade.Core.Data.Model.Id          ( Id )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
+import           Cascade.Core.Data.Model.Stage.Name  ( Name )
 import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 
 data Stage phase = Stage
-  { id        :: Id Stage phase
-  , name      :: Text.Finite 1 233
-  , project   :: phase `Suitable` Id Project
-  , tasks     :: [phase `Suitable` Task]
+  { id        :: Stage `Id` phase
+  , name      :: Name phase
+  , tasks     :: [Task `Id` 'Phase.Persisted]
   , createdAt :: Time
   , updatedAt :: Time
   }
+
+type role Stage nominal

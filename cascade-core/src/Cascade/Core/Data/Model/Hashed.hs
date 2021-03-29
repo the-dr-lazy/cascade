@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Hashed (Hashed, pattern Hashed, un, mk) where
+module Cascade.Core.Data.Model.Hashed (Hashed, pattern Hashed, un, mk) where
 
 import qualified Crypto.Scrypt                      as Scrypt
 

@@ -10,40 +10,49 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.Task (Task(..), Spec(..), Unit(..), Group(..), Pomodoro(..), Status(..)) where
+module Cascade.Core.Data.Model.Task (Task(..), Formation(..), Unit(..), Group(..), Pomodoro(..), Status(..), Title, Description) where
 
-import           Cascade.Core.Data                   ( Id )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Label  ( Label )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Stage  ( Stage )
-import qualified Cascade.Core.Data.Phase            as Phase
-import           Cascade.Core.Data.Phase             ( Suitable )
+import {-# SOURCE #-} Cascade.Core.Data.Model        ( Label )
+import           Cascade.Core.Data.Model.Id          ( Id )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
+import qualified Cascade.Data.List                  as List
 import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 
 data Task phase = Task
-  { id    :: Id Task phase
-  , stage :: phase `Suitable` Id Stage
-  , spec  :: Spec phase
+  { id        :: Task `Id` phase
+  , formation :: Formation phase
   }
 
-data Spec phase = Solo (Unit phase) | Grouped (Group phase)
+type role Task nominal
+
+data Formation phase = Solo (Unit phase) | Grouped (Group phase)
+
+type role Formation nominal
+
+type Title = Text.Finite 1 233
+type Description = Text.Finite 1 2584
 
 data Unit phase = Unit
-  { title       :: Text.Finite 1 233
-  , description :: Maybe (Text.Finite 1 2584)
+  { title       :: Title
+  , description :: Maybe Description
   , pomodoro    :: Pomodoro
   , status      :: Status
-  , labels      :: [Id Label 'Phase.Persisted]
+  , labels      :: [Label `Id` 'Phase.Persisted]
   , deadlineAt  :: Maybe Time
   , createdAt   :: Time
   , updatedAt   :: Time
   }
 
+type role Unit nominal
+
 data Group phase = Group
-  { title       :: Text.Finite 1 233
-  , description :: Maybe (Text.Finite 1 2584)
+  { title       :: Title
+  , description :: Maybe Description
   , units       :: List.AtLeastTwo (Unit phase)
   }
+
+type role Group nominal
 
 data Pomodoro = Pomodoro
   { elapsed :: Word

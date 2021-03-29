@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Phase (Phase(..), SomePhase(..), Suitable) where
+module Cascade.Core.Data.Model.Phase (Phase(..), SomePhase(..), Suitable) where
 
 data Phase = Unknown | New | Persisted
 

@@ -10,25 +10,29 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.Project (Project(..)) where
+module Cascade.Core.Data.Model.Project (Project(..), Slug, Name) where
 
-import           Cascade.Core.Data                   ( Id
-                                                     , Slug
+import {-# SOURCE #-} Cascade.Core.Data.Model        ( Stage
+                                                     , User
                                                      )
-import {-# SOURCE #-} Cascade.Core.Data.Model.Stage  ( Stage )
-import {-# SOURCE #-} Cascade.Core.Data.Model.User   ( User )
-import           Cascade.Core.Data.Phase             ( Suitable )
-import qualified Cascade.Core.Data.Phase            as Phase
+import           Cascade.Core.Data.Model.Id          ( Id )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
+import           Cascade.Core.Data.Model.Project.Slug
+                                                     ( Slug )
 import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 import qualified Relude.List                        as List
 
+type Name = Text.Finite 1 233
+
 data Project phase = Project
-  { id        :: Id Project phase
+  { id        :: Project `Id` phase
   , slug      :: Slug phase
-  , name      :: Text.Finite 1 233
-  , users     :: List.NonEmpty (Id User 'Phase.Persisted)
-  , stages    :: List.NonEmpty (phase `Suitable` Stage)
+  , name      :: Name
+  , users     :: List.NonEmpty (User `Id` 'Phase.Persisted)
+  , stages    :: List.NonEmpty (Stage `Id` 'Phase.Persisted)
   , createdAt :: Time
   , updatedAt :: Time
   }
+
+type role Project nominal

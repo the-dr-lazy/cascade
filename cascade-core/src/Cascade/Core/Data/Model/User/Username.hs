@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Data.Text.Slug
+Module      : Cascade.Core.Data.Text.Username
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Text.Slug (module Cascade.Core.Internal.Data.Text.Slug) where
+module Cascade.Core.Data.Model.User.Username (module Cascade.Core.Internal.Data.Model.User.Username) where
 
-import           Cascade.Core.Internal.Data.Text.Slug
+import           Cascade.Core.Internal.Data.Model.User.Username
                                               hiding ( unsafePhaseCoerce )
