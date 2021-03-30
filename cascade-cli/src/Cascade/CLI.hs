@@ -68,15 +68,15 @@ versionP :: Parser (a -> a)
 versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
 
 data PostgresOptions = PostgresOptions
-  { host     :: !String
-  , port     :: !Word16
-  , user     :: !String
-  , password :: !String
-  , database :: !String
+  { host     :: String
+  , port     :: Word16
+  , user     :: String
+  , password :: String
+  , database :: String
   }
 
 data Options = Options
-  { httpPort        :: !Int
+  { httpPort        :: Int
   , postgresOptions :: PostgresOptions
   }
 
