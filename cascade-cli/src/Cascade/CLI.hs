@@ -97,8 +97,8 @@ optionsP =
     <$> option auto (mconcat [long "http-port", metavar "CASCADE_HTTP_PORT", value 3141, showDefault, help "Port number of Cascade Api"])
     <*> postgresOptionsP
 
-cliParser :: ParserInfo Options
-cliParser = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
+cliP :: ParserInfo Options
+cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
 
 main :: IO ()
-main = execParser cliParser >>= runCascadeApi
+main = execParser cliP >>= runCascadeApi
