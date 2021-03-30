@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api (main) where
+module Cascade.Api (main, Config(..)) where
 
 import qualified Cascade.Api.Effect.Database        as Database
 import qualified Cascade.Api.Effect.Database.Project
@@ -28,9 +28,14 @@ import           Polysemy.Error                      ( errorToIOFinal )
 import           Polysemy.Final                      ( embedToFinal )
 import qualified Servant
 
-main :: (forall a . (Postgres.Connection -> IO a) -> IO a) -> IO ()
-main withDatabaseConnection = do
-  Warp.run 3141 $ application
+data Config = Config
+  { port                   :: Int
+  , withDatabaseConnection :: forall a . (Postgres.Connection -> IO a) -> IO a
+  }
+
+main :: Config -> IO ()
+main Config {..} = do
+  Warp.run port $ application
     ( Servant.Handler
     . ExceptT
     . runFinal

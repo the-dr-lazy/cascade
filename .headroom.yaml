@@ -9,6 +9,7 @@ source-paths:
   - cascade-api/test
   - cascade-api/benchmark
   - cascade-cli/app
+  - cascade-cli/src
   - cascade-cli/test
 
 excluded-paths:
