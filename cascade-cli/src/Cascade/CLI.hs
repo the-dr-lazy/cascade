@@ -62,7 +62,7 @@ cascadeVersion = intercalate "\n" [cVersion, cHash, cDate]
   cVersion, cHash, cDate :: String
   cVersion = "Cascade CLI v" <> showVersion Meta.version
   cHash    = "Git revision: " <> $(gitHash)
-  cDate    = "Last commit: " <> $(gitCommitDate)
+  cDate    = "Last commit:  " <> $(gitCommitDate)
 
 versionP :: Parser (a -> a)
 versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
