@@ -13,6 +13,16 @@ Portability : POSIX
 module Cascade.CLI (main) where
 
 import qualified Cascade.Api
+import           Cascade.CLI.Options                 ( Options
+                                                     , OptionsP(..)
+                                                     , PartialOptions
+                                                     , PostgresOptions
+                                                     , PostgresOptionsP(..)
+                                                     , mkOptions
+                                                     )
+import           Cascade.CLI.Options.CLI             ( partialOptionsP )
+import           Cascade.CLI.Options.Default         ( defaultPartialOptions )
+import           Cascade.CLI.Options.Environment     ( readEnvPartialOptions )
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
@@ -24,7 +34,6 @@ import           Development.GitRev                  ( gitCommitDate
                                                      )
 import           Options.Applicative                 ( Parser
                                                      , ParserInfo
-                                                     , auto
                                                      , execParser
                                                      , fullDesc
                                                      , help
@@ -32,13 +41,8 @@ import           Options.Applicative                 ( Parser
                                                      , info
                                                      , infoOption
                                                      , long
-                                                     , metavar
-                                                     , option
                                                      , progDesc
                                                      , short
-                                                     , showDefault
-                                                     , strOption
-                                                     , value
                                                      )
 import qualified Paths_cascade_cli                  as Meta
                                                      ( version )
@@ -67,38 +71,15 @@ cascadeVersion = intercalate "\n" [cVersion, cHash, cDate]
 versionP :: Parser (a -> a)
 versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
 
-data PostgresOptions = PostgresOptions
-  { host     :: String
-  , port     :: Word16
-  , user     :: String
-  , password :: String
-  , database :: String
-  }
+cliP :: ParserInfo PartialOptions
+cliP = info (helper <*> versionP <*> partialOptionsP) <| fullDesc <> progDesc "Cascade Cli"
 
-data Options = Options
-  { httpPort        :: Int
-  , postgresOptions :: PostgresOptions
-  }
-
-postgresOptionsP :: Parser PostgresOptions
-postgresOptionsP =
-  PostgresOptions
-    <$> strOption (mconcat [long "postgres-host", metavar "CASCADE_POSTGRES_HOST", value "localhost", showDefault, help "PostgreSQL host"])
-    <*> option auto (mconcat [long "postgres-port", metavar "CASCADE_POSTGRES_PORT", value 5432, showDefault, help "PostgresSQL port"])
-    <*> strOption (mconcat [long "postgres-user", metavar "CASCADE_POSTGRES_USER", value "cascade", showDefault, help "PostgreSQL user"])
-    <*> strOption (mconcat [long "postgres-password", metavar "CASCADE_POSTGRES_PASSWORD", value "", showDefault, help "PostgreSQL passowrd"])
-    <*> strOption
-          (mconcat [long "postgres-database", metavar "CASCADE_POSTGRES_DATABASE", value "cascade-api", showDefault, help "PostgreSQL database"]
-          )
-
-optionsP :: Parser Options
-optionsP =
-  Options
-    <$> option auto (mconcat [long "http-port", metavar "CASCADE_HTTP_PORT", value 3141, showDefault, help "Port number of Cascade Api"])
-    <*> postgresOptionsP
-
-cliP :: ParserInfo Options
-cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
+getOptions :: IO Options
+getOptions = do
+  cliOptions <- execParser cliP
+  envOptions <- readEnvPartialOptions
+  let combinedOptions = defaultPartialOptions <> envOptions <> cliOptions
+  maybe (die "Couldn't make options") pure <| mkOptions combinedOptions
 
 main :: IO ()
-main = execParser cliP >>= runCascadeApi
+main = getOptions >>= runCascadeApi
