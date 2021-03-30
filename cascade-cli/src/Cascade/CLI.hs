@@ -1,3 +1,15 @@
+{-|
+Module      : Cascade.CLI
+Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
+Copyright   : (c) 2020-2021 Cascade
+License     : MPL 2.0
+Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
+Stability   : Stable
+Portability : POSIX
+
+!!! INSERT MODULE LONG DESCRIPTION !!!
+-}
+
 module Cascade.CLI (main) where
 
 import qualified Cascade.Api
@@ -5,12 +17,14 @@ import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
                                                      )
-import qualified Database.PostgreSQL.Simple         as Postgres
 import           Data.Version                        ( showVersion )
-import qualified Paths_cascade_cli                  as Meta
-                                                     ( version )
+import qualified Database.PostgreSQL.Simple         as Postgres
+import           Development.GitRev                  ( gitCommitDate
+                                                     , gitHash
+                                                     )
 import           Options.Applicative                 ( Parser
                                                      , ParserInfo
+                                                     , auto
                                                      , execParser
                                                      , fullDesc
                                                      , help
@@ -18,18 +32,16 @@ import           Options.Applicative                 ( Parser
                                                      , info
                                                      , infoOption
                                                      , long
+                                                     , metavar
+                                                     , option
                                                      , progDesc
                                                      , short
                                                      , showDefault
-                                                     , value
-                                                     , metavar
-                                                     , auto
-                                                     , option
                                                      , strOption
+                                                     , value
                                                      )
-import           Development.GitRev                  ( gitCommitDate
-                                                     , gitHash
-                                                     )
+import qualified Paths_cascade_cli                  as Meta
+                                                     ( version )
 
 mkDatabaseConnectionPool :: PostgresOptions -> IO (Pool Postgres.Connection)
 mkDatabaseConnectionPool PostgresOptions {..} = do
