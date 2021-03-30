@@ -23,12 +23,13 @@ import           Cascade.Core.Data.Model.User.Username
 import           Chronos                             ( Time )
 
 data User phase = User
-  { id             :: User `Id` phase
-  , username       :: Username phase
-  , emailAddress   :: EmailAddress phase
-  , hashedPassword :: Hashed Password
-  , createdAt      :: Time
-  , updatedAt      :: Time
+  { id                 :: User `Id` phase
+  , username           :: Username phase
+  , emailAddress       :: EmailAddress phase
+  , hashedPassword     :: Hashed Password
+  , currentWorkingTask :: Maybe (Task `Id` 'Phase.Persisted)
+  , createdAt          :: Time
+  , updatedAt          :: Time
   }
 
 type role User nominal
