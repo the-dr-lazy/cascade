@@ -13,16 +13,18 @@ Portability : POSIX
 module Cascade.CLI (main) where
 
 import qualified Cascade.Api
-import           Cascade.CLI.Options                 ( Options
-                                                     , OptionsP(..)
-                                                     , PartialOptions
-                                                     , PostgresOptions
-                                                     , PostgresOptionsP(..)
-                                                     , mkOptions
+import           Cascade.CLI.Data.Config             ( Config
+                                                     , ConfigP(..)
+                                                     , PostgresConfig
+                                                     , PostgresConfigP(..)
+                                                     , defaultPartialConfig
+                                                     , finalise
                                                      )
-import           Cascade.CLI.Options.CLI             ( partialOptionsP )
-import           Cascade.CLI.Options.Default         ( defaultPartialOptions )
-import           Cascade.CLI.Options.Environment     ( readEnvPartialOptions )
+import           Cascade.CLI.Data.Options            ( Options
+                                                     , optionToPartialConfig
+                                                     , optionsP
+                                                     )
+import           Cascade.CLI.Environment             ( readEnvPartialOptions )
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
@@ -47,17 +49,17 @@ import           Options.Applicative                 ( Parser
 import qualified Paths_cascade_cli                  as Meta
                                                      ( version )
 
-mkDatabaseConnectionPool :: PostgresOptions -> IO (Pool Postgres.Connection)
-mkDatabaseConnectionPool PostgresOptions {..} = do
+mkDatabaseConnectionPool :: PostgresConfig -> IO (Pool Postgres.Connection)
+mkDatabaseConnectionPool PostgresConfig {..} = do
   createPool acquire Postgres.close 1 10 10
  where
   connectionInfo =
     Postgres.ConnectInfo { connectHost = host, connectPort = port, connectUser = user, connectPassword = password, connectDatabase = database }
   acquire = Postgres.connect connectionInfo
 
-runCascadeApi :: Options -> IO ()
-runCascadeApi Options {..} = do
-  databaseConnectionPool <- mkDatabaseConnectionPool postgresOptions
+runCascadeApi :: Config -> IO ()
+runCascadeApi Config {..} = do
+  databaseConnectionPool <- mkDatabaseConnectionPool postgresConfig
   Cascade.Api.main Cascade.Api.Config { port = httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
 cascadeVersion :: String
@@ -71,15 +73,16 @@ cascadeVersion = intercalate "\n" [cVersion, cHash, cDate]
 versionP :: Parser (a -> a)
 versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
 
-cliP :: ParserInfo PartialOptions
-cliP = info (helper <*> versionP <*> partialOptionsP) <| fullDesc <> progDesc "Cascade Cli"
+cliP :: ParserInfo Options
+cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
 
-getOptions :: IO Options
-getOptions = do
+getConfig :: IO Config
+getConfig = do
   cliOptions <- execParser cliP
-  envOptions <- readEnvPartialOptions
-  let combinedOptions = defaultPartialOptions <> envOptions <> cliOptions
-  maybe (die "Couldn't make options") pure <| mkOptions combinedOptions
+  let cliConfig = optionToPartialConfig cliOptions
+  envConfig <- readEnvPartialOptions
+  let combinedOptions = defaultPartialConfig <> envConfig <> cliConfig
+  maybe (die "Couldn't make options") pure <| finalise combinedOptions
 
 main :: IO ()
-main = getOptions >>= runCascadeApi
+main = getConfig >>= runCascadeApi

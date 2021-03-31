@@ -11,7 +11,7 @@ let cascade =
 
 let cascade-cli =
       { source-dirs = "src"
-      , dependencies = [ "cascade-api", "postgresql-simple", "resource-pool", "optparse-applicative", "gitrev", "generic-data"]
+      , dependencies = [ "cascade-api", "postgresql-simple", "resource-pool", "optparse-applicative", "gitrev", "generic-data", "attoparsec", "validation-selective" ]
       , generated-other-modules = ["Paths_cascade_cli"]
       }
 
