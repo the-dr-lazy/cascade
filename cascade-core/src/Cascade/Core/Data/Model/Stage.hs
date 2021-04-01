@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Data.Stage
+Module      : Cascade.Core.Data.Model.Stage
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,13 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Stage (Stage(..), Name) where
+module Cascade.Core.Data.Model.Stage (Stage(..), Name) where
 
 import {-# SOURCE #-} Cascade.Core.Data.Model        ( Task )
 import           Cascade.Core.Data.Model.Id          ( Id )
 import qualified Cascade.Core.Data.Model.Phase      as Phase
 import           Cascade.Core.Data.Model.Stage.Name  ( Name )
-import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 
 data Stage phase = Stage
