@@ -1,11 +1,22 @@
-module Cascade.CLI.Environment (readEnvPartialOptions) where
+{-|
+Module      : Cascade.CLI.Environment
+Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
+Copyright   : (c) 2020-2021 Cascade
+License     : MPL 2.0
+Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
+Stability   : Stable
+Portability : POSIX
 
+!!! INSERT MODULE LONG DESCRIPTION !!!
+-}
+
+module Cascade.CLI.Environment (readConfig) where
+
+import qualified Cascade.CLI.Data.Config            as Config
 import           Cascade.CLI.Data.Config             ( ConfigP(..)
-                                                     , PartialConfig
                                                      , PostgresConfigP(..)
-                                                     , PostgresPartialConfig
                                                      )
-import           Cascade.Data.Text                  as T
+import           Cascade.Data.Text                  as Text
 import           Data.Attoparsec.Text                ( decimal
                                                      , endOfInput
                                                      , parseOnly
@@ -17,12 +28,12 @@ readEnvDecimal envName = do
   value <- lookupEnv envName
   case value of
     Nothing -> pure Nothing
-    Just v  -> case parseOnly (decimal <* endOfInput) (T.pack v) of
-      Left  _ -> pure Nothing
+    Just v  -> case parseOnly (decimal <* endOfInput) (Text.pack v) of
+      Left  _ -> die <| "Parsing environment variable " <> envName <> " failed!"
       Right a -> pure <| Just a
 
-readEnvPostgresPartialOptions :: IO PostgresPartialConfig
-readEnvPostgresPartialOptions = do
+readPostgresConfig :: IO Config.PostgresPartial
+readPostgresConfig = do
   host     <- Last <$> lookupEnv "CASCADE_POSTGRES_HOST"
   port     <- Last <$> readEnvDecimal "CASCADE_POSTGRES_PORT"
   user     <- Last <$> lookupEnv "CASCADE_POSTGRES_USER"
@@ -30,8 +41,8 @@ readEnvPostgresPartialOptions = do
   database <- Last <$> lookupEnv "CASCADE_POSTGRES_DATABASE"
   pure PostgresConfig { .. }
 
-readEnvPartialOptions :: IO PartialConfig
-readEnvPartialOptions = do
+readConfig :: IO Config.Partial
+readConfig = do
   httpPort       <- Last <$> readEnvDecimal "CASCADE_HTTP_PORT"
-  postgresConfig <- readEnvPostgresPartialOptions
+  postgresConfig <- readPostgresConfig
   pure Config { .. }

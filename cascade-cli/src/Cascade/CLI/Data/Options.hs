@@ -1,19 +1,40 @@
-module Cascade.CLI.Data.Options (Options, optionsP, optionToPartialConfig) where
+{-|
+Module      : Cascade.CLI.Data.Options
+Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
+Copyright   : (c) 2020-2021 Cascade
+License     : MPL 2.0
+Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
+Stability   : Stable
+Portability : POSIX
 
+!!! INSERT MODULE LONG DESCRIPTION !!!
+-}
+
+module Cascade.CLI.Data.Options (readConfig) where
+
+import qualified Cascade.CLI.Data.Config            as Config
+import           Data.Version                        ( showVersion )
+import           Development.GitRev                  ( gitCommitDate
+                                                     , gitHash
+                                                     )
 import           Options.Applicative                 ( Parser
+                                                     , ParserInfo
                                                      , auto
+                                                     , execParser
+                                                     , fullDesc
                                                      , help
+                                                     , helper
+                                                     , info
+                                                     , infoOption
                                                      , long
                                                      , metavar
                                                      , option
+                                                     , progDesc
+                                                     , short
                                                      , str
                                                      )
-
-import           Cascade.CLI.Data.Config             ( ConfigP(..)
-                                                     , PartialConfig
-                                                     , PostgresConfigP(..)
-                                                     , PostgresPartialConfig
-                                                     )
+import qualified Paths_cascade_cli                  as Meta
+                                                     ( version )
 
 data PostgresOptions = PostgresOptions
   { host     :: Maybe String
@@ -43,10 +64,28 @@ optionsP =
     <$> optional (option auto (mconcat [long "http-port", metavar "CASCADE_HTTP_PORT", help "Port number of Cascade Api"]))
     <*> postgresOptionsP
 
-postgresOptionsToPostgresPartialConfig :: PostgresOptions -> PostgresPartialConfig
-postgresOptionsToPostgresPartialConfig PostgresOptions {..} =
-  PostgresConfig { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
+cascadeVersion :: String
+cascadeVersion = intercalate "\n" [cVersion, cHash, cDate]
+ where
+  cVersion, cHash, cDate :: String
+  cVersion = "Cascade CLI v" <> showVersion Meta.version
+  cHash    = "Git revision: " <> $(gitHash)
+  cDate    = "Last commit:  " <> $(gitCommitDate)
 
-optionToPartialConfig :: Options -> PartialConfig
-optionToPartialConfig Options {..} =
-  Config { httpPort = Last httpPort, postgresConfig = postgresOptionsToPostgresPartialConfig postgresOptions }
+versionP :: Parser (a -> a)
+versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
+
+cliP :: ParserInfo Options
+cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
+
+toPostgresPartialConfig :: PostgresOptions -> Config.PostgresPartial
+toPostgresPartialConfig PostgresOptions {..} =
+  Config.PostgresConfig { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
+
+toPartialConfig :: Options -> Config.Partial
+toPartialConfig Options {..} = Config.Config { httpPort = Last httpPort, postgresConfig = toPostgresPartialConfig postgresOptions }
+
+readConfig :: IO Config.Partial
+readConfig = do
+  cliOptions <- execParser cliP
+  pure <| toPartialConfig cliOptions
