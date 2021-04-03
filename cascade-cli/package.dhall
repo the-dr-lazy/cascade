@@ -11,8 +11,21 @@ let cascade =
 
 let cascade-cli =
       { source-dirs = "src"
-      , dependencies = [ "cascade-api", "postgresql-simple", "resource-pool", "optparse-applicative", "gitrev", "generic-data", "attoparsec", "validation-selective", "lens", "generic-lens", "network", "port-utils" ]
-      , generated-other-modules = ["Paths_cascade_cli"]
+      , dependencies =
+        [ "cascade-api"
+        , "postgresql-simple"
+        , "resource-pool"
+        , "optparse-applicative"
+        , "gitrev"
+        , "generic-data"
+        , "attoparsec"
+        , "validation-selective"
+        , "lens"
+        , "generic-lens"
+        , "network"
+        , "generic-monoid"
+        ]
+      , generated-other-modules = [ "Paths_cascade_cli" ]
       }
 
 let cascade-cli-test =

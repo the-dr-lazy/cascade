@@ -17,7 +17,8 @@ import           Cascade.CLI.Data.Config             ( ConfigP(..)
                                                      , PostgresConfigP(..)
                                                      )
 import qualified Cascade.CLI.Data.Config            as Config
-import qualified Cascade.CLI.Data.HttpPort          as HttpPort
+import           Cascade.CLI.Data.Errors             ( Errors )
+import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import qualified Cascade.CLI.Data.Options           as Options
 import qualified Cascade.CLI.Environment            as Environment
 import           Cascade.Data.Validation             ( Validation )
@@ -39,14 +40,14 @@ mkDatabaseConnectionPool PostgresConfig {..} = do
 runCascadeApi :: Config.Final -> IO ()
 runCascadeApi Config {..} = do
   databaseConnectionPool <- mkDatabaseConnectionPool postgresConfig
-  Cascade.Api.main Cascade.Api.Config { port = HttpPort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
+  Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
-getFinalConfig :: IO (Validation (Validation.Errors Config.Partial Config.Final) Config.Final)
-getFinalConfig = join <| Config.finalize . fold <$> sequence [Environment.readConfig, Options.readConfig]
+getFinalConfig :: IO (Validation Errors Config.Final)
+getFinalConfig = Config.finalize . fold =<< sequence [pure Config.def, Environment.readConfig, Options.readConfig]
 
 main :: IO ()
 main = do
   vConfig <- getFinalConfig
   case vConfig of
-    Validation.Failure e -> print e
+    Validation.Failure _ -> putStrLn "Something went wrong!"
     Validation.Success a -> runCascadeApi a

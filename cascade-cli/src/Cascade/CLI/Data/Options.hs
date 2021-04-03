@@ -86,6 +86,4 @@ toPartialConfig :: Options -> Config.Partial
 toPartialConfig Options {..} = Config.Config { httpPort = Last httpPort, postgresConfig = toPostgresPartialConfig postgresOptions }
 
 readConfig :: IO Config.Partial
-readConfig = do
-  cliOptions <- execParser cliP
-  pure <| toPartialConfig cliOptions
+readConfig = toPartialConfig <$> execParser cliP

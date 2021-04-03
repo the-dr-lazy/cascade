@@ -12,72 +12,74 @@ Portability : POSIX
 
 module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, def) where
 
-import           Cascade.CLI.Data.HttpPort           ( HttpPort )
-import qualified Cascade.CLI.Data.HttpPort          as HttpPort
-import           Cascade.Data.Validation             ( Validate
-                                                     , Validation
+import           Cascade.CLI.Data.Errors             ( Errors
+                                                     , validateEmptyField
                                                      )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.)
-                                                     , to
-                                                     )
+import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
+import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import           Data.Generics.Labels                ( )
 import           Generic.Data                        ( Generically(..) )
+import           Validation                          ( Validation )
+
+data Phase = Partial | Final
+
+type family Validate (p :: Phase) (raw :: Type) (parsed :: Type) where
+  Validate 'Partial raw _ = Last raw
+  Validate 'Final _ parsed = parsed
 
 -- brittany-disable-next-binding
-data PostgresConfigP p = PostgresConfig
-  { host     :: Validate p (Last String) String
-  , port     :: Validate p (Last Word16) Word16
-  , user     :: Validate p (Last String) String
-  , password :: Validate p (Last String) String
-  , database :: Validate p (Last String) String
+data PostgresConfigP (p :: Phase) = PostgresConfig
+  { host     :: Validate p String String
+  , port     :: Validate p Word16 Word16
+  , user     :: Validate p String String
+  , password :: Validate p String String
+  , database :: Validate p String String
   } deriving stock Generic
 
-type PostgresFinal = PostgresConfigP 'Validation.Parsed
+type PostgresFinal = PostgresConfigP 'Final
 
-type PostgresPartial = PostgresConfigP 'Validation.Raw
+type PostgresPartial = PostgresConfigP 'Partial
 
-deriving stock instance Show (PostgresConfigP 'Validation.Error)
+deriving stock instance Show PostgresFinal
 deriving via Generically PostgresPartial instance Semigroup PostgresPartial
 deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
 -- brittany-disable-next-binding
-data ConfigP p = Config
-  { httpPort       :: Validate p (Last Int) HttpPort
-  , postgresConfig :: Validate p (PostgresConfigP 'Validation.Raw) (PostgresConfigP 'Validation.Parsed)
+data ConfigP (p :: Phase) = Config
+  { httpPort        :: Validate p Int FreePort
+  , postgresConfig :: PostgresConfigP p
   } deriving stock Generic
 
-type Final = ConfigP 'Validation.Parsed
+type Final = ConfigP 'Final
 
-type Partial = ConfigP 'Validation.Raw
+type Partial = ConfigP 'Partial
 
-deriving stock instance Show (ConfigP 'Validation.Error)
+deriving stock instance Show Final
 deriving via Generically Partial instance Semigroup Partial
 deriving via Generically Partial instance Monoid Partial
 
-type instance Validation.Errors (Last String) String = ()
-type instance Validation.Errors (Last Word16) Word16 = ()
+def :: Partial
+def = Config
+  { httpPort       = pure 3141
+  , postgresConfig = PostgresConfig { host     = pure "localhost"
+                                    , port     = pure 5432
+                                    , user     = pure "cascade"
+                                    , password = pure ""
+                                    , database = pure "cascad-api"
+                                    }
+  }
 
-def :: Final
-def = Config { httpPort = HttpPort.def, postgresConfig = defPostgres }
- where
-  defPostgres :: PostgresFinal
-  defPostgres = PostgresConfig { host = "localhost", port = 5432, user = "cascade", password = "", database = "cascad-api" }
+finalizePostgres :: PostgresPartial -> IO (Validation Errors PostgresFinal)
+finalizePostgres PostgresConfig {..} =
+  let validateHost     = validateEmptyField host
+      validatePort     = validateEmptyField port
+      validateUser     = validateEmptyField user
+      validatePassword = validateEmptyField password
+      validateDatabase = validateEmptyField database
+  in  pure <| PostgresConfig <$> validateHost <*> validatePort <*> validateUser <*> validatePassword <*> validateDatabase
 
-finalizePostgres :: PostgresPartial -> IO (Validation (PostgresConfigP 'Validation.Error) PostgresFinal)
-finalizePostgres raw =
-  pure
-    <| Validation.parseRecord
-         PostgresConfig { host     = const . Validation.Success <| fromMaybe (host . postgresConfig <| def) (getLast (raw ^. #host))
-                        , port     = const . Validation.Success <| fromMaybe (port . postgresConfig <| def) (getLast (raw ^. #port))
-                        , user     = const . Validation.Success <| fromMaybe (user . postgresConfig <| def) (getLast (raw ^. #user))
-                        , password = const . Validation.Success <| fromMaybe (password . postgresConfig <| def) (getLast (raw ^. #password))
-                        , database = const . Validation.Success <| fromMaybe (database . postgresConfig <| def) (getLast (raw ^. #database))
-                        }
-         raw
-
-finalize :: Partial -> IO (Validation (ConfigP 'Validation.Error) Final)
-finalize raw = do
-  parseHttpPort       <- HttpPort.mk <| fromMaybe (def ^. #httpPort . to HttpPort.un) (getLast (httpPort raw))
-  parsePostgresConfig <- finalizePostgres (raw ^. #postgresConfig)
-  pure <| Validation.parseRecord (Config { httpPort = const parseHttpPort, postgresConfig = const parsePostgresConfig }) raw
+finalize :: Partial -> IO (Validation Errors Final)
+finalize Config {..} = do
+  validateHttpPort       <- FreePort.mk httpPort
+  validatePostgresConfig <- finalizePostgres postgresConfig
+  pure <| Config <$> validateHttpPort <*> validatePostgresConfig
