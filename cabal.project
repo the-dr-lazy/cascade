@@ -1,4 +1,5 @@
 packages: cascade-prelude, cascade-api, cascade-cli
+with-compiler: ghc-8.8.4
 optimization: False
 documentation: True
 
