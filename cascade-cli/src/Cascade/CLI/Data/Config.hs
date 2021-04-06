@@ -10,16 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, def) where
+module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize) where
 
-import           Cascade.CLI.Data.Errors             ( Errors
-                                                     , validateEmptyField
-                                                     )
+import qualified Cascade.CLI.Data.Config.Default    as Config.Default
+import           Cascade.CLI.Data.Errors             ( Errors )
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import           Data.Generics.Labels                ( )
 import           Generic.Data                        ( Generically(..) )
 import           Validation                          ( Validation )
+import qualified Validation
 
 data Phase = Partial | Final
 
@@ -58,24 +58,13 @@ deriving stock instance Show Final
 deriving via Generically Partial instance Semigroup Partial
 deriving via Generically Partial instance Monoid Partial
 
-def :: Partial
-def = Config
-  { httpPort       = pure 3141
-  , postgresConfig = PostgresConfig { host     = pure "localhost"
-                                    , port     = pure 5432
-                                    , user     = pure "cascade"
-                                    , password = pure ""
-                                    , database = pure "cascad-api"
-                                    }
-  }
-
 finalizePostgres :: PostgresPartial -> IO (Validation Errors PostgresFinal)
 finalizePostgres PostgresConfig {..} =
-  let validateHost     = validateEmptyField host
-      validatePort     = validateEmptyField port
-      validateUser     = validateEmptyField user
-      validatePassword = validateEmptyField password
-      validateDatabase = validateEmptyField database
+  let validateHost     = Validation.Success . fromMaybe Config.Default.postgresHost . getLast <| host
+      validatePort     = Validation.Success . fromMaybe Config.Default.postgresPort . getLast <| port
+      validateUser     = Validation.Success . fromMaybe Config.Default.postgresUser . getLast <| user
+      validatePassword = Validation.Success . fromMaybe Config.Default.postgresPassword . getLast <| password
+      validateDatabase = Validation.Success . fromMaybe Config.Default.postgresDatabase . getLast <| database
   in  pure <| PostgresConfig <$> validateHost <*> validatePort <*> validateUser <*> validatePassword <*> validateDatabase
 
 finalize :: Partial -> IO (Validation Errors Final)

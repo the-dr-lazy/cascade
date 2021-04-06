@@ -10,15 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Errors (Errors, Error(..), validateEmptyField) where
+module Cascade.CLI.Data.Errors (Errors, Error(..)) where
 
-import           Validation                          ( Validation )
-import qualified Validation
-
-data Error = BusyHttpPortError | EmptyField
+data Error = BusyHttpPortError
   deriving stock (Show, Eq)
 
 type Errors = NonEmpty Error
-
-validateEmptyField :: Last a -> Validation Errors a
-validateEmptyField a = Validation.maybeToSuccess (EmptyField :| []) (getLast a)

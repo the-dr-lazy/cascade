@@ -43,7 +43,7 @@ runCascadeApi Config {..} = do
   Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
 getFinalConfig :: IO (Validation Errors Config.Final)
-getFinalConfig = Config.finalize . fold =<< sequence [pure Config.def, Environment.readConfig, Options.readConfig]
+getFinalConfig = Config.finalize . fold =<< sequence [Environment.readConfig, Options.readConfig]
 
 main :: IO ()
 main = do
