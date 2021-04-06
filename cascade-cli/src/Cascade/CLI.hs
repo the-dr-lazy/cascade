@@ -17,7 +17,6 @@ import           Cascade.CLI.Data.Config             ( ConfigP(..)
                                                      , PostgresConfigP(..)
                                                      )
 import qualified Cascade.CLI.Data.Config            as Config
-import           Cascade.CLI.Data.Errors             ( Errors )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import qualified Cascade.CLI.Data.Options           as Options
 import qualified Cascade.CLI.Environment            as Environment
@@ -42,7 +41,7 @@ runCascadeApi Config {..} = do
   databaseConnectionPool <- mkDatabaseConnectionPool postgresConfig
   Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
-getFinalConfig :: IO (Validation Errors Config.Final)
+getFinalConfig :: IO (Validation Config.Errors Config.Final)
 getFinalConfig = Config.finalize . fold =<< sequence [Environment.readConfig, Options.readConfig]
 
 main :: IO ()

@@ -12,7 +12,7 @@ Portability : POSIX
 
 module Cascade.CLI.Data.Config.Default (httpPort, postgresHost, postgresPort, postgresUser, postgresPassword, postgresDatabase) where
 
-httpPort :: Int
+httpPort :: Word16
 httpPort = 3141
 
 postgresHost :: String

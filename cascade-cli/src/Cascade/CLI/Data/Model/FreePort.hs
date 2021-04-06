@@ -13,22 +13,15 @@ Portability : POSIX
 module Cascade.CLI.Data.Model.FreePort (FreePort, un, mk) where
 
 import qualified Cascade.CLI.Data.Config.Default    as Config.Default
-import           Cascade.CLI.Data.Errors             ( Error(..)
-                                                     , Errors
-                                                     )
 import qualified Control.Exception                  as X
 import qualified Network.Socket                     as Socket
 import           System.IO.Error                     ( IOError )
-import           Validation                          ( Validation )
-import qualified Validation
 
 newtype FreePort = Mk
-  { un :: Int }
+  { un :: Word16 }
   deriving stock (Show, Eq)
 
-mk :: Last Int -> IO (Validation Errors FreePort)
-mk (fromMaybe Config.Default.httpPort . getLast -> httpPort) = do
-  x <- X.try @IOError (Socket.getAddrInfo Nothing (Just ("127.0.0.1" <> show httpPort)) (Just "http"))
-  pure case x of
-    Right _ -> Validation.Failure (BusyHttpPortError :| [])
-    Left  _ -> Validation.Success <| Mk httpPort
+mk :: Last Word16 -> IO (Maybe FreePort)
+mk (fromMaybe Config.Default.httpPort . getLast -> httpPort) =
+  X.try @IOError (Socket.getAddrInfo Nothing (Just ("127.0.0.1" <> show httpPort)) (Just "http"))
+    <&> either (const Nothing) (const . Just <| Mk httpPort)

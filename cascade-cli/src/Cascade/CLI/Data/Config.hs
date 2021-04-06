@@ -10,10 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize) where
+module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, Errors) where
 
 import qualified Cascade.CLI.Data.Config.Default    as Config.Default
-import           Cascade.CLI.Data.Errors             ( Errors )
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import           Data.Generics.Labels                ( )
@@ -46,7 +45,7 @@ deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
 -- brittany-disable-next-binding
 data ConfigP (p :: Phase) = Config
-  { httpPort        :: Validate p Int FreePort
+  { httpPort        :: Validate p Word16 FreePort
   , postgresConfig :: PostgresConfigP p
   } deriving stock Generic
 
@@ -57,6 +56,11 @@ type Partial = ConfigP 'Partial
 deriving stock instance Show Final
 deriving via Generically Partial instance Semigroup Partial
 deriving via Generically Partial instance Monoid Partial
+
+data Error = BusyHttpPortError
+  deriving stock (Show, Eq)
+
+type Errors = NonEmpty Error
 
 finalizePostgres :: PostgresPartial -> IO (Validation Errors PostgresFinal)
 finalizePostgres PostgresConfig {..} =
@@ -69,6 +73,6 @@ finalizePostgres PostgresConfig {..} =
 
 finalize :: Partial -> IO (Validation Errors Final)
 finalize Config {..} = do
-  validateHttpPort       <- FreePort.mk httpPort
+  validateHttpPort       <- Validation.maybeToSuccess (BusyHttpPortError :| []) <$> FreePort.mk httpPort
   validatePostgresConfig <- finalizePostgres postgresConfig
   pure <| Config <$> validateHttpPort <*> validatePostgresConfig

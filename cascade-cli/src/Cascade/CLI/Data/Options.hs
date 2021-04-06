@@ -45,7 +45,7 @@ data PostgresOptions = PostgresOptions
   }
 
 data Options = Options
-  { httpPort        :: Maybe Int
+  { httpPort        :: Maybe Word16
   , postgresOptions :: PostgresOptions
   }
 
