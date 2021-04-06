@@ -15,6 +15,7 @@ module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, Postg
 import qualified Cascade.CLI.Data.Config.Default    as Config.Default
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
+import           Cascade.Data.Maybe                  ( pureMaybe )
 import           Data.Generics.Labels                ( )
 import           Generic.Data                        ( Generically(..) )
 import           Validation                          ( Validation )
@@ -64,11 +65,11 @@ type Errors = NonEmpty Error
 
 finalizePostgres :: PostgresPartial -> IO (Validation Errors PostgresFinal)
 finalizePostgres PostgresConfig {..} =
-  let validateHost     = Validation.Success . fromMaybe Config.Default.postgresHost . getLast <| host
-      validatePort     = Validation.Success . fromMaybe Config.Default.postgresPort . getLast <| port
-      validateUser     = Validation.Success . fromMaybe Config.Default.postgresUser . getLast <| user
-      validatePassword = Validation.Success . fromMaybe Config.Default.postgresPassword . getLast <| password
-      validateDatabase = Validation.Success . fromMaybe Config.Default.postgresDatabase . getLast <| database
+  let validateHost     = pureMaybe Config.Default.postgresHost host
+      validatePort     = pureMaybe Config.Default.postgresPort port
+      validateUser     = pureMaybe Config.Default.postgresUser user
+      validatePassword = pureMaybe Config.Default.postgresPassword password
+      validateDatabase = pureMaybe Config.Default.postgresDatabase database
   in  pure <| PostgresConfig <$> validateHost <*> validatePort <*> validateUser <*> validatePassword <*> validateDatabase
 
 finalize :: Partial -> IO (Validation Errors Final)
