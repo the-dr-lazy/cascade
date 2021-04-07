@@ -83,7 +83,7 @@ toPostgresPartialConfig PostgresOptions {..} =
   Config.PostgresConfig { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
 
 toPartialConfig :: Options -> Config.Partial
-toPartialConfig Options {..} = Config.Config { httpPort = Last httpPort, postgresConfig = toPostgresPartialConfig postgresOptions }
+toPartialConfig Options {..} = Config.Config { httpPort = Last httpPort, postgres = toPostgresPartialConfig postgresOptions }
 
 readConfig :: IO Config.Partial
 readConfig = toPartialConfig <$> execParser cliP

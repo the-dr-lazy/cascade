@@ -43,6 +43,6 @@ readPostgresConfig = do
 
 readConfig :: IO Config.Partial
 readConfig = do
-  httpPort       <- Last <$> readEnvDecimal "CASCADE_HTTP_PORT"
-  postgresConfig <- readPostgresConfig
+  httpPort <- Last <$> readEnvDecimal "CASCADE_HTTP_PORT"
+  postgres <- readPostgresConfig
   pure Config { .. }

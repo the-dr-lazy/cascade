@@ -13,9 +13,6 @@ Portability : POSIX
 module Cascade.CLI (main) where
 
 import qualified Cascade.Api
-import           Cascade.CLI.Data.Config             ( ConfigP(..)
-                                                     , PostgresConfigP(..)
-                                                     )
 import qualified Cascade.CLI.Data.Config            as Config
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import qualified Cascade.CLI.Data.Options           as Options
@@ -29,7 +26,7 @@ import           Data.Pool                           ( Pool
 import qualified Database.PostgreSQL.Simple         as Postgres
 
 mkDatabaseConnectionPool :: Config.PostgresFinal -> IO (Pool Postgres.Connection)
-mkDatabaseConnectionPool PostgresConfig {..} = do
+mkDatabaseConnectionPool Config.PostgresConfig {..} = do
   createPool acquire Postgres.close 1 10 10
  where
   connectionInfo =
@@ -37,8 +34,8 @@ mkDatabaseConnectionPool PostgresConfig {..} = do
   acquire = Postgres.connect connectionInfo
 
 runCascadeApi :: Config.Final -> IO ()
-runCascadeApi Config {..} = do
-  databaseConnectionPool <- mkDatabaseConnectionPool postgresConfig
+runCascadeApi Config.Config {..} = do
+  databaseConnectionPool <- mkDatabaseConnectionPool postgres
   Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
 getFinalConfig :: IO (Validation Config.Errors Config.Final)

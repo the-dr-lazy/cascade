@@ -16,6 +16,9 @@ import qualified Cascade.CLI.Data.Config.Default    as Config.Default
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import           Cascade.Data.Maybe                  ( pureMaybe )
+import           Control.Lens                        ( (^.)
+                                                     , to
+                                                     )
 import           Data.Generics.Labels                ( )
 import           Generic.Data                        ( Generically(..) )
 import           Validation                          ( Validation )
@@ -46,8 +49,8 @@ deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
 -- brittany-disable-next-binding
 data ConfigP (p :: Phase) = Config
-  { httpPort        :: Validate p Word16 FreePort
-  , postgresConfig :: PostgresConfigP p
+  { httpPort :: Validate p Word16 FreePort
+  , postgres :: PostgresConfigP p
   } deriving stock Generic
 
 type Final = ConfigP 'Final
@@ -63,17 +66,17 @@ data Error = BusyHttpPortError
 
 type Errors = NonEmpty Error
 
-finalizePostgres :: PostgresPartial -> IO (Validation Errors PostgresFinal)
-finalizePostgres PostgresConfig {..} =
-  let validateHost     = pureMaybe Config.Default.postgresHost host
-      validatePort     = pureMaybe Config.Default.postgresPort port
-      validateUser     = pureMaybe Config.Default.postgresUser user
-      validatePassword = pureMaybe Config.Default.postgresPassword password
-      validateDatabase = pureMaybe Config.Default.postgresDatabase database
-  in  pure <| PostgresConfig <$> validateHost <*> validatePort <*> validateUser <*> validatePassword <*> validateDatabase
-
 finalize :: Partial -> IO (Validation Errors Final)
-finalize Config {..} = do
-  validateHttpPort       <- Validation.maybeToSuccess (BusyHttpPortError :| []) <$> FreePort.mk httpPort
-  validatePostgresConfig <- finalizePostgres postgresConfig
-  pure <| Config <$> validateHttpPort <*> validatePostgresConfig
+finalize partial = getCompose do
+  httpPort <- Compose <| Validation.maybeToSuccess (BusyHttpPortError :| []) <$> FreePort.mk
+    (partial ^. #httpPort . to (fromMaybe Config.Default.httpPort . coerce))
+
+  postgres <-
+    PostgresConfig
+    <$> pureMaybe Config.Default.postgresHost     (partial ^. #postgres . #host)
+    <*> pureMaybe Config.Default.postgresPort     (partial ^. #postgres . #port)
+    <*> pureMaybe Config.Default.postgresUser     (partial ^. #postgres . #user)
+    <*> pureMaybe Config.Default.postgresPassword (partial ^. #postgres . #password)
+    <*> pureMaybe Config.Default.postgresDatabase (partial ^. #postgres . #database)
+
+  pure Config { .. }
