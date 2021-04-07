@@ -12,9 +12,11 @@ Portability : POSIX
 
 module Main (main) where
 
+import qualified Test.Cascade.Control.Applicative
 import qualified Test.Cascade.Data.ByteString
 import qualified Test.Cascade.Data.Char
 import qualified Test.Cascade.Data.Chronos.Future
+import qualified Test.Cascade.Data.Maybe
 import qualified Test.Cascade.Data.Text.NonEmpty
 import           Test.Tasty
 
@@ -27,4 +29,6 @@ tests =
   , Test.Cascade.Data.ByteString.tests
   , Test.Cascade.Data.Chronos.Future.tests
   , Test.Cascade.Data.Text.NonEmpty.tests
+  , Test.Cascade.Data.Maybe.tests
+  , Test.Cascade.Control.Applicative.tests
   ]
