@@ -28,17 +28,19 @@ import           Validation                          ( Validation )
 
 data Phase = Partial | Final
 
-type family Validate (p :: Phase) (raw :: Type) (parsed :: Type) where
-  Validate 'Partial raw _ = Last raw
-  Validate 'Final _ parsed = parsed
+type family Finalize (p :: Phase) (raw :: Type) (parsed :: Type) where
+  Finalize 'Partial raw _ = Last raw
+  Finalize 'Final _ parsed = parsed
+
+type Finalize' p t = Finalize p t t
 
 -- brittany-disable-next-binding
 data PostgresP (p :: Phase) = Postgres
-  { host     :: Validate p String String
-  , port     :: Validate p Word16 Word16
-  , user     :: Validate p String String
-  , password :: Validate p String String
-  , database :: Validate p String String
+  { host     :: Finalize' p String
+  , port     :: Finalize' p Word16
+  , user     :: Finalize' p String
+  , password :: Finalize' p String
+  , database :: Finalize' p String
   } deriving stock Generic
 
 type PostgresFinal = PostgresP 'Final
@@ -51,7 +53,7 @@ deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
 -- brittany-disable-next-binding
 data ConfigP (p :: Phase) = Config
-  { httpPort :: Validate p Word16 FreePort
+  { httpPort :: Finalize p Word16 FreePort
   , postgres :: PostgresP p
   } deriving stock Generic
 
@@ -70,7 +72,7 @@ type Errors = NonEmpty Error
 
 finalize :: Partial -> IO (Validation Errors Final)
 finalize partial = getCompose do
-  httpPort <- Compose <| Maybe.toSuccess BusyHttpPortError <$> FreePort.mk (partial ^. #httpPort . to coerce . non Config.Default.httpPort)
+  httpPort <- Compose . fmap (Maybe.toSuccess BusyHttpPortError) . FreePort.mk <| partial ^. #httpPort . to coerce . non Config.Default.httpPort
 
   postgres <-
     Postgres

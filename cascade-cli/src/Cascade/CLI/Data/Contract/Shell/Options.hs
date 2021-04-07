@@ -79,12 +79,12 @@ versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help
 cliP :: ParserInfo Options
 cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
 
-toPostgresPartialConfig :: Postgres -> Config.PostgresPartial
-toPostgresPartialConfig Postgres {..} =
-  Config.Postgres { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
-
 toPartialConfig :: Options -> Config.Partial
-toPartialConfig Options {..} = Config { httpPort = Last httpPort, postgres = toPostgresPartialConfig postgres }
+toPartialConfig Options {..} = Config
+  { httpPort = Last httpPort
+  , postgres = let Postgres {..} = postgres
+               in  Config.Postgres { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
+  }
 
 readConfig :: IO Config.Partial
 readConfig = toPartialConfig <$> execParser cliP
