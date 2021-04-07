@@ -21,5 +21,11 @@ newtype FreePort = Mk
   deriving stock (Show, Eq)
 
 mk :: Word16 -> IO (Maybe FreePort)
-mk httpPort = X.try @IOError (Socket.getAddrInfo Nothing (Just ("127.0.0.1" <> show httpPort)) (Just "http"))
-  <&> either (const Nothing) (const . Just <| Mk httpPort)
+mk httpPort = do
+  address : _ <- Socket.getAddrInfo (Just Socket.defaultHints { Socket.addrSocketType = Socket.Stream })
+                                    (Just "127.0.0.1")
+                                    (Just <| show httpPort)
+  let action = X.bracket (Socket.openSocket address) Socket.close \socket -> Socket.connect socket (Socket.addrAddress address)
+  X.try @IOError action |> fmap \case
+    Left  _ -> Just <| Mk httpPort
+    Right _ -> Nothing
