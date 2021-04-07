@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.CLI.Data.Config.Default
+Module      : Cascade.CLI.Data.Model.Config.Default
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Config.Default (httpPort, postgresHost, postgresPort, postgresUser, postgresPassword, postgresDatabase) where
+module Cascade.CLI.Data.Model.Config.Default (httpPort, postgresHost, postgresPort, postgresUser, postgresPassword, postgresDatabase) where
 
 httpPort :: Word16
 httpPort = 3141

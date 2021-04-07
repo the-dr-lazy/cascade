@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.CLI.Data.Config
+Module      : Cascade.CLI.Data.Model.Config
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,19 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Config (ConfigP(..), PostgresConfigP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, Errors) where
+module Cascade.CLI.Data.Model.Config (ConfigP(..), PostgresP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, Errors) where
 
-import qualified Cascade.CLI.Data.Config.Default    as Config.Default
+import qualified Cascade.CLI.Data.Model.Config.Default
+                                                    as Config.Default
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
-import           Cascade.Data.Maybe                  ( pureMaybe )
+import           Cascade.Control.Applicative         ( pureMaybe )
+import qualified Cascade.Data.Maybe                 as Maybe
 import           Control.Lens                        ( (^.)
+                                                     , non
                                                      , to
                                                      )
 import           Data.Generics.Labels                ( )
 import           Generic.Data                        ( Generically(..) )
 import           Validation                          ( Validation )
-import qualified Validation
 
 data Phase = Partial | Final
 
@@ -31,7 +33,7 @@ type family Validate (p :: Phase) (raw :: Type) (parsed :: Type) where
   Validate 'Final _ parsed = parsed
 
 -- brittany-disable-next-binding
-data PostgresConfigP (p :: Phase) = PostgresConfig
+data PostgresP (p :: Phase) = Postgres
   { host     :: Validate p String String
   , port     :: Validate p Word16 Word16
   , user     :: Validate p String String
@@ -39,9 +41,9 @@ data PostgresConfigP (p :: Phase) = PostgresConfig
   , database :: Validate p String String
   } deriving stock Generic
 
-type PostgresFinal = PostgresConfigP 'Final
+type PostgresFinal = PostgresP 'Final
 
-type PostgresPartial = PostgresConfigP 'Partial
+type PostgresPartial = PostgresP 'Partial
 
 deriving stock instance Show PostgresFinal
 deriving via Generically PostgresPartial instance Semigroup PostgresPartial
@@ -50,7 +52,7 @@ deriving via Generically PostgresPartial instance Monoid PostgresPartial
 -- brittany-disable-next-binding
 data ConfigP (p :: Phase) = Config
   { httpPort :: Validate p Word16 FreePort
-  , postgres :: PostgresConfigP p
+  , postgres :: PostgresP p
   } deriving stock Generic
 
 type Final = ConfigP 'Final
@@ -68,11 +70,10 @@ type Errors = NonEmpty Error
 
 finalize :: Partial -> IO (Validation Errors Final)
 finalize partial = getCompose do
-  httpPort <- Compose <| Validation.maybeToSuccess (BusyHttpPortError :| []) <$> FreePort.mk
-    (partial ^. #httpPort . to (fromMaybe Config.Default.httpPort . coerce))
+  httpPort <- Compose <| Maybe.toSuccess BusyHttpPortError <$> FreePort.mk (partial ^. #httpPort . to coerce . non Config.Default.httpPort)
 
   postgres <-
-    PostgresConfig
+    Postgres
     <$> pureMaybe Config.Default.postgresHost     (partial ^. #postgres . #host)
     <*> pureMaybe Config.Default.postgresPort     (partial ^. #postgres . #port)
     <*> pureMaybe Config.Default.postgresUser     (partial ^. #postgres . #user)

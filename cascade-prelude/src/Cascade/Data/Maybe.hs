@@ -10,9 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Maybe (pureMaybe, module Data.Maybe) where
+module Cascade.Data.Maybe (toSuccess, module Data.Maybe) where
 
 import           Data.Maybe
+import           Validation                          ( Validation )
+import qualified Validation
 
-pureMaybe :: Applicative f => Coercible (Maybe a) (maybe a) => a -> maybe a -> f a
-pureMaybe def = pure . fromMaybe def . coerce
+
+toSuccess :: e -> Maybe a -> Validation (NonEmpty e) a
+toSuccess e = Validation.maybeToSuccess (e :| [])

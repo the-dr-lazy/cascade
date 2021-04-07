@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.CLI.Data.Options
+Module      : Cascade.CLI.Data.Contract.Shell.Options
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,9 +10,10 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Options (readConfig) where
+module Cascade.CLI.Data.Contract.Shell.Options (readConfig) where
 
-import qualified Cascade.CLI.Data.Config            as Config
+import qualified Cascade.CLI.Data.Model.Config      as Config
+import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import           Data.Version                        ( showVersion )
 import           Development.GitRev                  ( gitCommitDate
                                                      , gitHash
@@ -36,7 +37,7 @@ import           Options.Applicative                 ( Parser
 import qualified Paths_cascade_cli                  as Meta
                                                      ( version )
 
-data PostgresOptions = PostgresOptions
+data Postgres = Postgres
   { host     :: Maybe String
   , port     :: Maybe Word16
   , user     :: Maybe String
@@ -45,13 +46,13 @@ data PostgresOptions = PostgresOptions
   }
 
 data Options = Options
-  { httpPort        :: Maybe Word16
-  , postgresOptions :: PostgresOptions
+  { httpPort :: Maybe Word16
+  , postgres :: Postgres
   }
 
-postgresOptionsP :: Parser PostgresOptions
+postgresOptionsP :: Parser Postgres
 postgresOptionsP =
-  PostgresOptions
+  Postgres
     <$> optional (option str (mconcat [long "postgres-host", metavar "CASCADE_POSTGRES_HOST", help "PostgreSQL host"]))
     <*> optional (option auto (mconcat [long "postgres-port", metavar "CASCADE_POSTGRES_PORT", help "PostgresSQL port"]))
     <*> optional (option str (mconcat [long "postgres-user", metavar "CASCADE_POSTGRES_USER", help "PostgreSQL user"]))
@@ -78,12 +79,12 @@ versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help
 cliP :: ParserInfo Options
 cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
 
-toPostgresPartialConfig :: PostgresOptions -> Config.PostgresPartial
-toPostgresPartialConfig PostgresOptions {..} =
-  Config.PostgresConfig { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
+toPostgresPartialConfig :: Postgres -> Config.PostgresPartial
+toPostgresPartialConfig Postgres {..} =
+  Config.Postgres { host = Last host, port = Last port, user = Last user, password = Last password, database = Last database }
 
 toPartialConfig :: Options -> Config.Partial
-toPartialConfig Options {..} = Config.Config { httpPort = Last httpPort, postgres = toPostgresPartialConfig postgresOptions }
+toPartialConfig Options {..} = Config { httpPort = Last httpPort, postgres = toPostgresPartialConfig postgres }
 
 readConfig :: IO Config.Partial
 readConfig = toPartialConfig <$> execParser cliP

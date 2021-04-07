@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.CLI.Environment
+Module      : Cascade.CLI.Data.Contract.Shell.Environment
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,12 +10,10 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Environment (readConfig) where
+module Cascade.CLI.Data.Contract.Shell.Environment (readConfig) where
 
-import qualified Cascade.CLI.Data.Config            as Config
-import           Cascade.CLI.Data.Config             ( ConfigP(..)
-                                                     , PostgresConfigP(..)
-                                                     )
+import qualified Cascade.CLI.Data.Model.Config      as Config
+import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import           Cascade.Data.Text                  as Text
 import           Data.Attoparsec.Text                ( decimal
                                                      , endOfInput
@@ -39,7 +37,7 @@ readPostgresConfig = do
   user     <- Last <$> lookupEnv "CASCADE_POSTGRES_USER"
   password <- Last <$> lookupEnv "CASCADE_POSTGRES_PASSWORD"
   database <- Last <$> lookupEnv "CASCADE_POSTGRES_DATABASE"
-  pure PostgresConfig { .. }
+  pure Config.Postgres { .. }
 
 readConfig :: IO Config.Partial
 readConfig = do
