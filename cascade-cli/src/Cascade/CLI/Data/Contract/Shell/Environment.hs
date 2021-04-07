@@ -12,6 +12,8 @@ Portability : POSIX
 
 module Cascade.CLI.Data.Contract.Shell.Environment (readConfig) where
 
+import qualified Cascade.CLI.Data.Contract.Shell.Environment.Var
+                                                    as Environment.Var
 import qualified Cascade.CLI.Data.Model.Config      as Config
 import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import           Cascade.Data.Text                  as Text
@@ -19,7 +21,7 @@ import           Data.Attoparsec.Text                ( decimal
                                                      , endOfInput
                                                      , parseOnly
                                                      )
-import           System.Environment
+import           System.Environment                  ( lookupEnv )
 
 readEnvDecimal :: Integral a => String -> IO (Maybe a)
 readEnvDecimal envName = do
@@ -32,15 +34,15 @@ readEnvDecimal envName = do
 
 readPostgresConfig :: IO Config.PostgresPartial
 readPostgresConfig = do
-  host     <- Last <$> lookupEnv "CASCADE_POSTGRES_HOST"
-  port     <- Last <$> readEnvDecimal "CASCADE_POSTGRES_PORT"
-  user     <- Last <$> lookupEnv "CASCADE_POSTGRES_USER"
-  password <- Last <$> lookupEnv "CASCADE_POSTGRES_PASSWORD"
-  database <- Last <$> lookupEnv "CASCADE_POSTGRES_DATABASE"
+  host     <- Last <$> lookupEnv Environment.Var.cascadePostgresHost
+  port     <- Last <$> readEnvDecimal Environment.Var.cascadePostgresPort
+  user     <- Last <$> lookupEnv Environment.Var.cascadePostgresUser
+  password <- Last <$> lookupEnv Environment.Var.cascadePostgresPassword
+  database <- Last <$> lookupEnv Environment.Var.cascadePostgresDatabase
   pure Config.Postgres { .. }
 
 readConfig :: IO Config.Partial
 readConfig = do
-  httpPort <- Last <$> readEnvDecimal "CASCADE_HTTP_PORT"
+  httpPort <- Last <$> readEnvDecimal Environment.Var.cascadeHttpPort
   postgres <- readPostgresConfig
   pure Config { .. }
