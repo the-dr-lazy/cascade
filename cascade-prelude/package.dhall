@@ -27,6 +27,7 @@ let cascade-prelude-test =
         , "tasty"
         , "tasty-hedgehog"
         , "tasty-hunit"
+        , "validation-selective"
         , "word8"
         ]
       }

@@ -29,13 +29,13 @@ import           Polysemy.Final                      ( embedToFinal )
 import qualified Servant
 
 data Config = Config
-  { port                   :: Int
+  { port                   :: Word16
   , withDatabaseConnection :: forall a . (Postgres.Connection -> IO a) -> IO a
   }
 
 main :: Config -> IO ()
 main Config {..} = do
-  Warp.run port $ application
+  Warp.run (fromIntegral port) $ application
     ( Servant.Handler
     . ExceptT
     . runFinal

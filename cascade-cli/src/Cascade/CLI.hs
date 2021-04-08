@@ -13,92 +13,40 @@ Portability : POSIX
 module Cascade.CLI (main) where
 
 import qualified Cascade.Api
+import qualified Cascade.CLI.Data.Contract.Shell.Environment
+                                                    as Environment
+import qualified Cascade.CLI.Data.Contract.Shell.Options
+                                                    as Options
+import qualified Cascade.CLI.Data.Model.Config      as Config
+import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
+import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
+import           Cascade.Data.Validation             ( Validation )
+import qualified Cascade.Data.Validation            as Validation
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
                                                      )
-import           Data.Version                        ( showVersion )
 import qualified Database.PostgreSQL.Simple         as Postgres
-import           Development.GitRev                  ( gitCommitDate
-                                                     , gitHash
-                                                     )
-import           Options.Applicative                 ( Parser
-                                                     , ParserInfo
-                                                     , auto
-                                                     , execParser
-                                                     , fullDesc
-                                                     , help
-                                                     , helper
-                                                     , info
-                                                     , infoOption
-                                                     , long
-                                                     , metavar
-                                                     , option
-                                                     , progDesc
-                                                     , short
-                                                     , showDefault
-                                                     , strOption
-                                                     , value
-                                                     )
-import qualified Paths_cascade_cli                  as Meta
-                                                     ( version )
 
-mkDatabaseConnectionPool :: PostgresOptions -> IO (Pool Postgres.Connection)
-mkDatabaseConnectionPool PostgresOptions {..} = do
+mkDatabaseConnectionPool :: Config.PostgresFinal -> IO (Pool Postgres.Connection)
+mkDatabaseConnectionPool Config.Postgres {..} = do
   createPool acquire Postgres.close 1 10 10
  where
   connectionInfo =
     Postgres.ConnectInfo { connectHost = host, connectPort = port, connectUser = user, connectPassword = password, connectDatabase = database }
   acquire = Postgres.connect connectionInfo
 
-runCascadeApi :: Options -> IO ()
-runCascadeApi Options {..} = do
-  databaseConnectionPool <- mkDatabaseConnectionPool postgresOptions
-  Cascade.Api.main Cascade.Api.Config { port = httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
+runCascadeApi :: Config.Final -> IO ()
+runCascadeApi Config {..} = do
+  databaseConnectionPool <- mkDatabaseConnectionPool postgres
+  Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
 
-cascadeVersion :: String
-cascadeVersion = intercalate "\n" [cVersion, cHash, cDate]
- where
-  cVersion, cHash, cDate :: String
-  cVersion = "Cascade CLI v" <> showVersion Meta.version
-  cHash    = "Git revision: " <> $(gitHash)
-  cDate    = "Last commit:  " <> $(gitCommitDate)
-
-versionP :: Parser (a -> a)
-versionP = infoOption cascadeVersion <| mconcat [long "version", short 'v', help "Show cascade's version"]
-
-data PostgresOptions = PostgresOptions
-  { host     :: String
-  , port     :: Word16
-  , user     :: String
-  , password :: String
-  , database :: String
-  }
-
-data Options = Options
-  { httpPort        :: Int
-  , postgresOptions :: PostgresOptions
-  }
-
-postgresOptionsP :: Parser PostgresOptions
-postgresOptionsP =
-  PostgresOptions
-    <$> strOption (mconcat [long "postgres-host", metavar "CASCADE_POSTGRES_HOST", value "localhost", showDefault, help "PostgreSQL host"])
-    <*> option auto (mconcat [long "postgres-port", metavar "CASCADE_POSTGRES_PORT", value 5432, showDefault, help "PostgresSQL port"])
-    <*> strOption (mconcat [long "postgres-user", metavar "CASCADE_POSTGRES_USER", value "cascade", showDefault, help "PostgreSQL user"])
-    <*> strOption (mconcat [long "postgres-password", metavar "CASCADE_POSTGRES_PASSWORD", value "", showDefault, help "PostgreSQL passowrd"])
-    <*> strOption
-          (mconcat [long "postgres-database", metavar "CASCADE_POSTGRES_DATABASE", value "cascade-api", showDefault, help "PostgreSQL database"]
-          )
-
-optionsP :: Parser Options
-optionsP =
-  Options
-    <$> option auto (mconcat [long "http-port", metavar "CASCADE_HTTP_PORT", value 3141, showDefault, help "Port number of Cascade Api"])
-    <*> postgresOptionsP
-
-cliP :: ParserInfo Options
-cliP = info (helper <*> versionP <*> optionsP) <| fullDesc <> progDesc "Cascade Cli"
+getFinalConfig :: IO (Validation Config.Errors Config.Final)
+getFinalConfig = Config.finalize . fold =<< sequence [Environment.readConfig, Options.readConfig]
 
 main :: IO ()
-main = execParser cliP >>= runCascadeApi
+main = do
+  vConfig <- getFinalConfig
+  case vConfig of
+    Validation.Failure _ -> putStrLn "Something went wrong!"
+    Validation.Success a -> runCascadeApi a
