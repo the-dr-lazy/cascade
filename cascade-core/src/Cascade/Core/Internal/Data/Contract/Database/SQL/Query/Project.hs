@@ -31,12 +31,10 @@ import qualified Cascade.Core.Internal.Data.Contract.Database.SQL.Query.User
                                                     as SQL.Query.User
 import           Cascade.Core.Internal.Data.Contract.Database.UserTable
                                                      ( UserTable )
-import qualified Cascade.Core.Internal.Data.Model.Project.Id
-                                                    as Project.Id
 import qualified Database.Beam                      as Beam
 
 byId :: _ => Project.Id p -> Q backend s (ProjectTable (Beam.QExpr backend s))
-byId (Project.Id.un -> id) = SQL.Query.all #projects |> SQL.filter (#id `SQL.eq` SQL.literal id)
+byId id = SQL.Query.all #projects |> SQL.filter (#id `SQL.eq` SQL.literal id)
 
 byUser :: _ => Q backend s (UserTable (Beam.QExpr backend s)) -> Q backend s (ProjectTable (Beam.QExpr backend s))
 byUser q = SQL.Query.all #projects |> filterProjectsByRelatedUsers q
