@@ -12,8 +12,8 @@ Portability : POSIX
 
 module Cascade.Core.Effect.Scrypt (ScryptL, hash, test, run) where
 
-import           Cascade.Core.Data.Hashed            ( Hashed )
-import qualified Cascade.Core.Data.Hashed           as Hashed
+import           Cascade.Core.Data.Model             ( Hashed )
+import qualified Cascade.Core.Data.Model.Hashed     as Hashed
 import qualified Crypto.Scrypt                      as Scrypt
 import           Polysemy                     hiding ( run )
 
