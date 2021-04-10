@@ -12,7 +12,7 @@ Portability : POSIX
 
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Cascade.Data.Text.Finite (Finite, pattern Finite, Error, un, mk) where
+module Cascade.Data.Text.Finite (Finite, pattern Finite, Error, un, mk, validate) where
 
 import qualified Cascade.Data.Either                as Either
 import qualified Data.Text                          as Text
@@ -38,6 +38,9 @@ mk input = Mk input <$ validate minimum maximum input
   minimum = natVal (Proxy @minimum)
   maximum = natVal (Proxy @maximum)
 
-validate :: Natural -> Natural -> Text -> Either Error ()
+validate :: Natural -- ^ minimum
+         -> Natural -- ^ maximum
+         -> Text    -- ^ input
+         -> Either Error ()
 validate minimum maximum input = Either.leftUnless (minimum <= actual && actual <= maximum) Error { .. }
   where actual = fromIntegral . Text.length <| input

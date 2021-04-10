@@ -10,6 +10,6 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.List (AtLeastTwo) where
+module Cascade.Data.List (AtLeastTwo, NonEmpty) where
 
 import           Cascade.Data.List.AtLeastTwo        ( AtLeastTwo )

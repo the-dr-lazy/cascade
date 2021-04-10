@@ -15,10 +15,11 @@ module Cascade.Core.Internal.Data.Model.User.Username (Username, Error(..), Erro
 import           Cascade.Core.Data.Model.Phase       ( Phase )
 import qualified Cascade.Core.Data.Model.Phase      as Phase
 import qualified Cascade.Data.Char                  as Char
-import           Control.Selective                   ( ifS )
+import qualified Cascade.Data.List                  as List
+import qualified Cascade.Data.Text.Finite           as Text.Finite
+import qualified Cascade.Data.Validation            as Validation
 import qualified Data.Text                          as Text
 import           Validation                          ( Validation )
-import qualified Validation
 
 newtype Username (phase :: Phase) = Mk { un :: Text }
   deriving newtype (Show, Eq)
@@ -30,26 +31,20 @@ pattern Username a <- Mk a
 {-# COMPLETE Username #-}
 
 data Error
-  = IsEmpty
-  | IsShort
-  | IsLong
-  | IsInvalid
-  deriving stock Show
+  = InvalidLengthError Text.Finite.Error
+  | InvalidCharactersError
 
-type Errors = NonEmpty Error
+type Errors = List.NonEmpty Error
 
 mk :: Text -> Validation Errors (Username 'Phase.Unknown)
 mk input = Mk input <$ validate input
 
 validate :: Text -> Validation Errors ()
-validate input = ifS
-  (pure $ Text.null input)
-  (Validation.failure IsEmpty)
-  (  Validation.failureIf (l > 20) IsLong
-  *> Validation.failureIf (l < 8) IsShort
-  *> Validation.failureUnless (Text.all Char.isAlphaNumUnderscore input) IsInvalid
-  )
-  where l = Text.length input
+validate input =
+  validateLength input `Validation.whenSuccess_` const (Validation.failureIf (Text.all Char.isAlphaNumUnderscore input) InvalidCharactersError)
+
+validateLength :: Text -> Validation (NonEmpty Error) ()
+validateLength = Validation.fromEither . first InvalidLengthError . Text.Finite.validate 8 21
 
 unsafePhaseCoerce :: Username p -> Username p'
 unsafePhaseCoerce = coerce
