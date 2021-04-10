@@ -10,24 +10,28 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.User (User(..), EmailAddress, Password, Username) where
+module Cascade.Core.Data.Model.User (User.Id, User(..), EmailAddress, Password, Username) where
 
 import           Cascade.Core.Data.Model.Hashed      ( Hashed )
-import           Cascade.Core.Data.Model.Id          ( Id )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
 import           Cascade.Core.Data.Model.User.EmailAddress
                                                      ( EmailAddress )
 import           Cascade.Core.Data.Model.User.Password
                                                      ( Password )
 import           Cascade.Core.Data.Model.User.Username
                                                      ( Username )
+import qualified Cascade.Core.Internal.Data.Model.Task.Id
+                                                    as Task
+import qualified Cascade.Core.Internal.Data.Model.User.Id
+                                                    as User
 import           Chronos                             ( Time )
 
 data User phase = User
-  { id                 :: User `Id` phase
+  { id                 :: User.Id phase
   , username           :: Username phase
   , emailAddress       :: EmailAddress phase
   , hashedPassword     :: Hashed Password
-  , currentWorkingTask :: Maybe (Task `Id` 'Phase.Persisted)
+  , currentWorkingTask :: Maybe (Task.Id 'Phase.Persisted)
   , createdAt          :: Time
   , updatedAt          :: Time
   }

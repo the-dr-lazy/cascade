@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Internal.Data.Text.Username
+Module      : Cascade.Core.Internal.Data.Model.User.Username
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -12,8 +12,8 @@ Portability : POSIX
 
 module Cascade.Core.Internal.Data.Model.User.Username (Username, Error(..), Errors, pattern Username, un, mk, unsafePhaseCoerce) where
 
-import           Cascade.Core.Data.Phase             ( Phase )
-import qualified Cascade.Core.Data.Phase            as Phase
+import           Cascade.Core.Data.Model.Phase       ( Phase )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
 import qualified Cascade.Data.Char                  as Char
 import           Control.Selective                   ( ifS )
 import qualified Data.Text                          as Text

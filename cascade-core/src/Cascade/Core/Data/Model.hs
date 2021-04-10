@@ -10,10 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model (Label(..), Project(..), Stage(..), Task(..), User(..)) where
+module Cascade.Core.Data.Model (Hashed, Label(..), Phase, Project(..), Stage(..), Task(..), User(..)) where
 
 import           Cascade.Core.Data.Model.Hashed      ( Hashed )
-import           Cascade.Core.Data.Model.Id          ( Id )
 import           Cascade.Core.Data.Model.Label       ( Label(..) )
 import           Cascade.Core.Data.Model.Phase       ( Phase )
 import           Cascade.Core.Data.Model.Project     ( Project(..) )

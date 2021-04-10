@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Core.Internal.Data.Text.EmailAddress
+Module      : Cascade.Core.Internal.Data.Model.User.EmailAddress
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -12,8 +12,8 @@ Portability : POSIX
 
 module Cascade.Core.Internal.Data.Model.User.EmailAddress (EmailAddress, pattern EmailAddress, un, mk, unsafePhaseCoerce) where
 
-import           Cascade.Core.Data.Phase             ( Phase )
-import qualified Cascade.Core.Data.Phase            as Phase
+import           Cascade.Core.Data.Model.Phase       ( Phase )
+import qualified Cascade.Core.Data.Model.Phase      as Phase
 import           Text.Email.Validate                 ( canonicalizeEmail )
 
 newtype EmailAddress (phase :: Phase) = Mk { un :: Text }

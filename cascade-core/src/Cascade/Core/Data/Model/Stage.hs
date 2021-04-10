@@ -10,18 +10,20 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.Stage (Stage(..), Name) where
+module Cascade.Core.Data.Model.Stage (Stage.Id, Stage(..), Name) where
 
-import {-# SOURCE #-} Cascade.Core.Data.Model        ( Task )
-import           Cascade.Core.Data.Model.Id          ( Id )
 import qualified Cascade.Core.Data.Model.Phase      as Phase
 import           Cascade.Core.Data.Model.Stage.Name  ( Name )
+import qualified Cascade.Core.Internal.Data.Model.Stage.Id
+                                                    as Stage
+import qualified Cascade.Core.Internal.Data.Model.Task.Id
+                                                    as Task
 import           Chronos                             ( Time )
 
 data Stage phase = Stage
-  { id        :: Stage `Id` phase
+  { id        :: Stage.Id phase
   , name      :: Name phase
-  , tasks     :: [Task `Id` 'Phase.Persisted]
+  , tasks     :: [Task.Id 'Phase.Persisted]
   , createdAt :: Time
   , updatedAt :: Time
   }

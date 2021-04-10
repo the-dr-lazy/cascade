@@ -10,17 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.Task (Task(..), Formation(..), Unit(..), Group(..), Pomodoro(..), Status(..), Title, Description) where
+module Cascade.Core.Data.Model.Task (Task.Id, Task(..), Formation(..), Unit(..), Group(..), Pomodoro(..), Status(..), Title, Description) where
 
-import {-# SOURCE #-} Cascade.Core.Data.Model        ( Label )
-import           Cascade.Core.Data.Model.Id          ( Id )
 import qualified Cascade.Core.Data.Model.Phase      as Phase
+import           Cascade.Core.Internal.Data.Model.Label.Id
+                                                    as Label
+import           Cascade.Core.Internal.Data.Model.Task.Id
+                                                    as Task
 import qualified Cascade.Data.List                  as List
 import qualified Cascade.Data.Text                  as Text
 import           Chronos                             ( Time )
 
 data Task phase = Task
-  { id        :: Task `Id` phase
+  { id        :: Task.Id phase
   , formation :: Formation phase
   }
 
@@ -38,7 +40,7 @@ data Unit phase = Unit
   , description :: Maybe Description
   , pomodoro    :: Pomodoro
   , status      :: Status
-  , labels      :: [Label `Id` 'Phase.Persisted]
+  , labels      :: [Label.Id 'Phase.Persisted]
   , deadlineAt  :: Maybe Time
   , createdAt   :: Time
   , updatedAt   :: Time
