@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.Sql.Query
+Module      : Cascade.Core.Internal.Data.Contract.Database.SQL.Query
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -13,10 +13,10 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql.Query (all, existance) where
+module Cascade.Core.Internal.Data.Contract.Database.SQL.Query (all, existance) where
 
-import           Cascade.Api.Database
-import           Cascade.Api.Database.Sql
+import           Cascade.Core.Internal.Data.Contract.Database
+import           Cascade.Core.Internal.Data.Contract.Database.SQL
 import           Control.Lens                        ( (^.) )
 import qualified Database.Beam                      as Beam
 import           Prelude                      hiding ( all )

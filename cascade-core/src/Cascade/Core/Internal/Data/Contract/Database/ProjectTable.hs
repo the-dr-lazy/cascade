@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.ProjectTable
+Module      : Cascade.Core.Internal.Data.Contract.Database.ProjectTable
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,10 +10,8 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.ProjectTable (ProjectTable(..), PrimaryKey(..), Row) where
+module Cascade.Core.Internal.Data.Contract.Database.ProjectTable (ProjectTable(..), PrimaryKey(..), Row) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.WrappedC          as Wrapped
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( Beamable
                                                      , C
@@ -23,7 +21,7 @@ import           Database.Beam                       ( Beamable
 
 -- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row
-  { id   :: Wrapped.C f Project.Id
+  { id   :: C f UUID
   , name :: C f Text
   }
   deriving stock Generic
@@ -31,7 +29,7 @@ data ProjectTable (f :: Type -> Type) = Row
 
 instance Table ProjectTable where
   newtype PrimaryKey ProjectTable f = PrimaryKey
-    { unPrimaryKey :: Wrapped.C f Project.Id
+    { unPrimaryKey :: C f UUID
     }
     deriving stock Generic
     deriving anyclass Beamable

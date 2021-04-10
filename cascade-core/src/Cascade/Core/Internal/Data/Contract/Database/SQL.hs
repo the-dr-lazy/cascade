@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.Sql
+Module      : Cascade.Core.Internal.Data.Contract.Database.SQL
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -14,7 +14,7 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql
+module Cascade.Core.Internal.Data.Contract.Database.SQL
   ( (==)
   , Q
   , DatabaseEntityGetting
@@ -27,6 +27,7 @@ module Cascade.Api.Database.Sql
   , filter
   , filterProjectsByRelatedUsers
   , insert
+  , val
   , literal
   , lookup
   , manyToMany
@@ -35,10 +36,11 @@ module Cascade.Api.Database.Sql
   , Beam.select
   ) where
 
-import           Cascade.Api.Data.WrappedC           ( WrappedC )
-import           Cascade.Api.Database
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import           Cascade.Api.Database.UserTable      ( UserTable )
+import           Cascade.Core.Internal.Data.Contract.Database
+import           Cascade.Core.Internal.Data.Contract.Database.ProjectTable
+                                                     ( ProjectTable )
+import           Cascade.Core.Internal.Data.Contract.Database.UserTable
+                                                     ( UserTable )
 import           Control.Lens                 hiding ( (|>) )
 import           Database.Beam                hiding ( Database
                                                      , ManyToMany
@@ -96,6 +98,9 @@ delete optic = Beam.delete $ database ^. optic
 
 eq :: SqlEq expression a => Getting a (table expression) a -> a -> table expression -> expression Bool
 optic `eq` x = \row -> view optic row == x
+
+val :: SqlValable a => HaskellLiteralForQExpr a -> a
+val = Beam.val_
 
 literal :: SqlValable (Beam.QGenExpr context backend s b) => Coercible a b => a -> Beam.QGenExpr context backend s b
 literal = Beam.val_ . coerce
@@ -157,7 +162,6 @@ filterProjectsByRelatedUsers queryUsers queryProjects = view _2 <$> userProjects
 type family TableFieldsFulfillConstraint' (constraint :: Type -> Constraint) (table :: Type -> Type) :: Constraint where
   TableFieldsFulfillConstraint' _ U1 = ()
   TableFieldsFulfillConstraint' constraint (x :*: y) = (TableFieldsFulfillConstraint' constraint x, TableFieldsFulfillConstraint' constraint y)
-  TableFieldsFulfillConstraint' _ (K1 R (HasConstraint constraint (WrappedC x))) = (constraint (Unwrapped x), constraint (WrappedC x))
   TableFieldsFulfillConstraint' _ (K1 R (HasConstraint constraint x)) = (constraint x)
   TableFieldsFulfillConstraint' constraint (K1 R (PrimaryKey table _)) = TableFieldsFulfillConstraint constraint table
   TableFieldsFulfillConstraint' constraint (M1 _ _ table) = TableFieldsFulfillConstraint' constraint table

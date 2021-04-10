@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Database.TaskTable
+Module      : Cascade.Core.Internal.Data.Contract.Database.TaskTable
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,13 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.TaskTable (TaskTable(..), PrimaryKey(..), Row) where
+module Cascade.Core.Internal.Data.Contract.Database.TaskTable (TaskTable(..), PrimaryKey(..), Row) where
 
-import qualified Cascade.Api.Data.Task              as Task
-import qualified Cascade.Api.Data.WrappedC          as Wrapped
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import qualified Cascade.Data.Text                  as Text
-import           Chronos                             ( OffsetDatetime )
+import           Cascade.Core.Internal.Data.Contract.Database.ProjectTable
+                                                     ( ProjectTable )
+import           Chronos                             ( Time )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( Beamable
                                                      , C
@@ -26,9 +24,9 @@ import           Database.Beam                       ( Beamable
 
 -- brittany-disable-next-binding
 data TaskTable (f :: Type -> Type) = Row
-  { id         :: Wrapped.C f Task.Id
+  { id         :: C f UUID
   , title      :: C f Text
-  , deadlineAt :: C f OffsetDatetime
+  , deadlineAt :: C f Time
   , projectId  :: PrimaryKey ProjectTable f
   }
   deriving stock Generic
@@ -36,7 +34,7 @@ data TaskTable (f :: Type -> Type) = Row
 
 instance Table TaskTable where
   newtype PrimaryKey TaskTable f = PrimaryKey
-    { unPrimaryKey :: Wrapped.C f Task.Id
+    { unPrimaryKey :: C f UUID
     }
     deriving stock Generic
     deriving anyclass Beamable
