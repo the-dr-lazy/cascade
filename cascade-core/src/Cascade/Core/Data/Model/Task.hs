@@ -58,7 +58,7 @@ type role Group nominal
 
 data Pomodoro = Pomodoro
   { elapsed :: Word
-  , planned :: Word
+  , planned :: Maybe Word
   }
 
 data Status = ToDo | Doing | Done
