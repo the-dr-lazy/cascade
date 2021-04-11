@@ -32,8 +32,6 @@ data User phase = User
   , emailAddress       :: EmailAddress phase
   , hashedPassword     :: Hashed Password
   , currentWorkingTask :: Maybe (Task.Id 'Phase.Persisted)
-  , createdAt          :: Time
-  , updatedAt          :: Time
   }
 
 type role User nominal

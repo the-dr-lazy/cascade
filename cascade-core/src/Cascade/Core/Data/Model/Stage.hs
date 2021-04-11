@@ -21,11 +21,9 @@ import qualified Cascade.Core.Internal.Data.Model.Task.Id
 import           Chronos                             ( Time )
 
 data Stage phase = Stage
-  { id        :: Stage.Id phase
-  , name      :: Name phase
-  , tasks     :: [Task.Id 'Phase.Persisted]
-  , createdAt :: Time
-  , updatedAt :: Time
+  { id    :: Stage.Id phase
+  , name  :: Name phase
+  , tasks :: [Task.Id 'Phase.Persisted]
   }
 
 type role Stage nominal

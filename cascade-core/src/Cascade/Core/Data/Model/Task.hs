@@ -42,8 +42,6 @@ data Unit phase = Unit
   , status      :: Status
   , labels      :: [Label.Id 'Phase.Persisted]
   , deadlineAt  :: Maybe Time
-  , createdAt   :: Time
-  , updatedAt   :: Time
   }
 
 type role Unit nominal

@@ -19,6 +19,7 @@ import qualified Cascade.Core.Internal.Data.Model.Project.Id
                                                     as Project
 import qualified Cascade.Core.Internal.Data.Model.Stage.Id
                                                     as Stage
+
 import qualified Cascade.Core.Internal.Data.Model.User.Id
                                                     as User
 import qualified Cascade.Data.Text                  as Text
@@ -28,13 +29,11 @@ import qualified Relude.List                        as List
 type Name = Text.Finite 1 233
 
 data Project phase = Project
-  { id        :: Project.Id phase
-  , slug      :: Slug phase
-  , name      :: Name
-  , users     :: List.NonEmpty (User.Id 'Phase.Persisted)
-  , stages    :: List.NonEmpty (Stage.Id 'Phase.Persisted)
-  , createdAt :: Time
-  , updatedAt :: Time
+  { id     :: Project.Id phase
+  , slug   :: Slug phase
+  , name   :: Name
+  , users  :: List.NonEmpty (User.Id 'Phase.Persisted)
+  , stages :: List.NonEmpty (Stage.Id 'Phase.Persisted)
   }
 
 type role Project nominal
