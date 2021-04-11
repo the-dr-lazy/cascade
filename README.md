@@ -12,10 +12,12 @@ Give a ⭐ if this project helped you!
 
 ## Authors
 
-- **Mohammad Hasani** - _Maintainer_ - [amygdala :: ∀ a. a → IO Memory](https://github.com/the-dr-lazy)
 - **Mahdi Seyedan** - _Collaborator_ - [jedimahdi](https://github.com/jedimahdi)
+- **Mahsa Kazemzadeh** - _Collaborator_ - [mahkz](https://github.com/mahkz)
 - **Mohammad Hadi Aliakbar** - _Collaborator_ - [mohaalak](https://github.com/mohaalak)
+- **Mohammad Hasani** - _Maintainer_ - [amygdala :: ∀ a. a → IO Memory](https://github.com/the-dr-lazy)
 - **Roozbeh Sharifnasab** - _Collaborator_ - [rsharifnasab](https://github.com/rsharifnasab)
+
 
 ## Contributing
 
