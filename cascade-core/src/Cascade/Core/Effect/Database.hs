@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Api.Effect.Database
+Module      : Cascade.Core.Effect.Database
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Database
+module Cascade.Core.Effect.Database
   ( DatabaseL
   , runSelectReturningList
   , runSelectReturningOne
@@ -37,15 +37,9 @@ import           Database.Beam.Postgres              ( Pg
                                                      , runBeamPostgres
                                                      )
 import qualified Database.PostgreSQL.Simple         as Postgres
-import           Polysemy                            ( Member
-                                                     , Sem
-                                                     , interpretH
-                                                     , makeSem
-                                                     , raise
-                                                     , runT
-                                                     )
+import           Polysemy
 import           Polysemy.Final
-import           Polysemy.Internal.Tactics           ( liftT )
+import           Polysemy.Internal.Tactics
 import           Prelude                      hiding ( state )
 
 data DatabaseL backend (m :: Type -> Type) a where
@@ -61,12 +55,12 @@ makeSem ''DatabaseL
 
 postgresToFinal :: Member (Final IO) r => (forall x . (Postgres.Connection -> IO x) -> IO x) -> Sem (DatabaseL Beam.Postgres ': r) a -> Sem r a
 postgresToFinal withConnection = interpretH \case
-  RunSelectReturningList sql         -> Beam.runSelectReturningList sql |> runSql |> embedFinal |> liftT
-  RunSelectReturningOne  sql         -> Beam.runSelectReturningOne sql |> runSql |> embedFinal |> liftT
-  RunInsert              sql         -> Beam.runInsert sql |> runSql |> embedFinal |> liftT
-  RunInsertReturningOne  sql         -> Beam.runInsertReturningList sql |> runSql |> fmap listToMaybe |> embedFinal |> liftT
-  RunUpdateReturningOne  sql         -> Beam.runUpdateReturningList sql |> runSql |> fmap listToMaybe |> embedFinal |> liftT
-  RunDeleteReturningOne  sql         -> Beam.runDeleteReturningList sql |> runSql |> fmap listToMaybe |> embedFinal |> liftT
+  RunSelectReturningList sql         -> Beam.runSelectReturningList sql |> runSql
+  RunSelectReturningOne  sql         -> Beam.runSelectReturningOne sql |> runSql
+  RunInsert              sql         -> Beam.runInsert sql |> runSql
+  RunInsertReturningOne  sql         -> Beam.runInsertReturningList sql |> runSql |> (<<$>>) listToMaybe
+  RunUpdateReturningOne  sql         -> Beam.runUpdateReturningList sql |> runSql |> (<<$>>) listToMaybe
+  RunDeleteReturningOne  sql         -> Beam.runDeleteReturningList sql |> runSql |> (<<$>>) listToMaybe
   WithTransaction        transaction -> do
     transaction' <- runT transaction
 
@@ -75,5 +69,5 @@ postgresToFinal withConnection = interpretH \case
         let action = raise (postgresToFinal (apply connection) transaction') <$ state in Postgres.withTransaction connection . weave <| action
 
  where
-  runSql :: Pg a -> IO a
-  runSql sql = withConnection (`runBeamPostgres` sql)
+  runSql :: Member (Final IO) r => Functor f => Pg a -> Sem (WithTactics e f m r) (f a)
+  runSql = liftT . embedFinal . withConnection . flip runBeamPostgres
