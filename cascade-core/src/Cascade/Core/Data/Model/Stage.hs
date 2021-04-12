@@ -18,7 +18,6 @@ import qualified Cascade.Core.Internal.Data.Model.Stage.Id
                                                     as Stage
 import qualified Cascade.Core.Internal.Data.Model.Task.Id
                                                     as Task
-import           Chronos                             ( Time )
 
 data Stage phase = Stage
   { id    :: Stage.Id phase

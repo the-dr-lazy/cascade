@@ -24,7 +24,6 @@ import qualified Cascade.Core.Internal.Data.Model.Task.Id
                                                     as Task
 import qualified Cascade.Core.Internal.Data.Model.User.Id
                                                     as User
-import           Chronos                             ( Time )
 
 data User phase = User
   { id                 :: User.Id phase
