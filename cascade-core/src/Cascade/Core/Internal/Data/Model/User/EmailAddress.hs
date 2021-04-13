@@ -19,6 +19,8 @@ import           Text.Email.Validate                 ( canonicalizeEmail )
 newtype EmailAddress (phase :: Phase) = Mk { un :: Text }
   deriving newtype (Show, Eq)
 
+type role EmailAddress nominal
+
 pattern EmailAddress :: Text -> EmailAddress phase
 pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
