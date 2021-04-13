@@ -6,6 +6,8 @@ let cascade-prelude =
       { source-dirs = "src"
       , dependencies =
         [ "aeson"
+        , "attoparsec"
+        , "base64"
         , "containers"
         , "flow"
         , "lens"
