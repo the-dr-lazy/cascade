@@ -50,7 +50,9 @@ import           Database.Beam                hiding ( Database
                                                      , update
                                                      )
 import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend )
+import           Database.Beam.Backend               ( BeamSqlBackend
+                                                     , SqlNull
+                                                     )
 import           Database.Beam.Schema.Tables         ( HasConstraint )
 import           GHC.Generics
 import           Prelude                      hiding ( (==)
@@ -163,12 +165,18 @@ type family TableFieldsFulfillConstraint' (constraint :: Type -> Constraint) (ta
   TableFieldsFulfillConstraint' _ U1 = ()
   TableFieldsFulfillConstraint' constraint (x :*: y) = (TableFieldsFulfillConstraint' constraint x, TableFieldsFulfillConstraint' constraint y)
   TableFieldsFulfillConstraint' _ (K1 R (HasConstraint constraint x)) = (constraint x)
-  TableFieldsFulfillConstraint' constraint (K1 R (PrimaryKey table _)) = TableFieldsFulfillConstraint constraint table
+  TableFieldsFulfillConstraint' constraint (K1 R (table (Nullable (HasConstraint _)))) = TableFieldsFulfillConstraintNullable constraint table
+  TableFieldsFulfillConstraint' constraint (K1 R (table (HasConstraint _))) = TableFieldsFulfillConstraint constraint table
   TableFieldsFulfillConstraint' constraint (M1 _ _ table) = TableFieldsFulfillConstraint' constraint table
 
 -- brittany-disable-next-binding
 type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
   = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' constraint (Rep (table (HasConstraint constraint))))
+
+type TableFieldsFulfillConstraintNullable (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
+  = ( Generic (table (Nullable (HasConstraint constraint)))
+    , TableFieldsFulfillConstraint' constraint (Rep (table (Nullable (HasConstraint constraint))))
+    )
 
 -- brittany-disable-next-binding
 type family TableFieldsFulfillConstraints (constraint :: [Type -> Constraint]) (table :: (Type -> Type) -> Type) :: Constraint where

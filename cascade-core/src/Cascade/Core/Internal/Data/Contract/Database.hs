@@ -18,12 +18,15 @@ import qualified Cascade.Core.Internal.Data.Contract.Database.ProjectTable
                                                     as ProjectTable
 import           Cascade.Core.Internal.Data.Contract.Database.TaskTable
                                                      ( TaskTable(..) )
+import qualified Cascade.Core.Internal.Data.Contract.Database.TaskTable
+                                                    as TaskTable
 import           Cascade.Core.Internal.Data.Contract.Database.UserProjectTable
                                                      ( UserProjectTable(..) )
 import           Cascade.Core.Internal.Data.Contract.Database.UserTable
                                                      ( UserTable(..) )
 import qualified Cascade.Core.Internal.Data.Contract.Database.UserTable
                                                     as UserTable
+import           Cascade.Core.Internal.Orphans       ( )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( DatabaseSettings
                                                      , TableEntity
@@ -47,10 +50,10 @@ data Database (f :: Type -> Type) = Database
 
 database :: DatabaseSettings backend Database
 database = Beam.defaultDbSettings `withDbModification` dbModification
-  { users        = modifyTableFields tableModification { emailAddress   = "email_address"
-                                                       , hashedPassword = "hashed_password"
-                                                       , createdAt      = "created_at"
-                                                       , updatedAt      = "updated_at"
+  { users        = modifyTableFields tableModification { emailAddress       = "email_address"
+                                                       , currentWorkingTask = TaskTable.PrimaryKey "current_working_task"
+                                                       , createdAt          = "created_at"
+                                                       , updatedAt          = "updated_at"
                                                        }
   , userProjects = setEntityName "user_projects" <> modifyTableFields tableModification { userId    = UserTable.PrimaryKey "user_id"
                                                                                         , projectId = ProjectTable.PrimaryKey "project_id"

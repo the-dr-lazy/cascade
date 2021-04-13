@@ -18,6 +18,7 @@ import           Chronos                             ( Time )
 import           Data.Generics.Labels                ( )
 import           Database.Beam                       ( Beamable
                                                      , C
+                                                     , Nullable
                                                      , PrimaryKey
                                                      , Table(..)
                                                      )
@@ -39,6 +40,9 @@ instance Table TaskTable where
     deriving stock Generic
     deriving anyclass Beamable
   primaryKey = PrimaryKey . id
+
+deriving newtype instance Show (PrimaryKey TaskTable (Nullable Identity))
+deriving newtype instance Eq (PrimaryKey TaskTable (Nullable Identity))
 
 type Row = TaskTable Identity
 

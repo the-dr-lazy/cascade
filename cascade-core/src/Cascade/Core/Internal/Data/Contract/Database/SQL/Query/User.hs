@@ -27,13 +27,19 @@ import qualified Cascade.Core.Internal.Data.Contract.Database.SQL.Query
                                                     as SQL.Query
 import           Cascade.Core.Internal.Data.Contract.Database.UserTable
                                                      ( UserTable )
+import qualified Cascade.Core.Internal.Data.Model.User.EmailAddress
+                                                    as EmailAddress
+import qualified Cascade.Core.Internal.Data.Model.User.Id
+                                                    as User.Id
+import qualified Cascade.Core.Internal.Data.Model.User.Username
+                                                    as Username
 import qualified Database.Beam                      as Beam
 
 byId :: _ => User.Id p -> Q backend s (UserTable (Beam.QExpr backend s))
-byId id = SQL.Query.all #users |> SQL.filter (#id `SQL.eq` SQL.literal id)
+byId (User.Id.un -> id) = SQL.Query.all #users |> SQL.filter (#id `SQL.eq` SQL.literal id)
 
 byUsername :: _ => Username p -> Q backend s (UserTable (Beam.QExpr backend s))
-byUsername username = SQL.Query.all #users |> SQL.filter (#username `SQL.eq` SQL.literal username)
+byUsername (Username.un -> username) = SQL.Query.all #users |> SQL.filter (#username `SQL.eq` SQL.literal username)
 
 byEmailAddress :: _ => EmailAddress p -> Q backend s (UserTable (Beam.QExpr backend s))
-byEmailAddress emailAddress = SQL.Query.all #users |> SQL.filter (#emailAddress `SQL.eq` SQL.literal emailAddress)
+byEmailAddress (EmailAddress.un -> emailAddress) = SQL.Query.all #users |> SQL.filter (#emailAddress `SQL.eq` SQL.literal emailAddress)

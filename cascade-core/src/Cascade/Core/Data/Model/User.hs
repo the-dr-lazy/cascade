@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Core.Data.Model.User (User.Id, User(..), EmailAddress, Password, Username) where
+module Cascade.Core.Data.Model.User (User.Id, User(..), EmailAddress, Password, Username, unsafePhaseCoerce) where
 
 import           Cascade.Core.Data.Model.Hashed      ( Hashed )
 import qualified Cascade.Core.Data.Model.Phase      as Phase
@@ -24,6 +24,7 @@ import qualified Cascade.Core.Internal.Data.Model.Task.Id
                                                     as Task
 import qualified Cascade.Core.Internal.Data.Model.User.Id
                                                     as User
+import           Unsafe.Coerce
 
 data User phase = User
   { id                 :: User.Id phase
@@ -34,3 +35,6 @@ data User phase = User
   }
 
 type role User nominal
+
+unsafePhaseCoerce :: User p -> User p'
+unsafePhaseCoerce = unsafeCoerce

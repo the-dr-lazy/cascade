@@ -13,13 +13,18 @@ Portability : POSIX
 module Cascade.Core.Data.Evidence.User where
 
 import qualified Cascade.Core.Data.Model.Phase      as Phase
-import qualified Cascade.Core.Data.Model.User       as User
+import           Cascade.Core.Data.Model.User        ( EmailAddress
+                                                     , Username
+                                                     )
+import qualified Cascade.Core.Effect.Repository     as Repository
 import qualified Cascade.Core.Effect.Repository.User
                                                     as Repository.User
-import           Polysemy                            ( Sem )
+import           Polysemy                            ( Member
+                                                     , Sem
+                                                     )
 
-canTakeUsername :: User.Username 'Phase.Unknown -> Sem r (Maybe (User.Username 'Phase.New))
-canTakeUsername = leftToMaybe . Repository.User.doesExistsByUsername
+canTakeUsername :: Member Repository.UserL r => Username 'Phase.Unknown -> Sem r (Maybe (Username 'Phase.New))
+canTakeUsername = fmap leftToMaybe . Repository.User.doesExistsByUsername
 
-canTakeEmailAddress :: User.EmailAddress 'Phase.Unknown -> Sem r (Maybe (User.EmailAddress 'Phase.New))
-canTakeEmailAddress = leftToMaybe . Repository.User.doesExistsByEmailAddress
+canTakeEmailAddress :: Member Repository.UserL r => EmailAddress 'Phase.Unknown -> Sem r (Maybe (EmailAddress 'Phase.New))
+canTakeEmailAddress = fmap leftToMaybe . Repository.User.doesExistsByEmailAddress

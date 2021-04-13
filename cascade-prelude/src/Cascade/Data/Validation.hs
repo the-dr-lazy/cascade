@@ -12,7 +12,7 @@ Portability : POSIX
 
 {-# LANGUAGE ViewPatterns #-}
 
-module Cascade.Data.Validation (Phase(..), Errors, Validate, fromEither, parseRecord, module Validation) where
+module Cascade.Data.Validation (Phase(..), Errors, Validate, fromEither, parseRecord, toEither, module Validation) where
 
 import qualified Cascade.Data.List                  as List
 import           GHC.Generics
@@ -20,6 +20,9 @@ import           Validation
 
 fromEither :: Either e a -> Validation (List.NonEmpty e) a
 fromEither = eitherToValidation . first (:| [])
+
+toEither :: Validation e a -> Either e a
+toEither = validationToEither
 
 data Phase = Parser | Raw | Error | Parsed
 
