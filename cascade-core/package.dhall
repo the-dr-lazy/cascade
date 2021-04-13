@@ -1,13 +1,6 @@
 let Cascade = ../package.dhall
 
-let dependencies =
-      [ "base-noprelude"
-      , "cascade-prelude"
-      , "chronos"
-      , "relude"
-      , "text"
-      , "uuid"
-      ]
+let dependencies = [ "base-noprelude", "cascade-prelude" ]
 
 let cascade-core =
       { source-dirs = "src"

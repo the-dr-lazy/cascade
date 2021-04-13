@@ -17,6 +17,13 @@ let cascade-prelude =
         , "validation-selective"
         , "word8"
         ]
+      , reexported-modules =
+        [ "Chronos"
+        , "Data.ByteString"
+        , "Data.Text"
+        , "Data.UUID"
+        , "Relude.Unsafe"
+        ]
       }
 
 let cascade-prelude-test =

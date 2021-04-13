@@ -15,7 +15,6 @@ Portability : POSIX
 module Cascade.Core.Internal.Orphans () where
 
 import qualified Chronos
-import           Chronos.Types
 import qualified Data.Attoparsec.ByteString         as Attoparsec
 import qualified Database.Beam                      as Beam
 import qualified Database.Beam.Backend              as Beam
@@ -34,40 +33,42 @@ import           Database.PostgreSQL.Simple.TypeInfo.Static
                                                      ( timestamptzOid )
 
 -------------------------------------------------------
--- OffsetDatetime
+-- Chronos.OffsetDatetime
 
-instance Postgres.ToField OffsetDatetime where
+instance Postgres.ToField Chronos.OffsetDatetime where
   toField = Postgres.Plain . Postgres.inQuotes . encode
    where
-    encode = Chronos.builderUtf8_YmdHMSz OffsetFormatColonAuto (SubsecondPrecisionFixed 6) (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
+    encode = Chronos.builderUtf8_YmdHMSz Chronos.OffsetFormatColonAuto
+                                         (Chronos.SubsecondPrecisionFixed 6)
+                                         (Chronos.DatetimeFormat (Just '-') (Just ' ') (Just ':'))
 
-instance Postgres.FromField OffsetDatetime where
+instance Postgres.FromField Chronos.OffsetDatetime where
   fromField f
     | typeOid f /= timestamptzOid = return $ Postgres.returnError Incompatible f ""
     | otherwise = maybe (Postgres.returnError UnexpectedNull f "") (maybe (Postgres.returnError ConversionFailed f "") return <$> decode)
    where
     decode = rightToMaybe . Attoparsec.parseOnly (parser <* Attoparsec.endOfInput)
-    parser = Chronos.parserUtf8_YmdHMSz OffsetFormatColonAuto (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
+    parser = Chronos.parserUtf8_YmdHMSz Chronos.OffsetFormatColonAuto (Chronos.DatetimeFormat (Just '-') (Just ' ') (Just ':'))
 
-instance Beam.FromBackendRow Postgres OffsetDatetime
+instance Beam.FromBackendRow Postgres Chronos.OffsetDatetime
 
-instance Beam.HasSqlValueSyntax PgValueSyntax OffsetDatetime where
+instance Beam.HasSqlValueSyntax PgValueSyntax Chronos.OffsetDatetime where
   sqlValueSyntax = defaultPgValueSyntax
 
-instance Beam.HasSqlEqualityCheck Postgres OffsetDatetime
+instance Beam.HasSqlEqualityCheck Postgres Chronos.OffsetDatetime
 
 -------------------------------------------------------
--- Time
+-- Chronos.Time
 
-instance Postgres.ToField Time where
+instance Postgres.ToField Chronos.Time where
   toField = Postgres.toField . Chronos.timeToOffsetDatetime (Chronos.Offset 0)
 
-instance Postgres.FromField Time where
+instance Postgres.FromField Chronos.Time where
   fromField f = fmap Chronos.offsetDatetimeToTime . Postgres.fromField f
 
-instance Beam.FromBackendRow Postgres Time
+instance Beam.FromBackendRow Postgres Chronos.Time
 
-instance Beam.HasSqlValueSyntax PgValueSyntax Time where
+instance Beam.HasSqlValueSyntax PgValueSyntax Chronos.Time where
   sqlValueSyntax = defaultPgValueSyntax
 
-instance Beam.HasSqlEqualityCheck Postgres Time
+instance Beam.HasSqlEqualityCheck Postgres Chronos.Time
