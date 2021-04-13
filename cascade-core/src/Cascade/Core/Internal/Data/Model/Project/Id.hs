@@ -16,6 +16,8 @@ import           Cascade.Core.Data.Model.Phase       ( Phase )
 
 newtype Id (phase :: Phase) = Mk { un :: UUID }
 
+type role Id nominal
+
 unsafeMk :: UUID -> Id p
 unsafeMk = Mk
 
