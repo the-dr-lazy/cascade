@@ -13,6 +13,7 @@ let cascade-cli =
       { source-dirs = "src"
       , dependencies =
         [ "cascade-api"
+        , "co-log"
         , "postgresql-simple"
         , "resource-pool"
         , "optparse-applicative"

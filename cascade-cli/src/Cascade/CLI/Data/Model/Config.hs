@@ -10,14 +10,30 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Model.Config (ConfigP(..), PostgresP(..), Partial, PostgresPartial, Final, PostgresFinal, finalize, Errors) where
+module Cascade.CLI.Data.Model.Config
+  ( ConfigP(..)
+  , PostgresP(..)
+  , Partial
+  , PostgresPartial
+  , Final
+  , PostgresFinal
+  , finalize
+  , Errors
+  , logErrors
+  ) where
 
 import qualified Cascade.CLI.Data.Model.Config.Default
                                                     as Config.Default
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
+import           Cascade.Colog.Message               ( Message
+                                                     , log
+                                                     )
 import           Cascade.Control.Applicative         ( pureMaybe )
 import qualified Cascade.Data.Maybe                 as Maybe
+import           Colog                               ( Severity(..)
+                                                     , WithLog
+                                                     )
 import           Control.Lens                        ( (^.)
                                                      , non
                                                      , to
@@ -65,14 +81,21 @@ deriving stock instance Show Final
 deriving via Generically Partial instance Semigroup Partial
 deriving via Generically Partial instance Monoid Partial
 
-data Error = BusyHttpPortError
+data Error = BusyHttpPortError Word16
   deriving stock (Show, Eq)
 
 type Errors = NonEmpty Error
 
+prettyPrintError :: Error -> Text
+prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port"
+
+logErrors :: WithLog env Message m => MonadIO m => Errors -> m ()
+logErrors = mapM_ <| log Error . prettyPrintError
+
 finalize :: Partial -> IO (Validation Errors Final)
 finalize partial = getCompose do
-  httpPort <- Compose . fmap (Maybe.toSuccess BusyHttpPortError) . FreePort.mk <| partial ^. #httpPort . to coerce . non Config.Default.httpPort
+  let port = partial ^. #httpPort . to coerce . non Config.Default.httpPort
+  httpPort <- Compose . fmap (Maybe.toSuccess (BusyHttpPortError port)) . FreePort.mk <| port
 
   postgres <-
     Postgres
