@@ -20,7 +20,9 @@ import qualified Cascade.Api.Effect.Database.User   as Database.User
 import qualified Cascade.Api.Effect.Scrypt          as Scrypt
 import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Network.Wai.Application
+import           Cascade.Api.Network.Wai.Log         ( logMiddleware )
 import           Cascade.Api.Orphans                 ( )
+import           Cascade.Colog.Actions               ( logMessageStdoutAndStderr )
 import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Network.Wai.Handler.Warp           as Warp
 import           Polysemy                            ( runFinal )
@@ -35,7 +37,7 @@ data Config = Config
 
 main :: Config -> IO ()
 main Config {..} = do
-  Warp.run (fromIntegral port) $ application
+  Warp.run (fromIntegral port) . logMiddleware logMessageStdoutAndStderr <| application
     ( Servant.Handler
     . ExceptT
     . runFinal
