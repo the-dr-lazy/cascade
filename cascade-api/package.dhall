@@ -28,6 +28,7 @@ let cascade-api =
         , "beam-core"
         , "beam-postgres"
         , "chronos"
+        , "co-log"
         , "either"
         , "email-validate"
         , "generic-monoid"
