@@ -6,6 +6,9 @@ let cascade-prelude =
       { source-dirs = "src"
       , dependencies =
         [ "aeson"
+        , "ansi-terminal"
+        , "co-log"
+        , "co-log-core"
         , "containers"
         , "flow"
         , "lens"
@@ -13,6 +16,7 @@ let cascade-prelude =
         , "text"
         , "uuid"
         , "validation-selective"
+        , "vector"
         , "word8"
         ]
       }
