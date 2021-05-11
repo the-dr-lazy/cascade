@@ -20,8 +20,10 @@ import qualified Cascade.CLI.Data.Contract.Shell.Options
 import qualified Cascade.CLI.Data.Model.Config      as Config
 import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
+import           Cascade.Colog.Actions               ( logMessageStdoutAndStderr )
 import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
+import           Colog                               ( usingLoggerT )
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
                                                      , createPool
@@ -48,5 +50,5 @@ main :: IO ()
 main = do
   vConfig <- getFinalConfig
   case vConfig of
-    Validation.Failure _ -> putStrLn "Something went wrong!"
+    Validation.Failure e -> usingLoggerT logMessageStdoutAndStderr (Config.logErrors e)
     Validation.Success a -> runCascadeApi a
