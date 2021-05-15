@@ -20,9 +20,9 @@ import qualified Cascade.CLI.Data.Contract.Shell.Options
 import qualified Cascade.CLI.Data.Model.Config      as Config
 import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
-import           Cascade.Colog.Actions               ( logMessageStdoutAndStderr )
 import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
+import           Cascade.Log.Message                 ( logMessageStdoutAndStderr )
 import           Colog                               ( usingLoggerT )
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool

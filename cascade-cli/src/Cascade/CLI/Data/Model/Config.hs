@@ -26,14 +26,14 @@ import qualified Cascade.CLI.Data.Model.Config.Default
                                                     as Config.Default
 import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
-import           Cascade.Colog.Message               ( Message
-                                                     , log
-                                                     )
 import           Cascade.Control.Applicative         ( pureMaybe )
 import qualified Cascade.Data.Maybe                 as Maybe
-import           Colog                               ( Severity(..)
-                                                     , WithLog
+import           Cascade.Log.Message                 ( Message
+                                                     , Scope(..)
+                                                     , log
                                                      )
+import           Cascade.Log.Severity                ( Severity(..) )
+import           Colog                               ( WithLog )
 import           Control.Lens                        ( (^.)
                                                      , non
                                                      , to
@@ -90,7 +90,7 @@ prettyPrintError :: Error -> Text
 prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port"
 
 logErrors :: WithLog env Message m => MonadIO m => Errors -> m ()
-logErrors = mapM_ <| log Error . prettyPrintError
+logErrors = mapM_ <| log Cli Error . prettyPrintError
 
 finalize :: Partial -> IO (Validation Errors Final)
 finalize partial = getCompose do
