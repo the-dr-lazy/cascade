@@ -22,7 +22,7 @@ import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Network.Wai.Application
 import           Cascade.Api.Network.Wai.Log         ( logMiddleware )
 import           Cascade.Api.Orphans                 ( )
-import           Cascade.Colog.Actions               ( logMessageStdoutAndStderr )
+import           Cascade.Log.Message                 ( logMessageStdoutAndStderr )
 import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Network.Wai.Handler.Warp           as Warp
 import           Polysemy                            ( runFinal )
