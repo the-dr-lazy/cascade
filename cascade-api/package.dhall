@@ -40,6 +40,7 @@ let cascade-api =
         , "servant-server"
         , "validation-selective"
         , "wai"
+        , "wai-logger"
         , "warp"
         ]
       }
