@@ -33,8 +33,8 @@ jobs:
 
       - name: Install Brittany
         run: |
-          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/${VERSION}/brittany-${VERSION}-ubuntu.zip
-          echo ${CHECKSUM} brittany.zip | md5sum --check -
+          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/$VERSION/brittany-$VERSION-ubuntu.zip
+          echo $CHECKSUM brittany.zip | md5sum --check -
 
           unzip brittany.zip -d brittany
           rm brittany.zip
