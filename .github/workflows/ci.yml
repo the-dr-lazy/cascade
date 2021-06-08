@@ -44,7 +44,7 @@ jobs:
           rm -rf brittany
         env:
           VERSION: 0.13.1.2
-          CHECKSUM: 9d1ead73e678fa2f51a70a933b0bf017
+          CHECKSUM: cb5412dc4acf4c3c454f7293fe9810f0
 
       - uses: actions/checkout@v2
 
