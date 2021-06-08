@@ -29,15 +29,12 @@ jobs:
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
-          ghc-version: "8.10.2"
-          cabal-version: "3.2"
-
-      - uses: actions/checkout@v2
+          ghc-version: "8.10"
 
       - name: Install Brittany
         run: |
-          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/0.13.1.0/brittany-0.13.1.0-linux.zip
-          echo 28b272de3f895f1b7e19e7a7dd91c3e1  brittany.zip | md5sum --check -
+          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/${VERSION}/brittany-${VERSION}-ubuntu.zip
+          echo ${CHECKSUM} brittany.zip | md5sum --check -
 
           unzip brittany.zip -d brittany
           rm brittany.zip
@@ -45,6 +42,11 @@ jobs:
           sudo chmod +x ./brittany/brittany
           sudo mv ./brittany/brittany /usr/bin/
           rm -rf brittany
+        env:
+          VERSION: 0.13.1.2
+          CHECKSUM: 9d1ead73e678fa2f51a70a933b0bf017
+
+      - uses: actions/checkout@v2
 
       - name: Check formatting
         run: |
