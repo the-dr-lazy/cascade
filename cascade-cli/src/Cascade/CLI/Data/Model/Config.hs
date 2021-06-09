@@ -87,7 +87,7 @@ data Error = BusyHttpPortError Word16
 type Errors = NonEmpty Error
 
 prettyPrintError :: Error -> Text
-prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port"
+prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port."
 
 logErrors :: WithLog env Message m => MonadIO m => Errors -> m ()
 logErrors = mapM_ <| log Cli Error . prettyPrintError
