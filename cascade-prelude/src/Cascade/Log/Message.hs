@@ -100,19 +100,21 @@ builderDmyHMSz (Chronos.Datetime date time) =
   twoDigitStrings :: [String]
   twoDigitStrings = (\a b -> mappend (show @_ @Int a) (show @_ @Int b)) <$> [0 .. 9] <*> [0 .. 9]
 
-showSourceLoc :: CallStack -> Text
-showSourceLoc cs = case getCallStack cs of
-  [] -> "<unknown loc>"
-  [(name, loc)] -> showLoc name loc
-  (_, loc) : (callerName, _) : _ -> showLoc callerName loc
-  where showLoc name SrcLoc {..} = Text.pack srcLocModule <> "." <> Text.pack name <> "#" <> Text.pack (show srcLocStartLine)
+prettyPrintStackTrace :: CallStack -> Text
+prettyPrintStackTrace cs = case getCallStack cs of
+  [] -> "<unknown location>"
+  [(callerName, location)] -> prettyPrintStackTraceLocation callerName location
+  (_, location) : (callerName, _) : _ -> prettyPrintStackTraceLocation callerName location
+
+prettyPrintStackTraceLocation :: String -> SrcLoc -> Text
+prettyPrintStackTraceLocation callerName SrcLoc {..} = Text.pack srcLocModule <> "." <> Text.pack callerName <> "#" <> Text.pack (show srcLocStartLine)
 
 showSeverity :: Severity -> CallStack -> Text
-showSeverity Debug   _        = color Green . square <| "Debug"
-showSeverity Info    _        = color Blue . square <| "Info"
-showSeverity Warning _        = color Yellow . square <| "Warning"
-showSeverity Error   _        = color Red . square <| "Error"
-showSeverity Panic   location = color Red . square <| "Panic " <> showSourceLoc location
+showSeverity Debug   _  = color Green . square <| "Debug"
+showSeverity Info    _  = color Blue . square <| "Info"
+showSeverity Warning _  = color Yellow . square <| "Warning"
+showSeverity Error   _  = color Red . square <| "Error"
+showSeverity Panic   cs = color Red . square <| "Panic " <> prettyPrintStackTrace cs
 
 square :: Text -> Text
 square t = "[" <> t <> "] "
