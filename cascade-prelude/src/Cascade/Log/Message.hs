@@ -39,6 +39,13 @@ import           System.Console.ANSI                 ( Color(..)
 data Scope = Cli | Api
   deriving stock Eq
 
+prettyPrintScope :: Scope -> Text
+prettyPrintScope scope = color Cyan . square <| text
+ where
+  text = case scope of
+    Cli -> "CLI"
+    Api -> "API"
+
 data Message = Message
   { message  :: Text
   , severity :: Severity
@@ -53,7 +60,7 @@ log scope severity message = do
   withFrozenCallStack (logMsg Message { location = callStack, .. })
 
 prettyPrintMessage :: Message -> Text
-prettyPrintMessage Message {..} = showScope scope <> showSeverity severity location <> showTime time <> message
+prettyPrintMessage Message {..} = prettyPrintScope scope <> showSeverity severity location <> showTime time <> message
 
 logMessageStdout :: MonadIO m => LogAction m Message
 logMessageStdout = prettyPrintMessage >$< logTextStdout
@@ -66,13 +73,6 @@ logMessageStdoutAndStderr = logOut <> logErr
  where
   logErr = cfilter (\Message {..} -> severity == Error || severity == Panic) logMessageStderr
   logOut = cfilter (\Message {..} -> severity /= Error && severity /= Panic) logMessageStdout
-
-showScope :: Scope -> Text
-showScope scope = color Cyan . square <| text
- where
-  text = case scope of
-    Cli -> "CLI"
-    Api -> "API"
 
 showTime :: Time -> Text
 showTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
