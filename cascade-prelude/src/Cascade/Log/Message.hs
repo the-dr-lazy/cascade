@@ -71,8 +71,8 @@ showScope :: Scope -> Text
 showScope scope = color Cyan . square <| text
  where
   text = case scope of
-    Cli -> "Cli"
-    Api -> "Api"
+    Cli -> "CLI"
+    Api -> "API"
 
 showTime :: Time -> Text
 showTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
