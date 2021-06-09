@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Log.Message (log, Message, Scope(..), fmtMessage, logMessageStdoutAndStderr, logMessageStderr, logMessageStdout) where
+module Cascade.Log.Message (log, Message, Scope(..), prettyPrintMessage, logMessageStdoutAndStderr, logMessageStderr, logMessageStdout) where
 
 import           Cascade.Log.Severity                ( Severity(..) )
 import           Chronos                             ( Time )
@@ -52,14 +52,14 @@ log scope severity message = do
   time <- liftIO Chronos.now
   withFrozenCallStack (logMsg Message { location = callStack, .. })
 
-fmtMessage :: Message -> Text
-fmtMessage Message {..} = showScope scope <> showSeverity severity location <> showTime time <> message
+prettyPrintMessage :: Message -> Text
+prettyPrintMessage Message {..} = showScope scope <> showSeverity severity location <> showTime time <> message
 
 logMessageStdout :: MonadIO m => LogAction m Message
-logMessageStdout = fmtMessage >$< logTextStdout
+logMessageStdout = prettyPrintMessage >$< logTextStdout
 
 logMessageStderr :: MonadIO m => LogAction m Message
-logMessageStderr = fmtMessage >$< logTextStderr
+logMessageStderr = prettyPrintMessage >$< logTextStderr
 
 logMessageStdoutAndStderr :: MonadIO m => LogAction m Message
 logMessageStdoutAndStderr = logOut <> logErr
