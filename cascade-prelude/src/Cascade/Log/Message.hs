@@ -12,7 +12,8 @@ Portability : POSIX
 
 module Cascade.Log.Message (log, Message, Scope(..), prettyPrintMessage, logMessageStdoutAndStderr, logMessageStderr, logMessageStdout) where
 
-import           Cascade.Log.Severity                ( Severity(..) )
+import           Cascade.Log.Formatting
+import           Cascade.Log.Severity
 import           Chronos                             ( Time )
 import qualified Chronos
 import qualified Chronos.Locale.English             as Chronos
@@ -28,13 +29,24 @@ import qualified Data.Text                          as Text
 import qualified Data.Text.Lazy.Builder             as TB
 import qualified Data.Text.Lazy.Builder.Int         as TB
 import qualified Data.Vector                        as Vector
-import           GHC.Stack                           ( SrcLoc(..) )
-import           System.Console.ANSI                 ( Color(..)
-                                                     , ColorIntensity(Vivid)
-                                                     , ConsoleLayer(Foreground)
-                                                     , SGR(..)
-                                                     , setSGRCode
-                                                     )
+import           System.Console.ANSI                 ( Color(..) )
+
+log :: WithLog env Message m => MonadIO m => Scope -> Severity -> Text -> m ()
+log scope severity message = do
+  time <- liftIO Chronos.now
+  withFrozenCallStack (logMsg Message { location = callStack, .. })
+
+logMessageStdout :: MonadIO m => LogAction m Message
+logMessageStdout = prettyPrintMessage >$< logTextStdout
+
+logMessageStderr :: MonadIO m => LogAction m Message
+logMessageStderr = prettyPrintMessage >$< logTextStderr
+
+logMessageStdoutAndStderr :: MonadIO m => LogAction m Message
+logMessageStdoutAndStderr = logOut <> logErr
+ where
+  logErr = cfilter (\Message {..} -> severity == Error || severity == Panic) logMessageStderr
+  logOut = cfilter (\Message {..} -> severity /= Error && severity /= Panic) logMessageStdout
 
 data Scope = Cli | Api
   deriving stock Eq
@@ -54,25 +66,8 @@ data Message = Message
   , location :: CallStack
   }
 
-log :: WithLog env Message m => MonadIO m => Scope -> Severity -> Text -> m ()
-log scope severity message = do
-  time <- liftIO Chronos.now
-  withFrozenCallStack (logMsg Message { location = callStack, .. })
-
 prettyPrintMessage :: Message -> Text
-prettyPrintMessage Message {..} = prettyPrintScope scope <> showSeverity severity location <> prettyPrintTime time <> message
-
-logMessageStdout :: MonadIO m => LogAction m Message
-logMessageStdout = prettyPrintMessage >$< logTextStdout
-
-logMessageStderr :: MonadIO m => LogAction m Message
-logMessageStderr = prettyPrintMessage >$< logTextStderr
-
-logMessageStdoutAndStderr :: MonadIO m => LogAction m Message
-logMessageStdoutAndStderr = logOut <> logErr
- where
-  logErr = cfilter (\Message {..} -> severity == Error || severity == Panic) logMessageStderr
-  logOut = cfilter (\Message {..} -> severity /= Error && severity /= Panic) logMessageStdout
+prettyPrintMessage Message {..} = prettyPrintScope scope <> prettyPrintSeverity severity location <> prettyPrintTime time <> message
 
 prettyPrintTime :: Time -> Text
 prettyPrintTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
@@ -99,25 +94,3 @@ builderDmyHMSz (Chronos.Datetime date time) =
 
   twoDigitStrings :: [String]
   twoDigitStrings = (\a b -> mappend (show @_ @Int a) (show @_ @Int b)) <$> [0 .. 9] <*> [0 .. 9]
-
-prettyPrintStackTrace :: CallStack -> Text
-prettyPrintStackTrace cs = case getCallStack cs of
-  [] -> "<unknown location>"
-  [(callerName, location)] -> prettyPrintStackTraceLocation callerName location
-  (_, location) : (callerName, _) : _ -> prettyPrintStackTraceLocation callerName location
-
-prettyPrintStackTraceLocation :: String -> SrcLoc -> Text
-prettyPrintStackTraceLocation callerName SrcLoc {..} = Text.pack srcLocModule <> "." <> Text.pack callerName <> "#" <> Text.pack (show srcLocStartLine)
-
-showSeverity :: Severity -> CallStack -> Text
-showSeverity Debug   _  = color Green . square <| "Debug"
-showSeverity Info    _  = color Blue . square <| "Info"
-showSeverity Warning _  = color Yellow . square <| "Warning"
-showSeverity Error   _  = color Red . square <| "Error"
-showSeverity Panic   cs = color Red . square <| "Panic " <> prettyPrintStackTrace cs
-
-square :: Text -> Text
-square t = "[" <> t <> "] "
-
-color :: Color -> Text -> Text
-color c txt = Text.pack (setSGRCode [SetColor Foreground Vivid c]) <> txt <> Text.pack (setSGRCode [Reset])
