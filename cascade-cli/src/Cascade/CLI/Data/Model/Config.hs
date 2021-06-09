@@ -84,10 +84,10 @@ deriving via Generically Partial instance Monoid Partial
 data Error = BusyHttpPortError Word16
   deriving stock (Show, Eq)
 
-type Errors = NonEmpty Error
-
 prettyPrintError :: Error -> Text
 prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port."
+
+type Errors = NonEmpty Error
 
 logErrors :: WithLog env Message m => MonadIO m => Errors -> m ()
 logErrors = mapM_ <| log Cli Error . prettyPrintError
