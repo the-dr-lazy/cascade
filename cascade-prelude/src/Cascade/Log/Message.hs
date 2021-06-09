@@ -60,7 +60,7 @@ log scope severity message = do
   withFrozenCallStack (logMsg Message { location = callStack, .. })
 
 prettyPrintMessage :: Message -> Text
-prettyPrintMessage Message {..} = prettyPrintScope scope <> showSeverity severity location <> showTime time <> message
+prettyPrintMessage Message {..} = prettyPrintScope scope <> showSeverity severity location <> prettyPrintTime time <> message
 
 logMessageStdout :: MonadIO m => LogAction m Message
 logMessageStdout = prettyPrintMessage >$< logTextStdout
@@ -74,8 +74,8 @@ logMessageStdoutAndStderr = logOut <> logErr
   logErr = cfilter (\Message {..} -> severity == Error || severity == Panic) logMessageStderr
   logOut = cfilter (\Message {..} -> severity /= Error && severity /= Panic) logMessageStdout
 
-showTime :: Time -> Text
-showTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
+prettyPrintTime :: Time -> Text
+prettyPrintTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
 
 builderDmyHMSz :: Chronos.Datetime -> TB.Builder
 builderDmyHMSz (Chronos.Datetime date time) =
