@@ -10,7 +10,7 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Log.Formatting (square, color) where
+module Cascade.Logger.Formatting (square, color) where
 
 import qualified Data.Text                          as Text
 import           System.Console.ANSI                 ( Color
