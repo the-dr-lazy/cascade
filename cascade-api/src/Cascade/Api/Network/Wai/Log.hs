@@ -15,11 +15,8 @@ module Cascade.Api.Network.Wai.Log (logMiddleware) where
 import qualified Cascade.Api.Data.Jwt               as Jwt
 import           Cascade.Api.Servant.Authentication
 import qualified Cascade.Data.ByteString            as W8
-import           Cascade.Log.Message                 ( Message
-                                                     , Scope(..)
-                                                     , log
-                                                     )
-import           Cascade.Log.Severity                ( Severity(..) )
+import qualified Cascade.Logger                     as Logger
+import qualified Cascade.Logger.Message             as Logger.Message
 import           Colog                               ( LogAction
                                                      , usingLoggerT
                                                      )
@@ -58,9 +55,9 @@ apacheLog req responseCode mclaims =
     Nothing     -> "- "
     Just claims -> show (claims ^. #userId) <> " "
 
-logMiddleware :: LogAction IO Message -> Middleware
+logMiddleware :: LogAction IO Logger.Message.Minimal -> Middleware
 logMiddleware logger app req respond = app req <| \response -> do
   let responseCode = statusCode . responseStatus <| response
   claims <- getClaims req
-  usingLoggerT logger (log Api Info (apacheLog req responseCode claims))
+  usingLoggerT logger <| Logger.info (apacheLog req responseCode claims)
   respond response

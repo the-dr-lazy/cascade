@@ -10,9 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Log.Severity (Severity(..), prettyPrintSeverity) where
+module Cascade.Logger.Severity (Severity(..), prettyPrintSeverity) where
 
-import           Cascade.Log.Formatting
+import           Cascade.Logger.Formatting
 import qualified Data.Text                          as Text
 import           GHC.Stack                           ( SrcLoc(..) )
 import           System.Console.ANSI                 ( Color(..) )

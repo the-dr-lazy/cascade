@@ -12,13 +12,7 @@ Portability : POSIX
 
 module Cascade.Chronos (module Chronos, builderDby, builderDbyHMSz) where
 
-import qualified Chronos
-import           Chronos                             ( Date(..)
-                                                     , Datetime(..)
-                                                     , DatetimeFormat(..)
-                                                     , DayOfMonth(..)
-                                                     , Year(..)
-                                                     )
+import           Chronos
 import qualified Chronos.Locale.English             as Chronos
 import qualified Data.Text.Lazy.Builder             as TB
 import qualified Data.Text.Lazy.Builder.Int         as TB

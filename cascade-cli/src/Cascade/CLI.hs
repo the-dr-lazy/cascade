@@ -22,7 +22,9 @@ import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
 import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
 import           Cascade.Data.Validation             ( Validation )
 import qualified Cascade.Data.Validation            as Validation
-import           Cascade.Log.Message                 ( logMessageStdoutAndStderr )
+import qualified Cascade.Logger                     as Logger
+import qualified Cascade.Logger.Message             as Logger.Message
+import           Cascade.Logger.Message              ( Scope(..) )
 import           Colog                               ( usingLoggerT )
 import qualified Data.Pool                          as Pool
 import           Data.Pool                           ( Pool
@@ -41,14 +43,17 @@ mkDatabaseConnectionPool Config.Postgres {..} = do
 runCascadeApi :: Config.Final -> IO ()
 runCascadeApi Config {..} = do
   databaseConnectionPool <- mkDatabaseConnectionPool postgres
-  Cascade.Api.main Cascade.Api.Config { port = FreePort.un httpPort, withDatabaseConnection = Pool.withResource databaseConnectionPool }
+  Cascade.Api.main Cascade.Api.Config { port                   = FreePort.un httpPort
+                                      , withDatabaseConnection = Pool.withResource databaseConnectionPool
+                                      , logAction              = Logger.Message.Scoped Api >$< Logger.logScopedMessageToStdStreams
+                                      }
 
 getFinalConfig :: IO (Validation Config.Errors Config.Final)
 getFinalConfig = Config.finalize . fold =<< sequence [Environment.readConfig, Options.readConfig]
 
 main :: IO ()
-main = do
-  vConfig <- getFinalConfig
+main = usingLoggerT (Logger.Message.Scoped Cli >$< Logger.logScopedMessageToStdStreams) <| do
+  vConfig <- lift getFinalConfig
   case vConfig of
-    Validation.Failure e -> usingLoggerT logMessageStdoutAndStderr (Config.logErrors e)
-    Validation.Success a -> runCascadeApi a
+    Validation.Failure errors -> mapM_ (Logger.error . Config.prettyPrintError) errors
+    Validation.Success config -> liftIO <| runCascadeApi config
