@@ -22,8 +22,11 @@ import qualified Cascade.Api.Effect.Time            as Time
 import           Cascade.Api.Network.Wai.Application
 import           Cascade.Api.Network.Wai.Log         ( logMiddleware )
 import           Cascade.Api.Orphans                 ( )
+import qualified Cascade.Logger                     as Logger
 import qualified Cascade.Logger.Message             as Logger.Message
-import           Colog                               ( LogAction )
+import           Colog                               ( LogAction
+                                                     , usingLoggerT
+                                                     )
 import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Network.Wai.Handler.Warp           as Warp
 import           Polysemy                            ( runFinal )
@@ -38,8 +41,10 @@ data Config = Config
   }
 
 main :: Config -> IO ()
-main Config {..} = do
-  Warp.run (fromIntegral port) . logMiddleware logAction <| application
+main config@Config {..} = do
+  let settings = Warp.defaultSettings |> Warp.setPort (fromIntegral port) |> Warp.setBeforeMainLoop (beforeMainLoopHook config)
+
+  Warp.runSettings settings . logMiddleware logAction <| application
     ( Servant.Handler
     . ExceptT
     . runFinal
@@ -52,3 +57,6 @@ main Config {..} = do
     . Database.User.run
     . Database.Task.run
     )
+
+beforeMainLoopHook :: Config -> IO ()
+beforeMainLoopHook Config { logAction, port } = usingLoggerT logAction <| Logger.info ("Started listening on 127.0.0.1:" <> show port <> ".")
