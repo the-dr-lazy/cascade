@@ -59,9 +59,8 @@ apacheLog req responseCode mclaims =
     Just claims -> show (claims ^. #userId) <> " "
 
 logMiddleware :: LogAction IO Message -> Middleware
-logMiddleware logger app req respond = do
-  app req <| \response -> do
-    let responseCode = statusCode . responseStatus <| response
-    claims <- getClaims req
-    usingLoggerT logger (log Api Info (apacheLog req responseCode claims))
-    respond response
+logMiddleware logger app req respond = app req <| \response -> do
+  let responseCode = statusCode . responseStatus <| response
+  claims <- getClaims req
+  usingLoggerT logger (log Api Info (apacheLog req responseCode claims))
+  respond response
