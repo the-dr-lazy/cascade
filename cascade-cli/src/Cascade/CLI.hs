@@ -56,4 +56,4 @@ main = usingLoggerT (Logger.Message.Scoped Cli >$< Logger.logScopedMessageToStdS
   vConfig <- lift getFinalConfig
   case vConfig of
     Validation.Failure errors -> mapM_ (Logger.error . Config.prettyPrintError) errors
-    Validation.Success config -> liftIO <| runCascadeApi config
+    Validation.Success config -> lift <| runCascadeApi config
