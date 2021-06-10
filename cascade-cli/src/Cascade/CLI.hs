@@ -54,6 +54,7 @@ getFinalConfig = Config.finalize . fold =<< sequence [Environment.readConfig, Op
 main :: IO ()
 main = usingLoggerT (Logger.Message.Scoped Cli >$< Logger.logScopedMessageToStdStreams) <| do
   vConfig <- lift getFinalConfig
+  Logger.info "Configurations has been loaded."
   case vConfig of
     Validation.Failure errors -> mapM_ (Logger.error . Config.prettyPrintError) errors
     Validation.Success config -> lift <| runCascadeApi config
