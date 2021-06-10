@@ -12,11 +12,13 @@ Portability : POSIX
 
 module Cascade.Log.Message (log, Message, Scope(..), prettyPrintMessage, logMessageStdoutAndStderr, logMessageStderr, logMessageStdout) where
 
+import qualified Cascade.Chronos                    as Choronos
 import           Cascade.Log.Formatting
 import           Cascade.Log.Severity
-import           Chronos                             ( Time )
+import           Chronos                             ( DatetimeFormat(..)
+                                                     , Time(..)
+                                                     )
 import qualified Chronos
-import qualified Chronos.Locale.English             as Chronos
 import           Colog.Actions                       ( logTextStderr
                                                      , logTextStdout
                                                      )
@@ -25,10 +27,7 @@ import           Colog.Core.Action                   ( cfilter )
 import           Colog.Monad                         ( WithLog
                                                      , logMsg
                                                      )
-import qualified Data.Text                          as Text
 import qualified Data.Text.Lazy.Builder             as TB
-import qualified Data.Text.Lazy.Builder.Int         as TB
-import qualified Data.Vector                        as Vector
 import           System.Console.ANSI                 ( Color(..) )
 
 log :: WithLog env Message m => MonadIO m => Scope -> Severity -> Text -> m ()
@@ -70,27 +69,5 @@ prettyPrintMessage :: Message -> Text
 prettyPrintMessage Message {..} = prettyPrintScope scope <> prettyPrintSeverity severity location <> prettyPrintTime time <> message
 
 prettyPrintTime :: Time -> Text
-prettyPrintTime t = square . toStrict . TB.toLazyText <| builderDmyHMSz (Chronos.timeToDatetime t)
-
-builderDmyHMSz :: Chronos.Datetime -> TB.Builder
-builderDmyHMSz (Chronos.Datetime date time) =
-  builderDmy date <> spaceSep <> Chronos.builder_HMS (Chronos.SubsecondPrecisionFixed 3) (Just ':') time <> spaceSep <> Chronos.builderOffset
-    Chronos.OffsetFormatColonOn
-    (Chronos.Offset 0)
- where
-  spaceSep :: TB.Builder
-  spaceSep = TB.singleton ' '
-
-  builderDmy :: Chronos.Date -> TB.Builder
-  builderDmy (Chronos.Date (Chronos.Year y) m d) =
-    zeroPadDayOfMonth d <> spaceSep <> TB.fromText (Chronos.caseMonth Chronos.abbreviated m) <> spaceSep <> TB.decimal y
-
-  zeroPadDayOfMonth :: Chronos.DayOfMonth -> TB.Builder
-  zeroPadDayOfMonth (Chronos.DayOfMonth d) = if d < 100 then Vector.unsafeIndex twoDigitTextBuilder d else TB.decimal d
-
-  twoDigitTextBuilder :: Vector.Vector TB.Builder
-  twoDigitTextBuilder = Vector.fromList . map (TB.fromText . Text.pack) <| twoDigitStrings
-  {-# NOINLINE twoDigitTextBuilder #-}
-
-  twoDigitStrings :: [String]
-  twoDigitStrings = (\a b -> mappend (show @_ @Int a) (show @_ @Int b)) <$> [0 .. 9] <*> [0 .. 9]
+prettyPrintTime = square . toStrict . TB.toLazyText . Choronos.builderDbyHMSz format . Chronos.timeToDatetime
+  where format = DatetimeFormat (Just ' ') (Just ' ') (Just ':')
