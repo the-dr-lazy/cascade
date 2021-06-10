@@ -1,5 +1,5 @@
 {-|
-Module      : Cascade.Log.Formatting
+Module      : Cascade.Logger.Formatting
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
 Copyright   : (c) 2020-2021 Cascade
 License     : MPL 2.0
