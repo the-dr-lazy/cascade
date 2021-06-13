@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# set -e
-
-stagedFiles=$(git diff --cached --name-only --diff-filter=ACM)
-
-for file in $stagedFiles; do
-	echo "Running Headroom: "
-
-	headroom run -s $file 2>&1
-	git add $file >/dev/null 2>&1
-done
-
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
 	against=HEAD
 else
