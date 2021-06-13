@@ -14,10 +14,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download Headroom
+      - name: Install Headroom
         run: |
-          sudo curl -Lo /usr/bin/headroom https://github.com/vaclavsvejcar/headroom/releases/download/v0.3.2.0/headroom-0.3.2.0-Linux-ghc-8.8.4
-          sudo chmod +x /usr/bin/headroom
+          TEMP=$(mktemp --directory .headroom-XXXXX)
+
+          curl --progress-bar --location -o $TEMP/headroom https://github.com/vaclavsvejcar/headroom/releases/download/v$VERSION/headroom-$VERSION-Linux-ghc-8.8.4
+          echo $CHECKSUM $TEMP/headroom | md5sum --check -
+
+          chmod +x $TEMP/headroom
+          sudo mv $TEMP/headroom /usr/bin/headroom
+
+          headroom --version
+        env:
+          VERSION: 0.4.1.0
+          CHECKSUM: 1176e5cd40ca89b28bd458a15c5b79ae
 
       - name: Check headers
         run: headroom run --check-headers
@@ -26,31 +36,46 @@ jobs:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
+      - name: Install stylish-haskell
+        run: |
+          TEMP=$(mktemp --directory .stylish-haskell-XXXXX)
+
+          curl --progress-bar --location -o $TEMP/stylish-haskell.tar.gz https://github.com/haskell/stylish-haskell/releases/download/v$VERSION/stylish-haskell-v$VERSION-linux-x86_64.tar.gz
+          echo $CHECKSUM $TEMP/stylish-haskell.tar.gz | md5sum --check -
+
+          tar -xzf $TEMP/stylish-haskell.tar.gz -C $TEMP --strip-components=1
+          sudo chmod +x $TEMP/stylish-haskell
+          sudo mv $TEMP/stylish-haskell /usr/bin/stylish-haskell
+
+          stylish-haskell --version
+        env:
+          VERSION: 0.12.2.0
+          CHECKSUM: deefd82fbc40f3cf7ce5ef20125fc80f
+
       - uses: haskell/actions/setup@v1
         id: haskell
         with:
-          ghc-version: "8.10.2"
-
-      - name: Install Brittany
-        run: |
-          curl -Lo brittany.zip https://github.com/lspitzner/brittany/releases/download/$VERSION/brittany-$VERSION-ubuntu.zip
-          echo $CHECKSUM brittany.zip | md5sum --check -
-
-          unzip brittany.zip -d brittany
-          rm brittany.zip
-
-          sudo chmod +x ./brittany/brittany
-          sudo mv ./brittany/brittany /usr/bin/
-          rm -rf brittany
-        env:
-          VERSION: 0.13.1.2
-          CHECKSUM: cb5412dc4acf4c3c454f7293fe9810f0
+          ghc-version: "8.8.4"
 
       - uses: actions/checkout@v2
 
+      - uses: actions/cache@v2.1.3
+        name: Cache ~/.cabal/store
+        with:
+          path: ${{ steps.haskell.outputs.cabal-store }}
+          key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
+
+      - name: Setup environment (common)
+        run: |
+          echo "~/.cabal/bin" >> $GITHUB_PATH
+          ./scripts/ci/environment
+          make setup
+
       - name: Check formatting
         run: |
-          brittany -c $(find . -name \*.hs)
+          for cabal in $(find . -type f -name \*.cabal); do
+            stylish-haskell -r $(dirname $cabal)
+          done
 
   build:
     name: Build ${{ matrix.os }}
@@ -69,7 +94,6 @@ jobs:
         id: haskell
         with:
           ghc-version: "8.8.4"
-          cabal-version: "3.2"
 
       - uses: actions/checkout@v2
 
@@ -132,7 +156,6 @@ jobs:
         id: haskell
         with:
           ghc-version: "8.8.4"
-          cabal-version: "3.2"
 
       - uses: actions/checkout@v2
 
@@ -209,7 +232,6 @@ jobs:
           # and runing test for each package
           # scripts/ci/test
           cabal new-test all
-
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@v1
       #   with:
