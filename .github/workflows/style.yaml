@@ -1,0 +1,79 @@
+name: Code Style
+
+on:
+  pull_request:
+    braches:
+      - next
+      - master
+  push:
+    braches:
+      - next
+      - master
+
+jobs:
+  headroom:
+    name: © Headers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment
+        run: |
+          TEMP=$(mktemp --directory .headroom-XXXXX)
+
+          curl --progress-bar --location -o $TEMP/headroom https://github.com/vaclavsvejcar/headroom/releases/download/v$VERSION/headroom-$VERSION-Linux-ghc-8.8.4
+          echo $CHECKSUM $TEMP/headroom | md5sum --check -
+
+          chmod +x $TEMP/headroom
+          sudo mv $TEMP/headroom /usr/bin/
+
+          headroom --version
+        env:
+          VERSION: 0.4.1.0
+          CHECKSUM: 1176e5cd40ca89b28bd458a15c5b79ae
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Check © Headers
+        run: |
+          headroom run --check-headers
+
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Environment
+        run: |
+          TEMP=$(mktemp --directory .stylish-haskell-XXXXX)
+
+          curl --progress-bar --location -o $TEMP/stylish-haskell.tar.gz https://github.com/haskell/stylish-haskell/releases/download/v$VERSION/stylish-haskell-v$VERSION-linux-x86_64.tar.gz
+          echo $CHECKSUM $TEMP/stylish-haskell.tar.gz | md5sum --check -
+
+          tar -xzf $TEMP/stylish-haskell.tar.gz -C $TEMP --strip-components=1
+          sudo chmod +x $TEMP/stylish-haskell
+          sudo mv $TEMP/stylish-haskell /usr/bin/
+
+          stylish-haskell --version
+        env:
+          VERSION: 0.12.2.0
+          CHECKSUM: deefd82fbc40f3cf7ce5ef20125fc80f
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Check Formatting
+        run: |
+          ROOT=$PWD
+          for cabal in $(find $ROOT -type f -name \*.cabal); do
+            cd $(dirname $cabal)
+            stylish-haskell -r -i .
+          done
+
+          cd $ROOT
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No formatting errors detected."
+          else
+            echo "Formatting errors detected:"
+            git --no-pager diff
+            exit 1
+          fi

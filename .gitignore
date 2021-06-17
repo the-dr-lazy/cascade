@@ -26,8 +26,6 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 
-cascade*.cabal
-
 ### macOS ###
 # General
 .DS_Store

@@ -2,139 +2,63 @@ name: CI
 
 on:
   pull_request:
+    branches:
+      - next
+      - master
   push:
     branches:
-      - master
       - next
+      - master
 
 jobs:
-  headroom:
-    name: Headroom
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install Headroom
-        run: |
-          TEMP=$(mktemp --directory .headroom-XXXXX)
-
-          curl --progress-bar --location -o $TEMP/headroom https://github.com/vaclavsvejcar/headroom/releases/download/v$VERSION/headroom-$VERSION-Linux-ghc-8.8.4
-          echo $CHECKSUM $TEMP/headroom | md5sum --check -
-
-          chmod +x $TEMP/headroom
-          sudo mv $TEMP/headroom /usr/bin/headroom
-
-          headroom --version
-        env:
-          VERSION: 0.4.1.0
-          CHECKSUM: 1176e5cd40ca89b28bd458a15c5b79ae
-
-      - name: Check headers
-        run: headroom run --check-headers
-
-  formatting:
-    name: Formatting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install stylish-haskell
-        run: |
-          TEMP=$(mktemp --directory .stylish-haskell-XXXXX)
-
-          curl --progress-bar --location -o $TEMP/stylish-haskell.tar.gz https://github.com/haskell/stylish-haskell/releases/download/v$VERSION/stylish-haskell-v$VERSION-linux-x86_64.tar.gz
-          echo $CHECKSUM $TEMP/stylish-haskell.tar.gz | md5sum --check -
-
-          tar -xzf $TEMP/stylish-haskell.tar.gz -C $TEMP --strip-components=1
-          sudo chmod +x $TEMP/stylish-haskell
-          sudo mv $TEMP/stylish-haskell /usr/bin/stylish-haskell
-
-          stylish-haskell --version
-        env:
-          VERSION: 0.12.2.0
-          CHECKSUM: deefd82fbc40f3cf7ce5ef20125fc80f
-
-      - uses: haskell/actions/setup@v1
-        id: haskell
-        with:
-          ghc-version: "8.8.4"
-
-      - uses: actions/checkout@v2
-
-      - uses: actions/cache@v2.1.3
-        name: Cache ~/.cabal/store
-        with:
-          path: ${{ steps.haskell.outputs.cabal-store }}
-          key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
-
-      - name: Setup environment (common)
-        run: |
-          echo "~/.cabal/bin" >> $GITHUB_PATH
-          ./scripts/ci/environment
-          make setup
-
-      - name: Check formatting
-        run: |
-          for cabal in $(find . -type f -name \*.cabal); do
-            stylish-haskell -r $(dirname $cabal)
-          done
-
-  build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  workflow:
+    name: Workflow
+    # Ubuntu builds disabled due to issue with installing libjwt-dev@1.12.x
+    # ToDo: enable it when it's possible to install the library
+    runs-on: macOS-latest
     strategy:
       fail-fast: false
-      matrix:
-        os:
-          # Ubuntu builds disabled due to issue with installing libjwt-dev@1.12.x
-          # TODO: enable it when it's possible to install the lib
-          # - ubuntu-latest
-          - macOS-latest
 
     steps:
-      - uses: haskell/actions/setup@v1
+      - name: Setup Haskell
+        uses: haskell/actions/setup@v1
         id: haskell
         with:
           ghc-version: "8.8.4"
 
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - uses: actions/cache@v2.1.3
-        name: Cache ~/.cabal/store
+      - name: Cache ~/.cabal/store
+        uses: actions/cache@v2.1.3
         with:
           path: ${{ steps.haskell.outputs.cabal-store }}
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
-      - name: Setup environment (OS specific)
-        uses: knicknic/os-specific-run@v1.0.2
-        with:
-          linux: |
-            sudo apt-get update
-            sudo apt-get --yes install libjwt-dev
-          macos: |
-            export HOMEBREW_NO_AUTO_UPDATE=1
-            export HOMEBREW_NO_INSTALL_CLEANUP=1
-
-            brew install libjwt
-
-      - name: Setup environment (common)
+      - name: Install OS Packages
         run: |
-          echo "~/.cabal/bin" >> $GITHUB_PATH
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          export HOMEBREW_NO_INSTALL_CLEANUP=1
 
-          ./scripts/ci/environment
+          brew install libjwt
 
-      - name: Verify environment
-        run: |
+          OS_CABAL_TEMP_DIR=$(mktemp --directory .os-cabal-XXXXX)
+          cp cabal.project.freeze $OS_CABAL_TEMP_DIR
+          (cd $OS_CABAL_TEMP_DIR && cabal init --non-interactive && cabal new-install hpack-dhall)
+
           dhall-hpack-cabal --version
 
       - name: Configure
         run: |
-          make setup
+          ./scripts/cabal
           cabal new-configure --disable-documentation \
                               --disable-optimization \
                               --enable-tests \
                               --enable-benchmarks \
+                              --disable-coverage \
                               --test-show-details=direct
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           cabal new-build all --only-dependencies
 
@@ -142,83 +66,15 @@ jobs:
         run: |
           cabal new-build all
 
-  test:
-    name: Test ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # TODO: running tests on Ubuntu
-        os: [macOS-latest]
-
-    steps:
-      - uses: haskell/actions/setup@v1
-        id: haskell
-        with:
-          ghc-version: "8.8.4"
-
-      - uses: actions/checkout@v2
-
-      - name: Cache ~/.cabal/store
-        uses: actions/cache@v2.1.3
-        with:
-          path: ${{ steps.haskell.outputs.cabal-store }}
-          key: test-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
-
-      - name: Setup environment (OS specific)
-        uses: knicknic/os-specific-run@v1.0.2
-        with:
-          linux: |
-            sudo apt-get update
-            sudo apt-get --yes remove postgresql\*
-            sudo apt-get --yes install postgresql-13
-            sudo service postgresql restart 13
-            echo "/usr/lib/postgresql/13/bin" >> $GITHUB_PATH
-            export PATH=/usr/lib/postgresql/13/bin:$PATH
-
-            sudo apt-get --yes install sqitch libdbd-pg-perl postgresql-client-13
-
-            postgres --version
-          macos: |
-            export HOMEBREW_NO_AUTO_UPDATE=1
-            export HOMEBREW_NO_INSTALL_CLEANUP=1
-
-            brew install coreutils libjwt postgres
-
-            brew tap sqitchers/sqitch
-            brew install sqitch --with-postgres-support
-
-      - name: Setup environment (common)
+      - name: Install OS Packages
         run: |
-          echo "~/.cabal/bin" >> $GITHUB_PATH
+          brew install coreutils postgres
 
-          ./scripts/ci/environment
+          brew tap sqitchers/sqitch
+          brew install sqitch --with-postgres-support
 
-      - name: Verify environment
-        run: |
           postgres --version
-          dhall-hpack-cabal --version
-
-      - name: Configure
-        run: |
-          make setup
-          cabal new-configure --disable-documentation \
-                              --enable-optimization=2 \
-                              --enable-tests \
-                              --disable-coverage \
-                              --test-show-details=direct
-                              # Due to some cabal issues with internal components
-                              # we are not able to disable per-component build
-                              # thus we will not be able to generate code coverages
-                              # TODO: Enable code coverage when it's possible!
-                              # --disable-per-component
-
-      - name: Install dependencies
-        run: |
-          cabal new-build all --only-dependencies
-          # The tool for converting tix and mix files
-          # from Haskell Program Coverage to Codecov reports
-          # cabal new-install hpc-codecov --install-method=copy --overwrite-policy=always
+          sqitch --version
 
       - name: Cache ~/.cascade/tmp-postgres
         uses: actions/cache@v2.1.3
@@ -228,16 +84,4 @@ jobs:
 
       - name: Test
         run: |
-          # The custom script for enabling coverage
-          # and runing test for each package
-          # scripts/ci/test
           cabal new-test all
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1
-      #   with:
-      #     name: Cascade
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: "*.json"
-      #     directory: ./coverage/reports
-      #     fail_ci_if_error: true
-      #     verbose: true
