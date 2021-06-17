@@ -10,24 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.OffsetDatetime.Deadline (Deadline, un, mk, parse) where
+module Cascade.Api.Data.OffsetDatetime.Deadline
+    ( Deadline
+    , mk
+    , parse
+    , un
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
-                                                    as Aeson
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime )
-import           Cascade.Data.Chronos.Future         ( Future )
-import qualified Cascade.Data.Chronos.Future        as Future
-import           Cascade.Data.Validation             ( Validation )
-import qualified Cascade.Data.Validation            as Validation
-import           Chronos                             ( OffsetDatetime
-                                                     , Time
-                                                     )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
+import           Cascade.Api.Data.OffsetDatetime         (FormattedOffsetDatetime)
+import           Cascade.Data.Chronos.Future             (Future)
+import qualified Cascade.Data.Chronos.Future             as Future
+import           Cascade.Data.Validation                 (Validation)
+import qualified Cascade.Data.Validation                 as Validation
+import           Chronos                                 (OffsetDatetime, Time)
+import           Data.Aeson                              (FromJSON, ToJSON)
 
-newtype Deadline = Deadline (Future OffsetDatetime)
-  deriving stock Show
+newtype Deadline
+  = Deadline (Future OffsetDatetime)
+  deriving stock (Show)
 
 un :: Deadline -> OffsetDatetime
 un (Deadline future) = Future.un future
@@ -35,9 +36,8 @@ un (Deadline future) = Future.un future
 mk :: Time -> OffsetDatetime -> Maybe Deadline
 mk now input = Deadline <$> Future.mk input now
 
-data Error = IsPast
-  deriving stock (Generic, Show)
-  deriving (ToJSON, FromJSON) via Aeson.FieldErrorFormat Error
+data Error = IsPast deriving stock (Generic, Show)
+  deriving (FromJSON, ToJSON) via Aeson.FieldErrorFormat Error
 
 type Errors = NonEmpty Error
 

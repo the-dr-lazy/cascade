@@ -11,13 +11,13 @@ Portability : POSIX
 -}
 
 module Cascade.CLI.Data.Contract.Shell.Environment.Var
-  ( cascadeHttpPort
-  , cascadePostgresHost
-  , cascadePostgresPort
-  , cascadePostgresUser
-  , cascadePostgresPassword
-  , cascadePostgresDatabase
-  ) where
+    ( cascadeHttpPort
+    , cascadePostgresDatabase
+    , cascadePostgresHost
+    , cascadePostgresPassword
+    , cascadePostgresPort
+    , cascadePostgresUser
+    ) where
 
 cascadeHttpPort :: String
 cascadeHttpPort = "CASCADE_HTTP_PORT"

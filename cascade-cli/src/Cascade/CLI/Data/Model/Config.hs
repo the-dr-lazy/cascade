@@ -11,30 +11,26 @@ Portability : POSIX
 -}
 
 module Cascade.CLI.Data.Model.Config
-  ( ConfigP(..)
-  , PostgresP(..)
-  , Partial
-  , PostgresPartial
-  , Final
-  , PostgresFinal
-  , Errors
-  , finalize
-  , prettyPrintError
-  ) where
+    ( ConfigP (..)
+    , Errors
+    , Final
+    , Partial
+    , PostgresFinal
+    , PostgresP (..)
+    , PostgresPartial
+    , finalize
+    , prettyPrintError
+    ) where
 
-import qualified Cascade.CLI.Data.Model.Config.Default
-                                                    as Config.Default
-import           Cascade.CLI.Data.Model.FreePort     ( FreePort )
-import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
-import           Cascade.Control.Applicative         ( pureMaybe )
-import qualified Cascade.Data.Maybe                 as Maybe
-import           Control.Lens                        ( (^.)
-                                                     , non
-                                                     , to
-                                                     )
-import           Data.Generics.Labels                ( )
-import           Generic.Data                        ( Generically(..) )
-import           Validation                          ( Validation )
+import qualified Cascade.CLI.Data.Model.Config.Default as Config.Default
+import           Cascade.CLI.Data.Model.FreePort       (FreePort)
+import qualified Cascade.CLI.Data.Model.FreePort       as FreePort
+import           Cascade.Control.Applicative           (pureMaybe)
+import qualified Cascade.Data.Maybe                    as Maybe
+import           Control.Lens                          (non, to, (^.))
+import           Data.Generics.Labels                  ()
+import           Generic.Data                          (Generically (..))
+import           Validation                            (Validation)
 
 data Phase = Partial | Final
 
@@ -45,13 +41,13 @@ type family Finalize (p :: Phase) (raw :: Type) (parsed :: Type) where
 type Finalize' p t = Finalize p t t
 
 -- brittany-disable-next-binding
-data PostgresP (p :: Phase) = Postgres
-  { host     :: Finalize' p String
-  , port     :: Finalize' p Word16
-  , user     :: Finalize' p String
-  , password :: Finalize' p String
-  , database :: Finalize' p String
-  } deriving stock Generic
+data PostgresP (p :: Phase) = Postgres { host     :: Finalize' p String
+                                       , port     :: Finalize' p Word16
+                                       , user     :: Finalize' p String
+                                       , password :: Finalize' p String
+                                       , database :: Finalize' p String
+                                       }
+  deriving stock (Generic)
 
 type PostgresFinal = PostgresP 'Final
 
@@ -62,10 +58,10 @@ deriving via Generically PostgresPartial instance Semigroup PostgresPartial
 deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
 -- brittany-disable-next-binding
-data ConfigP (p :: Phase) = Config
-  { httpPort :: Finalize p Word16 FreePort
-  , postgres :: PostgresP p
-  } deriving stock Generic
+data ConfigP (p :: Phase) = Config { httpPort :: Finalize p Word16 FreePort
+                                   , postgres :: PostgresP p
+                                   }
+  deriving stock (Generic)
 
 type Final = ConfigP 'Final
 
@@ -76,7 +72,7 @@ deriving via Generically Partial instance Semigroup Partial
 deriving via Generically Partial instance Monoid Partial
 
 data Error = BusyHttpPortError Word16
-  deriving stock (Show, Eq)
+  deriving stock (Eq, Show)
 
 prettyPrintError :: Error -> Text
 prettyPrintError (BusyHttpPortError port) = "Port " <> show port <> " is busy, try another port."

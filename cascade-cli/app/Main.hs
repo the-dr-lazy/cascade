@@ -10,12 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Main (main) where
+module Main
+    ( main
+    ) where
 
-import qualified Cascade.CLI                        as CLI
-import           System.IO                           ( hSetEncoding
-                                                     , utf8
-                                                     )
+import qualified Cascade.CLI as CLI
+import           System.IO   (hSetEncoding, utf8)
 
 main :: IO ()
 main = do

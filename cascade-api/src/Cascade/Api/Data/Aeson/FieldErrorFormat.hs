@@ -12,15 +12,16 @@ Portability : POSIX
 
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cascade.Api.Data.Aeson.FieldErrorFormat (FieldErrorFormat(..)) where
+module Cascade.Api.Data.Aeson.FieldErrorFormat
+    ( FieldErrorFormat (..)
+    ) where
 
-import qualified Data.Aeson                         as Aeson
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import           GHC.Generics                        ( Rep )
+import           Data.Aeson   (FromJSON, ToJSON)
+import qualified Data.Aeson   as Aeson
+import           GHC.Generics (Rep)
 
-newtype FieldErrorFormat (error :: Type) = FieldErrorFormat error
+newtype FieldErrorFormat (error :: Type)
+  = FieldErrorFormat error
 
 options :: Aeson.Options
 options = Aeson.defaultOptions { Aeson.tagSingleConstructors = True, Aeson.omitNothingFields = True }

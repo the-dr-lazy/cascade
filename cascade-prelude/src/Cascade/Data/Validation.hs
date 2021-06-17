@@ -12,7 +12,13 @@ Portability : POSIX
 
 {-# LANGUAGE ViewPatterns #-}
 
-module Cascade.Data.Validation (Phase(..), Errors, Validate, parseRecord, module Validation) where
+module Cascade.Data.Validation
+    ( Errors
+    , Phase (..)
+    , Validate
+    , module Validation
+    , parseRecord
+    ) where
 
 import           GHC.Generics
 import           Validation

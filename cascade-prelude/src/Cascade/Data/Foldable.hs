@@ -10,7 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Foldable (defaulting) where
+module Cascade.Data.Foldable
+    ( defaulting
+    ) where
 
 defaulting :: Foldable t => b -> (t a -> b) -> t a -> b
 defaulting def f ta | null ta   = def

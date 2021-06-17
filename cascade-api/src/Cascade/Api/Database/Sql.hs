@@ -10,53 +10,43 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Cascade.Api.Database.Sql
-  ( (==)
-  , Q
-  , DatabaseEntityGetting
-  , TableFieldsFulfillConstraint
-  , TableFieldsFulfillConstraints
-  , and
-  , def
-  , delete
-  , eq
-  , filter
-  , filterProjectsByRelatedUsers
-  , insert
-  , literal
-  , lookup
-  , manyToMany
-  , or
-  , update
-  , Beam.select
-  ) where
+    ( Beam.select
+    , DatabaseEntityGetting
+    , Q
+    , TableFieldsFulfillConstraint
+    , TableFieldsFulfillConstraints
+    , and
+    , def
+    , delete
+    , eq
+    , filter
+    , filterProjectsByRelatedUsers
+    , insert
+    , literal
+    , lookup
+    , manyToMany
+    , or
+    , update
+    , (==)
+    ) where
 
-import           Cascade.Api.Data.WrappedC           ( WrappedC )
+import           Cascade.Api.Data.WrappedC         (WrappedC)
 import           Cascade.Api.Database
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import           Cascade.Api.Database.UserTable      ( UserTable )
-import           Control.Lens                 hiding ( (|>) )
-import           Database.Beam                hiding ( Database
-                                                     , ManyToMany
-                                                     , Q
-                                                     , delete
-                                                     , insert
-                                                     , update
-                                                     )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend )
-import           Database.Beam.Schema.Tables         ( HasConstraint )
+import           Cascade.Api.Database.ProjectTable (ProjectTable)
+import           Cascade.Api.Database.UserTable    (UserTable)
+import           Control.Lens                      hiding ((|>))
+import           Database.Beam                     hiding (Database, ManyToMany, Q, delete, insert,
+                                                    update)
+import qualified Database.Beam                     as Beam
+import           Database.Beam.Backend             (BeamSqlBackend)
+import           Database.Beam.Schema.Tables       (HasConstraint)
 import           GHC.Generics
-import           Prelude                      hiding ( (==)
-                                                     , all
-                                                     , and
-                                                     , filter
-                                                     , or
-                                                     )
+import           Prelude                           hiding (all, and, filter, or, (==))
 
 type DatabaseEntityGetting backend table
   = Getting

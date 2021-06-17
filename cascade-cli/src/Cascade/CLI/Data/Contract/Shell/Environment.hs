@@ -10,18 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Contract.Shell.Environment (readConfig) where
+module Cascade.CLI.Data.Contract.Shell.Environment
+    ( readConfig
+    ) where
 
-import qualified Cascade.CLI.Data.Contract.Shell.Environment.Var
-                                                    as Environment.Var
-import qualified Cascade.CLI.Data.Model.Config      as Config
-import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
-import           Cascade.Data.Text                  as Text
-import           Data.Attoparsec.Text                ( decimal
-                                                     , endOfInput
-                                                     , parseOnly
-                                                     )
-import           System.Environment                  ( lookupEnv )
+import qualified Cascade.CLI.Data.Contract.Shell.Environment.Var as Environment.Var
+import           Cascade.CLI.Data.Model.Config                   (ConfigP (..))
+import qualified Cascade.CLI.Data.Model.Config                   as Config
+import           Cascade.Data.Text                               as Text
+import           Data.Attoparsec.Text                            (decimal, endOfInput, parseOnly)
+import           System.Environment                              (lookupEnv)
 
 readEnvDecimal :: Integral a => String -> IO (Maybe a)
 readEnvDecimal envName = do

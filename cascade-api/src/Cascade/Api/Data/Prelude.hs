@@ -10,7 +10,10 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Prelude (Validate, Validatable) where
+module Cascade.Api.Data.Prelude
+    ( Validatable
+    , Validate
+    ) where
 
 -- brittany-disable-next-binding
 data Validate (a :: Type)

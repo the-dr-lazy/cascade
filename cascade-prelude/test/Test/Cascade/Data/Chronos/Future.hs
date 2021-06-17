@@ -10,13 +10,15 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Data.Chronos.Future (tests) where
+module Test.Cascade.Data.Chronos.Future
+    ( tests
+    ) where
 
-import qualified Cascade.Data.Chronos.Future        as Future
+import qualified Cascade.Data.Chronos.Future as Future
 import qualified Chronos
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Hedgehog.Gen                as Gen
+import qualified Hedgehog.Range              as Range
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 

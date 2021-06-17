@@ -10,33 +10,27 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting (createNotExisting) where
+module Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting
+    ( createNotExisting
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
-import qualified Cascade.Api.Hedgehog.Gen           as Gen
+import qualified Cascade.Api.Data.User                    as User
+import qualified Cascade.Api.Hedgehog.Gen                 as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
-import qualified Cascade.Api.Network.TestClient.Api.Users
-                                                    as Cascade.Api.Users
-import           Cascade.Api.Test.Prelude            ( )
-import qualified Cascade.Data.Char                  as Char
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (?~)
-                                                     , (^.)
-                                                     , at
-                                                     , hasn't
-                                                     , ix
-                                                     , to
-                                                     )
-import qualified Data.Text                          as Text
+import qualified Cascade.Api.Hedgehog.Gen.Text            as Gen
+import qualified Cascade.Api.Network.TestClient.Api.Users as Cascade.Api.Users
+import           Cascade.Api.Test.Prelude                 ()
+import qualified Cascade.Data.Char                        as Char
+import qualified Cascade.Data.Validation                  as Validation
+import           Control.Lens                             (at, hasn't, ix, to, (?~), (^.))
+import qualified Data.Text                                as Text
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import qualified Hedgehog.Gen                             as Gen
+import           Test.Cascade.Api.StateMachine.Model      (Model)
 -- brittany-disable-next-binding
-data CreateNotExisting (v :: Type -> Type) = CreateNotExisting
-  { validity  :: Validity
-  , creatable :: User.Creatable 'Validation.Raw
-  }
+data CreateNotExisting (v :: Type -> Type) = CreateNotExisting { validity :: Validity
+                                                               , creatable :: User.Creatable Validation.Raw
+                                                               }
   deriving stock (Generic, Show)
 
 instance HTraversable CreateNotExisting where

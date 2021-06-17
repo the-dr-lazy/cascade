@@ -10,26 +10,23 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Server.Api.Users (server) where
+module Cascade.Api.Network.Server.Api.Users
+    ( server
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
-import qualified Cascade.Api.Effect.Database.User   as Database
-                                                     ( UserL )
-import qualified Cascade.Api.Effect.Database.User   as Database.User
-import           Cascade.Api.Effect.Scrypt           ( ScryptL )
+import qualified Cascade.Api.Data.User                 as User
+import qualified Cascade.Api.Effect.Database.User      as Database (UserL)
+import qualified Cascade.Api.Effect.Database.User      as Database.User
+import           Cascade.Api.Effect.Scrypt             (ScryptL)
 import           Cascade.Api.Network.Anatomy.Api.Users
-import qualified Cascade.Api.Servant.Response       as Response
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.) )
-import           Polysemy                            ( Members
-                                                     , Sem
-                                                     )
-import           Servant                             ( Union
-                                                     , respond
-                                                     )
-import           Servant.API.Generic                 ( ToServant )
+import qualified Cascade.Api.Servant.Response          as Response
+import qualified Cascade.Data.Validation               as Validation
+import           Control.Lens                          ((^.))
+import           Polysemy                              (Members, Sem)
+import           Servant                               (Union, respond)
+import           Servant.API.Generic                   (ToServant)
 import           Servant.Server.Generic
-import           Validation                          ( validation )
+import           Validation                            (validation)
 
 handleCreate :: Members '[Database.UserL , ScryptL] r => User.Creatable 'Validation.Raw -> Sem r (Union CreateResponse)
 handleCreate = validation (respond . Response.Unprocessable) go . User.parseRawCreatable

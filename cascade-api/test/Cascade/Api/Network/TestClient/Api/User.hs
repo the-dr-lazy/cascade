@@ -10,16 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.User (projects) where
+module Cascade.Api.Network.TestClient.Api.User
+    ( projects
+    ) where
 
-import qualified Cascade.Api.Network.Anatomy.Api.User.Projects
-                                                    as Api.User.Projects
-import qualified Cascade.Api.Network.TestClient.Api as Client.Api
-import           Control.Lens                        ( (^.) )
-import           Control.Monad.Free                  ( Free )
-import           Servant.API.Generic                 ( fromServant )
-import           Servant.Client.Free                 ( ClientF )
-import           Servant.Client.Generic              ( AsClientT )
+import qualified Cascade.Api.Network.Anatomy.Api.User.Projects as Api.User.Projects
+import qualified Cascade.Api.Network.TestClient.Api            as Client.Api
+import           Control.Lens                                  ((^.))
+import           Control.Monad.Free                            (Free)
+import           Servant.API.Generic                           (fromServant)
+import           Servant.Client.Free                           (ClientF)
+import           Servant.Client.Generic                        (AsClientT)
 
 projects :: Api.User.Projects.Routes (AsClientT (Free ClientF))
 projects = fromServant $ Client.Api.user ^. #projects

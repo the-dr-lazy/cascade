@@ -10,25 +10,29 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.Username (Username, Error(..), Errors, pattern Username, un, mk) where
+module Cascade.Api.Data.Text.Username
+    ( Error (..)
+    , Errors
+    , Username
+    , mk
+    , pattern Username
+    , un
+    ) where
 
 
-import qualified Cascade.Data.Char                  as Char
-import           Cascade.Data.Validation             ( Validation )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens.TH                     ( makeWrapped )
-import           Control.Selective                   ( ifS )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
+import qualified Cascade.Data.Char                       as Char
+import           Cascade.Data.Validation                 (Validation)
+import qualified Cascade.Data.Validation                 as Validation
+import           Control.Lens.TH                         (makeWrapped)
+import           Control.Selective                       (ifS)
+import           Data.Aeson                              (FromJSON, ToJSON)
 
-import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
-                                                    as Aeson
-import qualified Data.Text                          as Text
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
+import qualified Data.Text                               as Text
 
-newtype Username = Mk
-  { un :: Text }
-  deriving newtype (Show, Eq, FromJSON, ToJSON)
+newtype Username
+  = Mk { un :: Text }
+  deriving newtype (Eq, FromJSON, Show, ToJSON)
 
 makeWrapped ''Username
 
@@ -36,14 +40,9 @@ pattern Username :: Text -> Username
 pattern Username a <- Mk a
 {-# COMPLETE Username #-}
 
-data Error
-  = IsEmpty
-  | IsShort
-  | IsLong
-  | IsInvalid
-  deriving stock (Generic, Show)
-  deriving ToJSON via Aeson.FieldErrorFormat Error
-  deriving FromJSON via Aeson.FieldErrorFormat Error
+data Error = IsEmpty | IsShort | IsLong | IsInvalid deriving stock (Generic, Show)
+  deriving (ToJSON) via Aeson.FieldErrorFormat Error
+  deriving (FromJSON) via Aeson.FieldErrorFormat Error
 
 type Errors = NonEmpty Error
 

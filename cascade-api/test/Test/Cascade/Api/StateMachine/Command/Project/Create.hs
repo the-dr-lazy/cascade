@@ -10,41 +10,33 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Project.Create (create) where
+module Test.Cascade.Api.StateMachine.Command.Project.Create
+    ( create
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Hedgehog.Gen.Api.Project
-                                                    as Gen
-import           Cascade.Api.Network.TestClient      ( AuthToken )
-import qualified Cascade.Api.Network.TestClient.Api.User.Projects
-                                                    as Cascade.Api.User.Projects
-import qualified Cascade.Api.Servant.Response       as Response
-import           Cascade.Api.Test.Prelude            ( evalUnion )
-import           Control.Lens                        ( (?~)
-                                                     , (^.)
-                                                     , (^@..)
-                                                     , at
-                                                     , has
-                                                     , ix
-                                                     , non
-                                                     )
-import           Data.Generics.Labels                ( )
-import qualified Data.Map.Strict                    as Map
+import qualified Cascade.Api.Data.Project                         as Project
+import qualified Cascade.Api.Hedgehog.Gen.Api.Project             as Gen
+import           Cascade.Api.Network.TestClient                   (AuthToken)
+import qualified Cascade.Api.Network.TestClient.Api.User.Projects as Cascade.Api.User.Projects
+import qualified Cascade.Api.Servant.Response                     as Response
+import           Cascade.Api.Test.Prelude                         (evalUnion)
+import           Control.Lens                                     (at, has, ix, non, (?~), (^.),
+                                                                   (^@..))
+import           Data.Generics.Labels                             ()
+import qualified Data.Map.Strict                                  as Map
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Test.Cascade.Api.StateMachine.Model ( Model )
-import qualified Test.Cascade.Api.StateMachine.Model.Lens
-                                                    as Model.Lens
+import qualified Hedgehog.Gen                                     as Gen
+import           Test.Cascade.Api.StateMachine.Model              (Model)
+import qualified Test.Cascade.Api.StateMachine.Model.Lens         as Model.Lens
 
 create :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 create = Command generator execute [Require require, Update update]
 
 -- brittany-disable-next-binding
-data Create (v :: Type -> Type) = Create
-  { creatable :: Project.Creatable
-  , username  :: Text
-  , token     :: Var AuthToken v
-  }
+data Create (v :: Type -> Type) = Create { creatable :: Project.Creatable
+                                         , username  :: Text
+                                         , token     :: Var AuthToken v
+                                         }
   deriving stock (Generic, Show)
 
 instance HTraversable Create where

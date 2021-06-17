@@ -10,15 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Model.FreePort (FreePort, un, mk) where
+module Cascade.CLI.Data.Model.FreePort
+    ( FreePort
+    , mk
+    , un
+    ) where
 
-import qualified Control.Exception                  as X
-import qualified Network.Socket                     as Socket
-import           System.IO.Error                     ( IOError )
+import qualified Control.Exception as X
+import qualified Network.Socket    as Socket
+import           System.IO.Error   (IOError)
 
-newtype FreePort = Mk
-  { un :: Word16 }
-  deriving stock (Show, Eq)
+newtype FreePort
+  = Mk { un :: Word16 }
+  deriving stock (Eq, Show)
 
 mk :: Word16 -> IO (Maybe FreePort)
 mk httpPort = do

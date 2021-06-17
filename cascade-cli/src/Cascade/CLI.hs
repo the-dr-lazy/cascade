@@ -10,27 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI (main) where
+module Cascade.CLI
+    ( main
+    ) where
 
 import qualified Cascade.Api
-import qualified Cascade.CLI.Data.Contract.Shell.Environment
-                                                    as Environment
-import qualified Cascade.CLI.Data.Contract.Shell.Options
-                                                    as Options
-import qualified Cascade.CLI.Data.Model.Config      as Config
-import           Cascade.CLI.Data.Model.Config       ( ConfigP(..) )
-import qualified Cascade.CLI.Data.Model.FreePort    as FreePort
-import           Cascade.Data.Validation             ( Validation )
-import qualified Cascade.Data.Validation            as Validation
-import qualified Cascade.Logger                     as Logger
-import qualified Cascade.Logger.Message             as Logger.Message
-import           Cascade.Logger.Message              ( Scope(..) )
-import           Colog                               ( usingLoggerT )
-import qualified Data.Pool                          as Pool
-import           Data.Pool                           ( Pool
-                                                     , createPool
-                                                     )
-import qualified Database.PostgreSQL.Simple         as Postgres
+import qualified Cascade.CLI.Data.Contract.Shell.Environment as Environment
+import qualified Cascade.CLI.Data.Contract.Shell.Options     as Options
+import           Cascade.CLI.Data.Model.Config               (ConfigP (..))
+import qualified Cascade.CLI.Data.Model.Config               as Config
+import qualified Cascade.CLI.Data.Model.FreePort             as FreePort
+import           Cascade.Data.Validation                     (Validation)
+import qualified Cascade.Data.Validation                     as Validation
+import qualified Cascade.Logger                              as Logger
+import           Cascade.Logger.Message                      (Scope (..))
+import qualified Cascade.Logger.Message                      as Logger.Message
+import           Colog                                       (usingLoggerT)
+import           Data.Pool                                   (Pool, createPool)
+import qualified Data.Pool                                   as Pool
+import qualified Database.PostgreSQL.Simple                  as Postgres
 
 mkDatabaseConnectionPool :: Config.PostgresFinal -> IO (Pool Postgres.Connection)
 mkDatabaseConnectionPool Config.Postgres {..} = do

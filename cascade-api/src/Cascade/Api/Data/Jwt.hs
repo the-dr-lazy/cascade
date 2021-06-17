@@ -10,26 +10,30 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Jwt (Jwt, PrivateClaims, JwtSections, mk, decode, dissociate, reassociate, getPrivateClaims) where
+module Cascade.Api.Data.Jwt
+    ( Jwt
+    , JwtSections
+    , PrivateClaims
+    , decode
+    , dissociate
+    , getPrivateClaims
+    , mk
+    , reassociate
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
-import           Control.Exception                   ( handle )
-import           Control.Lens                        ( (%~)
-                                                     , _1
-                                                     )
-import qualified Data.ByteString                    as W8
-import qualified Data.ByteString.Char8              as C8
-import           Data.Either.Validation              ( validationToEither )
-import qualified Data.List                          as List
-import           Data.Word8                          ( _period )
-import           Libjwt.Algorithms                   ( Algorithm(ECDSA256) )
-import           Libjwt.Keys                         ( EcKeyPair(..) )
-import           Libjwt.PrivateClaims                ( type (->>)
-                                                     , Ns(..)
-                                                     , withNs
-                                                     )
-import qualified Libjwt.PrivateClaims               as Libjwt
-import qualified Web.Libjwt                         as Libjwt
+import qualified Cascade.Api.Data.User  as User
+import           Control.Exception      (handle)
+import           Control.Lens           (_1, (%~))
+import qualified Data.ByteString        as W8
+import qualified Data.ByteString.Char8  as C8
+import           Data.Either.Validation (validationToEither)
+import qualified Data.List              as List
+import           Data.Word8             (_period)
+import           Libjwt.Algorithms      (Algorithm (ECDSA256))
+import           Libjwt.Keys            (EcKeyPair (..))
+import           Libjwt.PrivateClaims   (Ns (..), type (->>), withNs)
+import qualified Libjwt.PrivateClaims   as Libjwt
+import qualified Web.Libjwt             as Libjwt
 
 
 
@@ -57,11 +61,10 @@ ns = Ns
 
 type PrivateClaimsList = '["userId" ->> User.Id]
 
-data PrivateClaims = PrivateClaims
-  { userId :: User.Id
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (Libjwt.ToPrivateClaims, Libjwt.FromPrivateClaims)
+data PrivateClaims = PrivateClaims { userId :: User.Id
+                                   }
+  deriving stock (Eq, Generic, Show)
+  deriving anyclass (Libjwt.FromPrivateClaims, Libjwt.ToPrivateClaims)
 
 
 type Jwt = Libjwt.Jwt PrivateClaimsList ( 'Libjwt.SomeNs Namespace)

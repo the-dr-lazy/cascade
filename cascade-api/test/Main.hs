@@ -10,7 +10,9 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Main (main) where
+module Main
+    ( main
+    ) where
 
 import qualified Test.Cascade.Api.Data.OffsetDatetime
 import qualified Test.Cascade.Api.StateMachine

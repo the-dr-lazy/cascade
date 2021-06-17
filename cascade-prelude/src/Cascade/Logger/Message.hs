@@ -10,25 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Logger.Message (Minimal(..), Scope(..), Scoped(..), prettyPrintScoped) where
+module Cascade.Logger.Message
+    ( Minimal (..)
+    , Scope (..)
+    , Scoped (..)
+    , prettyPrintScoped
+    ) where
 
-import qualified Cascade.Chronos                    as Choronos
-import           Cascade.Logger.Formatting           ( color
-                                                     , square
-                                                     )
+import qualified Cascade.Chronos           as Choronos
+import           Cascade.Logger.Formatting (color, square)
 import           Cascade.Logger.Severity
-import           Chronos                             ( DatetimeFormat(..)
-                                                     , Time
-                                                     )
-import qualified Data.Text.Lazy.Builder             as TB
-import           System.Console.ANSI                 ( Color(Cyan) )
+import           Chronos                   (DatetimeFormat (..), Time)
+import qualified Data.Text.Lazy.Builder    as TB
+import           System.Console.ANSI       (Color (Cyan))
 
-data Minimal = Minimal
-  { message  :: Text
-  , severity :: Severity
-  , time     :: Time
-  , cs       :: CallStack
-  }
+data Minimal = Minimal { message  :: Text
+                       , severity :: Severity
+                       , time     :: Time
+                       , cs       :: CallStack
+                       }
 
 prettyPrintMinimal :: Minimal -> Text
 prettyPrintMinimal Minimal {..} = prettyPrintSeverity severity cs <> prettyPrintTime time <> message
@@ -37,8 +37,7 @@ prettyPrintTime :: Time -> Text
 prettyPrintTime = square . toStrict . TB.toLazyText . Choronos.builderDbyHMSz format . Choronos.timeToDatetime
   where format = DatetimeFormat (Just ' ') (Just ' ') (Just ':')
 
-data Scope = Cli | Api
-  deriving stock Eq
+data Scope = Cli | Api deriving stock (Eq)
 
 prettyPrintScope :: Scope -> Text
 prettyPrintScope scope = color Cyan . square <| text

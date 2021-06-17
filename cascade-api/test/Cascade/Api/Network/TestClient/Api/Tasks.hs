@@ -11,25 +11,24 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.TestClient.Api.Tasks
-  ( GetByIdResponse
-  , UpdateByIdResponse
-  , DeleteByIdResponse
-  , getById
-  , updateById
-  , deleteById
-  ) where
+    ( DeleteByIdResponse
+    , GetByIdResponse
+    , UpdateByIdResponse
+    , deleteById
+    , getById
+    , updateById
+    ) where
 
-import qualified Cascade.Api.Data.Task              as Task
-import qualified Cascade.Api.Network.Anatomy.Api.Tasks
-                                                    as Api.Tasks
-import           Cascade.Api.Network.TestClient      ( interpret )
-import qualified Cascade.Api.Network.TestClient.Api as Client.Api
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.) )
-import           Data.Generics.Labels                ( )
-import           Prelude                      hiding ( getAll )
-import           Servant.API                         ( Union )
-import           Servant.Client.Free                 ( ResponseF )
+import qualified Cascade.Api.Data.Task                 as Task
+import qualified Cascade.Api.Network.Anatomy.Api.Tasks as Api.Tasks
+import           Cascade.Api.Network.TestClient        (interpret)
+import qualified Cascade.Api.Network.TestClient.Api    as Client.Api
+import qualified Cascade.Data.Validation               as Validation
+import           Control.Lens                          ((^.))
+import           Data.Generics.Labels                  ()
+import           Prelude                               hiding (getAll)
+import           Servant.API                           (Union)
+import           Servant.Client.Free                   (ResponseF)
 
 type GetByIdResponse = (ResponseF (Union Api.Tasks.GetByIdResponse))
 

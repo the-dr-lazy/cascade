@@ -10,13 +10,16 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Authentication.Types where
+module Test.Cascade.Api.StateMachine.Command.Authentication.Types
+    where
 
-import qualified Cascade.Api.Data.Authentication    as Authentication
-import qualified Cascade.Data.Validation            as Validation
+import qualified Cascade.Api.Data.Authentication as Authentication
+import qualified Cascade.Data.Validation         as Validation
 import           Hedgehog
 
-newtype Login (v :: Type -> Type) = Login (Authentication.Credential 'Validation.Raw) deriving stock Show
+newtype Login (v :: Type -> Type)
+  = Login (Authentication.Credential 'Validation.Raw)
+  deriving stock (Show)
 
 instance HTraversable Login where
   htraverse _ = pure . coerce

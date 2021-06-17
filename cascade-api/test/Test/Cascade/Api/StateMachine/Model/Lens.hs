@@ -10,9 +10,12 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Model.Lens (indexTokenByUsername, indexPasswordByUsername) where
+module Test.Cascade.Api.StateMachine.Model.Lens
+    ( indexPasswordByUsername
+    , indexTokenByUsername
+    ) where
 
-import           Cascade.Api.Network.TestClient      ( AuthToken )
+import           Cascade.Api.Network.TestClient      (AuthToken)
 import           Control.Lens
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Model

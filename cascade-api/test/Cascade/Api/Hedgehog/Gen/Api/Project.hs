@@ -10,13 +10,15 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen.Api.Project (project) where
+module Cascade.Api.Hedgehog.Gen.Api.Project
+    ( project
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
+import qualified Cascade.Api.Data.Project    as Project
+import qualified Cascade.Api.Hedgehog.Gen.Id as Gen
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Hedgehog.Gen                as Gen
+import qualified Hedgehog.Range              as Range
 
 class ProjectGenerator (a :: Type) where
   project :: MonadGen m => m a

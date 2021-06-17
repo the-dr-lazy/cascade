@@ -10,11 +10,13 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.Data.OffsetDatetime (tests) where
+module Test.Cascade.Api.Data.OffsetDatetime
+    ( tests
+    ) where
 
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
-import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
-import qualified Data.Aeson                         as Aeson
+import           Cascade.Api.Data.OffsetDatetime  (FormattedOffsetDatetime (..))
+import qualified Cascade.Api.Hedgehog.Gen.Chronos as Gen
+import qualified Data.Aeson                       as Aeson
 import           Hedgehog
 import           Test.Tasty
 import           Test.Tasty.Hedgehog

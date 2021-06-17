@@ -11,57 +11,44 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Effect.Database.Project
-  ( ProjectL(..)
-  , findAll
-  , findAllByUserId
-  , findById
-  , create
-  , updateById
-  , deleteById
-  , doesExistsById
-  , run
-  ) where
+    ( ProjectL (..)
+    , create
+    , deleteById
+    , doesExistsById
+    , findAll
+    , findAllByUserId
+    , findById
+    , run
+    , updateById
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.User              as User
+import qualified Cascade.Api.Data.Project               as Project
+import qualified Cascade.Api.Data.User                  as User
 import           Cascade.Api.Data.WrappedC
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
-import qualified Cascade.Api.Database.Sql.Query.Project
-                                                    as SQL.Query.Project
-import qualified Cascade.Api.Database.UserProjectTable
-                                                    as UserProjectTable
-import qualified Cascade.Api.Database.UserTable     as UserTable
-import qualified Cascade.Api.Effect.Database        as Database
-import           Cascade.Api.Effect.Database         ( DatabaseL )
-import           Control.Lens                        ( (^.) )
-import           Database.Beam                       ( (<-.)
-                                                     , insertExpressions
-                                                     , pk
-                                                     , val_
-                                                     )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend
-                                                     , BeamSqlBackendCanSerialize
-                                                     )
-import           Polysemy                            ( Member
-                                                     , Sem
-                                                     , interpret
-                                                     , makeSem
-                                                     )
-import qualified Relude.Unsafe                      as Unsafe
-                                                     ( fromJust )
+import           Cascade.Api.Database.ProjectTable      (ProjectTable)
+import qualified Cascade.Api.Database.ProjectTable      as ProjectTable
+import qualified Cascade.Api.Database.Sql               as SQL
+import qualified Cascade.Api.Database.Sql.Query         as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.Project as SQL.Query.Project
+import qualified Cascade.Api.Database.UserProjectTable  as UserProjectTable
+import qualified Cascade.Api.Database.UserTable         as UserTable
+import           Cascade.Api.Effect.Database            (DatabaseL)
+import qualified Cascade.Api.Effect.Database            as Database
+import           Control.Lens                           ((^.))
+import           Database.Beam                          (insertExpressions, pk, val_, (<-.))
+import qualified Database.Beam                          as Beam
+import           Database.Beam.Backend                  (BeamSqlBackend, BeamSqlBackendCanSerialize)
+import           Polysemy                               (Member, Sem, interpret, makeSem)
+import qualified Relude.Unsafe                          as Unsafe (fromJust)
 
 data ProjectL m a where
-  FindAll         ::ProjectL m [Project.Readable]
-  FindAllByUserId ::User.Id -> ProjectL m [Project.Readable]
-  FindById        ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  Create          ::Project.Creatable -> User.Id -> ProjectL m Project.Readable
-  UpdateById      ::Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
-  DeleteById      ::Project.Id -> ProjectL m (Maybe Project.Readable)
-  DoesExistsById  ::Project.Id -> ProjectL m Bool
+  FindAll :: ProjectL m [Project.Readable]
+  FindAllByUserId :: User.Id -> ProjectL m [Project.Readable]
+  FindById :: Project.Id -> ProjectL m (Maybe Project.Readable)
+  Create :: Project.Creatable -> User.Id -> ProjectL m Project.Readable
+  UpdateById :: Project.Id -> Project.Updatable -> ProjectL m (Maybe Project.Readable)
+  DeleteById :: Project.Id -> ProjectL m (Maybe Project.Readable)
+  DoesExistsById :: Project.Id -> ProjectL m Bool
 
 makeSem ''ProjectL
 

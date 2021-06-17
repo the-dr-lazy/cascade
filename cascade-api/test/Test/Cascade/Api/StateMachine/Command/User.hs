@@ -10,12 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.User (commands) where
+module Test.Cascade.Api.StateMachine.Command.User
+    ( commands
+    ) where
 
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Command.User.CreateExisting
 import           Test.Cascade.Api.StateMachine.Command.User.CreateNotExisting
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import           Test.Cascade.Api.StateMachine.Model                          (Model)
 
 commands :: MonadGen g => MonadIO m => MonadTest m => [Command g m Model]
 commands = [createNotExisting, createExisting]

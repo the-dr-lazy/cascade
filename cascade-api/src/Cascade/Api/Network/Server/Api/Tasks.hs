@@ -10,25 +10,22 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Server.Api.Tasks (server) where
+module Cascade.Api.Network.Server.Api.Tasks
+    ( server
+    ) where
 
-import qualified Cascade.Api.Data.Task              as Task
-import qualified Cascade.Api.Effect.Database.Task   as Database.Task
-import           Cascade.Api.Effect.Database.Task    ( TaskL )
-import           Cascade.Api.Effect.Time             ( TimeL )
+import qualified Cascade.Api.Data.Task                 as Task
+import           Cascade.Api.Effect.Database.Task      (TaskL)
+import qualified Cascade.Api.Effect.Database.Task      as Database.Task
+import           Cascade.Api.Effect.Time               (TimeL)
 import           Cascade.Api.Network.Anatomy.Api.Tasks
-import qualified Cascade.Api.Servant.Response       as Response
-import qualified Cascade.Data.Validation            as Validation
-import           Polysemy                            ( Member
-                                                     , Members
-                                                     , Sem
-                                                     )
+import qualified Cascade.Api.Servant.Response          as Response
+import qualified Cascade.Data.Validation               as Validation
+import           Polysemy                              (Member, Members, Sem)
 import           Servant
 import           Servant.API.Generic
-import           Servant.Server.Generic              ( AsServerT
-                                                     , genericServerT
-                                                     )
-import           Validation                          ( validation )
+import           Servant.Server.Generic                (AsServerT, genericServerT)
+import           Validation                            (validation)
 
 handleGetById :: Member TaskL r => Task.Id -> Sem r (Union GetByIdResponse)
 handleGetById id = Database.Task.findById id >>= maybe (respond Response.notFound) (respond . Response.ok)

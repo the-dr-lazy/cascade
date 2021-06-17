@@ -10,7 +10,10 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Control.Applicative (pureMaybe, module Control.Applicative) where
+module Cascade.Control.Applicative
+    ( module Control.Applicative
+    , pureMaybe
+    ) where
 
 import           Control.Applicative
 

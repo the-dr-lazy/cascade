@@ -10,12 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Data.Text.NonEmpty (tests) where
+module Test.Cascade.Data.Text.NonEmpty
+    ( tests
+    ) where
 
-import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
+import qualified Cascade.Data.Text.NonEmpty as Text.NonEmpty
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Hedgehog.Gen               as Gen
+import qualified Hedgehog.Range             as Range
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.Hedgehog

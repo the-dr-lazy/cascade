@@ -10,22 +10,22 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient.Api.User.Projects (CreateResponse, GetAllResponse, create, getAll) where
+module Cascade.Api.Network.TestClient.Api.User.Projects
+    ( CreateResponse
+    , GetAllResponse
+    , create
+    , getAll
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Network.Anatomy.Api.User.Projects
-                                                    as Api.User.Projects
-import           Cascade.Api.Network.TestClient      ( AuthToken
-                                                     , authenticated
-                                                     , interpret
-                                                     )
-import qualified Cascade.Api.Network.TestClient.Api.User
-                                                    as Client.Api.User
-import           Control.Lens                        ( (^.) )
-import           Data.Generics.Labels                ( )
-import           Prelude                      hiding ( getAll )
-import           Servant.API                         ( Union )
-import           Servant.Client.Free                 ( ResponseF )
+import qualified Cascade.Api.Data.Project                      as Project
+import qualified Cascade.Api.Network.Anatomy.Api.User.Projects as Api.User.Projects
+import           Cascade.Api.Network.TestClient                (AuthToken, authenticated, interpret)
+import qualified Cascade.Api.Network.TestClient.Api.User       as Client.Api.User
+import           Control.Lens                                  ((^.))
+import           Data.Generics.Labels                          ()
+import           Prelude                                       hiding (getAll)
+import           Servant.API                                   (Union)
+import           Servant.Client.Free                           (ResponseF)
 
 type CreateResponse = (ResponseF (Union Api.User.Projects.CreateResponse))
 

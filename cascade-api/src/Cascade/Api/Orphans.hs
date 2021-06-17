@@ -12,26 +12,21 @@ Portability : POSIX
 
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Cascade.Api.Orphans () where
+module Cascade.Api.Orphans
+    (
+    ) where
 
 import qualified Chronos
 import           Chronos.Types
-import qualified Data.Attoparsec.ByteString         as Attoparsec
-import qualified Database.Beam                      as Beam
-import qualified Database.Beam.Backend              as Beam
-import           Database.Beam.Postgres              ( Postgres
-                                                     , ResultError(..)
-                                                     )
-import           Database.Beam.Postgres.Syntax       ( PgValueSyntax
-                                                     , defaultPgValueSyntax
-                                                     )
-import qualified Database.PostgreSQL.Simple.FromField
-                                                    as Postgres
-import           Database.PostgreSQL.Simple.FromField
-                                                     ( typeOid )
-import qualified Database.PostgreSQL.Simple.ToField as Postgres
-import           Database.PostgreSQL.Simple.TypeInfo.Static
-                                                     ( timestamptzOid )
+import qualified Data.Attoparsec.ByteString                 as Attoparsec
+import qualified Database.Beam                              as Beam
+import qualified Database.Beam.Backend                      as Beam
+import           Database.Beam.Postgres                     (Postgres, ResultError (..))
+import           Database.Beam.Postgres.Syntax              (PgValueSyntax, defaultPgValueSyntax)
+import           Database.PostgreSQL.Simple.FromField       (typeOid)
+import qualified Database.PostgreSQL.Simple.FromField       as Postgres
+import qualified Database.PostgreSQL.Simple.ToField         as Postgres
+import           Database.PostgreSQL.Simple.TypeInfo.Static (timestamptzOid)
 
 instance Postgres.ToField OffsetDatetime where
   toField = Postgres.Plain . Postgres.inQuotes . encode

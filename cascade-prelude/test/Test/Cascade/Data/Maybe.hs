@@ -1,9 +1,11 @@
-module Test.Cascade.Data.Maybe (tests) where
+module Test.Cascade.Data.Maybe
+    ( tests
+    ) where
 
-import qualified Cascade.Data.Maybe                 as Maybe
+import qualified Cascade.Data.Maybe  as Maybe
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Hedgehog.Gen        as Gen
+import qualified Hedgehog.Range      as Range
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 import qualified Validation

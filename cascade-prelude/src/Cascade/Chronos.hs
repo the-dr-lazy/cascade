@@ -10,13 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Chronos (module Chronos, builderDby, builderDbyHMSz) where
+module Cascade.Chronos
+    ( module Chronos
+    , builderDby
+    , builderDbyHMSz
+    ) where
 
 import           Chronos
-import qualified Chronos.Locale.English             as Chronos
-import qualified Data.Text.Lazy.Builder             as TB
-import qualified Data.Text.Lazy.Builder.Int         as TB
-import qualified Data.Vector                        as Vector
+import qualified Chronos.Locale.English     as Chronos
+import qualified Data.Text.Lazy.Builder     as TB
+import qualified Data.Text.Lazy.Builder.Int as TB
+import qualified Data.Vector                as Vector
 
 {- | Given a 'Datetime', constructs a 'Text' 'TB.Builder' corresponding to a
 Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.

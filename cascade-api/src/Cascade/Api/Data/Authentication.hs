@@ -11,28 +11,24 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
-module Cascade.Api.Data.Authentication (Credential(..), parseRawCredential) where
+module Cascade.Api.Data.Authentication
+    ( Credential (..)
+    , parseRawCredential
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
-                                                    as Aeson
-import qualified Cascade.Api.Data.ByteString.Password
-                                                    as Password
-import qualified Cascade.Api.Data.Text.Username     as Username
-import qualified Cascade.Api.Data.User              as User
-import           Cascade.Data.Validation             ( Validate
-                                                     , Validation
-                                                     )
-import qualified Cascade.Data.Validation            as Validation
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
+import qualified Cascade.Api.Data.Aeson.RecordErrorFormat as Aeson
+import qualified Cascade.Api.Data.ByteString.Password     as Password
+import qualified Cascade.Api.Data.Text.Username           as Username
+import qualified Cascade.Api.Data.User                    as User
+import           Cascade.Data.Validation                  (Validate, Validation)
+import qualified Cascade.Data.Validation                  as Validation
+import           Data.Aeson                               (FromJSON, ToJSON)
 
 -- brittany-disable-next-binding
-data Credential (p :: Validation.Phase) = Credential
-  { username :: Validate p Text User.Username
-  , password :: Validate p Text User.Password
-  }
-  deriving stock Generic
+data Credential (p :: Validation.Phase) = Credential { username :: Validate p Text User.Username
+                                                     , password :: Validate p Text User.Password
+                                                     }
+  deriving stock (Generic)
 
 deriving stock instance Show (Credential 'Validation.Raw)
 deriving anyclass instance ToJSON (Credential 'Validation.Raw)

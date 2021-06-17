@@ -10,20 +10,20 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Data.Chronos.Future (Future, pattern Future, un, mk) where
+module Cascade.Data.Chronos.Future
+    ( Future
+    , mk
+    , pattern Future
+    , un
+    ) where
 
-import           Chronos                             ( OffsetDatetime
-                                                     , Time
-                                                     , offsetDatetimeToTime
-                                                     )
-import           Control.Lens.TH                     ( makeWrapped )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
+import           Chronos         (OffsetDatetime, Time, offsetDatetimeToTime)
+import           Control.Lens.TH (makeWrapped)
+import           Data.Aeson      (FromJSON, ToJSON)
 
-newtype Future a = Mk
-  { un :: a }
-  deriving stock Show
+newtype Future a
+  = Mk { un :: a }
+  deriving stock (Show)
   deriving newtype (Eq, FromJSON, ToJSON)
 
 makeWrapped ''Future

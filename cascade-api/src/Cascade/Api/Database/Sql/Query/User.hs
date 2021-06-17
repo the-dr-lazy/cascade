@@ -13,15 +13,18 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql.Query.User (byId, byUsername) where
+module Cascade.Api.Database.Sql.Query.User
+    ( byId
+    , byUsername
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
-import           Cascade.Api.Data.WrappedC           ( WrappedC(..) )
-import           Cascade.Api.Database.Sql            ( Q )
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
+import qualified Cascade.Api.Data.User          as User
+import           Cascade.Api.Data.WrappedC      (WrappedC (..))
+import           Cascade.Api.Database.Sql       (Q)
+import qualified Cascade.Api.Database.Sql       as SQL
+import qualified Cascade.Api.Database.Sql.Query as SQL.Query
 import           Cascade.Api.Database.UserTable
-import qualified Database.Beam                      as Beam
+import qualified Database.Beam                  as Beam
 
 byId :: _ => User.Id -> Q backend s (UserTable (Beam.QExpr backend s))
 byId id = SQL.Query.all #users |> SQL.filter (#id `SQL.eq` SQL.literal id)

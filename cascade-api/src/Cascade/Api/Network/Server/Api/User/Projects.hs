@@ -10,18 +10,18 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Server.Api.User.Projects (server) where
+module Cascade.Api.Network.Server.Api.User.Projects
+    ( server
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import           Cascade.Api.Data.Session            ( Session )
-import qualified Cascade.Api.Data.Session           as Session
-import qualified Cascade.Api.Effect.Database.Project
-                                                    as Database.Project
-import qualified Cascade.Api.Effect.Database.Project
-                                                    as Database
+import qualified Cascade.Api.Data.Project                      as Project
+import           Cascade.Api.Data.Session                      (Session)
+import qualified Cascade.Api.Data.Session                      as Session
+import qualified Cascade.Api.Effect.Database.Project           as Database
+import qualified Cascade.Api.Effect.Database.Project           as Database.Project
 import           Cascade.Api.Network.Anatomy.Api.User.Projects
-import qualified Cascade.Api.Servant.Response       as Response
-import           Control.Lens                        ( (^.) )
+import qualified Cascade.Api.Servant.Response                  as Response
+import           Control.Lens                                  ((^.))
 import           Polysemy
 import           Servant
 import           Servant.API.Generic

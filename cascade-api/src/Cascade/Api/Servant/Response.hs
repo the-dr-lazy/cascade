@@ -11,27 +11,22 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Servant.Response
-  ( NotFound(..)
-  , Ok(..)
-  , Created(..)
-  , Unprocessable(..)
-  , Conflict(..)
-  , Forbidden(..)
-  , Unauthorized(..)
-  , notFound
-  , ok
-  , created
-  ) where
+    ( Conflict (..)
+    , Created (..)
+    , Forbidden (..)
+    , NotFound (..)
+    , Ok (..)
+    , Unauthorized (..)
+    , Unprocessable (..)
+    , created
+    , notFound
+    , ok
+    ) where
 
-import           Data.Aeson                          ( (.=)
-                                                     , FromJSON(..)
-                                                     , ToJSON(..)
-                                                     , object
-                                                     )
-import           Servant                      hiding ( Unauthorized )
+import           Data.Aeson (FromJSON (..), ToJSON (..), object, (.=))
+import           Servant    hiding (Unauthorized)
 
-data NotFound = NotFound
-  deriving stock Show
+data NotFound = NotFound deriving stock (Show)
 
 instance FromJSON NotFound where
   parseJSON _ = pure NotFound
@@ -45,8 +40,9 @@ instance HasStatus NotFound where
 notFound :: NotFound
 notFound = NotFound
 
-newtype Ok a = Ok a
-  deriving stock Show
+newtype Ok a
+  = Ok a
+  deriving stock (Show)
   deriving newtype (FromJSON, ToJSON)
 
 instance HasStatus (Ok a) where
@@ -55,8 +51,9 @@ instance HasStatus (Ok a) where
 ok :: a -> Ok a
 ok = Ok
 
-newtype Created a = Created a
-  deriving stock Show
+newtype Created a
+  = Created a
+  deriving stock (Show)
   deriving newtype (FromJSON, ToJSON)
 
 instance HasStatus (Created a) where
@@ -65,15 +62,15 @@ instance HasStatus (Created a) where
 created :: a -> Created a
 created = Created
 
-newtype Unprocessable a = Unprocessable a
-  deriving stock Show
+newtype Unprocessable a
+  = Unprocessable a
+  deriving stock (Show)
   deriving newtype (FromJSON, ToJSON)
 
 instance HasStatus (Unprocessable a) where
   type StatusOf (Unprocessable a) = 422
 
-data Conflict = Conflict
-  deriving stock Show
+data Conflict = Conflict deriving stock (Show)
 
 instance FromJSON Conflict where
   parseJSON _ = pure Conflict
@@ -84,8 +81,7 @@ instance ToJSON Conflict where
 instance HasStatus Conflict where
   type StatusOf Conflict = 409
 
-data Forbidden = Forbidden
-  deriving stock Show
+data Forbidden = Forbidden deriving stock (Show)
 
 instance FromJSON Forbidden where
   parseJSON _ = pure Forbidden
@@ -96,8 +92,7 @@ instance ToJSON Forbidden where
 instance HasStatus Forbidden where
   type StatusOf Forbidden = 403
 
-data Unauthorized = Unauthorized
-  deriving stock Show
+data Unauthorized = Unauthorized deriving stock (Show)
 
 instance FromJSON Unauthorized where
   parseJSON _ = pure Unauthorized

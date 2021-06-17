@@ -10,25 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.UserProjectTable (UserProjectTable(..), PrimaryKey(..), Row) where
+module Cascade.Api.Database.UserProjectTable
+    ( PrimaryKey (..)
+    , Row
+    , UserProjectTable (..)
+    ) where
 
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import           Cascade.Api.Database.UserTable      ( UserTable )
-import           Chronos                             ( OffsetDatetime )
-import           Database.Beam                       ( Beamable
-                                                     , C
-                                                     , Table(..)
-                                                     )
+import           Cascade.Api.Database.ProjectTable (ProjectTable)
+import           Cascade.Api.Database.UserTable    (UserTable)
+import           Chronos                           (OffsetDatetime)
+import           Database.Beam                     (Beamable, C, Table (..))
 
 -- brittany-disable-next-binding
-data UserProjectTable (f :: Type -> Type) = Row
-  { userId    :: PrimaryKey UserTable f
-  , projectId :: PrimaryKey ProjectTable f
-  , createdAt :: C f OffsetDatetime
-  , updatedAt :: C f OffsetDatetime
-  }
-  deriving stock Generic
-  deriving anyclass Beamable
+data UserProjectTable (f :: Type -> Type) = Row { userId    :: PrimaryKey UserTable f
+                                                , projectId :: PrimaryKey ProjectTable f
+                                                , createdAt :: C f OffsetDatetime
+                                                , updatedAt :: C f OffsetDatetime
+                                                }
+  deriving stock (Generic)
+  deriving anyclass (Beamable)
 
 instance Table UserProjectTable where
   data PrimaryKey UserProjectTable f = PrimaryKey (PrimaryKey UserTable f) (PrimaryKey ProjectTable f)
