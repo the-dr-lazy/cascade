@@ -42,6 +42,8 @@ jobs:
 
           brew install libjwt
 
+          echo "~/.cabal/bin" >> $GITHUB_PATH
+
           OS_CABAL_TEMP_DIR=$(mktemp -d -t .os-cabal-XXXXX)
           cp cabal.project.freeze $OS_CABAL_TEMP_DIR
           (cd $OS_CABAL_TEMP_DIR && cabal init --non-interactive && cabal new-install hpack-dhall)

@@ -68,23 +68,22 @@ steps:
       # Sort typeclass names in the "deriving" list alphabetically.
       sort_deriving: true
       #
-      #     # Wheter or not to break enums onto several lines
-      #     #
-      #     # Default: false
-      #     break_enums: false
+      # Wheter or not to break enums onto several lines
       #
-      #     # Whether or not to break single constructor data types before `=` sign
-      #     #
-      #     # Default: true
+      # Default: false
+      break_enums: false
+      # Whether or not to break single constructor data types before `=` sign
+      #
+      # Default: true
       break_single_constructors: false
       #
-      #     # Whether or not to curry constraints on function.
-      #     #
-      #     # E.g: @allValues :: Enum a => Bounded a => Proxy a -> [a]@
-      #     #
-      #     # Instead of @allValues :: (Enum a, Bounded a) => Proxy a -> [a]@
-      #     #
-      #     # Default: false
+      # Whether or not to curry constraints on function.
+      #
+      # E.g: @allValues :: Enum a => Bounded a => Proxy a -> [a]@
+      #
+      # Instead of @allValues :: (Enum a, Bounded a) => Proxy a -> [a]@
+      #
+      # Default: false
       curried_context: false
 
   # Align the right hand side of some elements.  This is quite conservative
