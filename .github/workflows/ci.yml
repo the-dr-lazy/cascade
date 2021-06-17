@@ -46,10 +46,10 @@ jobs:
 
           OS_CABAL_TEMP_DIR=$(mktemp -d -t .os-cabal-XXXXX)
           cp cabal.project.freeze $OS_CABAL_TEMP_DIR
-          (  cd $OS_CABAL_TEMP_DIR
-          && cabal init --non-interactive
-          && cabal new-install hpack-dhall
-          && dhall-hpack-cabal --version
+          (  cd $OS_CABAL_TEMP_DIR \
+          && cabal init --non-interactive \
+          && cabal new-install hpack-dhall \
+          && dhall-hpack-cabal --version \
           )
 
       - name: Configure
