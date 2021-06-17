@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ $(git diff --cached --name-only --diff-filter=ACM | grep .dhall) ]]; then
+	echo "Found *.dhall file change. Generating cabal files:"
+
+	./scripts/cabal
+	git add **/*.cabal
+fi
+
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
 	against=HEAD
 else
