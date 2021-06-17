@@ -42,7 +42,6 @@ jobs:
 
           brew install libjwt
 
-          PATH=$PATH:~/cabal/bin
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
           OS_CABAL_TEMP_DIR=$(mktemp -d -t .os-cabal-XXXXX)
@@ -50,8 +49,9 @@ jobs:
           (  cd $OS_CABAL_TEMP_DIR \
           && cabal init --non-interactive \
           && cabal new-install hpack-dhall \
-          && dhall-hpack-cabal --version \
           )
+
+          ~/.cabal/bin/dhall-hpack-cabal --version
 
       - name: Configure
         run: |
