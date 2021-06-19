@@ -345,12 +345,57 @@ newline: native
 # needs to be aware of these, so it can parse the file correctly.
 #
 # No language extensions are enabled by default.
-# language_extensions:
-# - TemplateHaskell
-# - QuasiQuotes
+language_extensions:
+  [
+    "ApplicativeDo",
+    "Arrows",
+    "BangPatterns",
+    "BlockArguments",
+    "ConstraintKinds",
+    "DataKinds",
+    "DefaultSignatures",
+    "DeriveAnyClass",
+    "DeriveFoldable",
+    "DeriveFunctor",
+    "DeriveGeneric",
+    "DeriveLift",
+    "DeriveTraversable",
+    "DerivingStrategies",
+    "DerivingVia",
+    "DuplicateRecordFields",
+    "EmptyCase",
+    "ExistentialQuantification",
+    "FlexibleContexts",
+    "FlexibleInstances",
+    "FunctionalDependencies",
+    "GADTs",
+    "GeneralizedNewtypeDeriving",
+    "InstanceSigs",
+    "KindSignatures",
+    "LambdaCase",
+    "MultiParamTypeClasses",
+    "MultiWayIf",
+    "NamedFieldPuns",
+    "OverloadedLabels",
+    "OverloadedStrings",
+    "PatternSynonyms",
+    "PolyKinds",
+    "RankNTypes",
+    "RecordWildCards",
+    "ScopedTypeVariables",
+    "StandaloneDeriving",
+    "StrictData",
+    "TemplateHaskell",
+    "TupleSections",
+    "TypeApplications",
+    "TypeFamilies",
+    "TypeFamilyDependencies",
+    "TypeOperators",
+    "ViewPatterns",
+  ]
 
 # Attempt to find the cabal file in ancestors of the current directory, and
 # parse options (currently only language extensions) from that.
 #
 # Default: true
-cabal: true
+cabal: false
