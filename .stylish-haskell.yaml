@@ -198,7 +198,7 @@ steps:
       #   >     )
       #
       # Default: inline
-      long_list_align: inline
+      long_list_align: new_line
 
       # Align empty list (importing instances)
       #
@@ -255,7 +255,7 @@ steps:
       #   > import Data.Foo (foo)
       #
       # Default: false
-      space_surround: false
+      space_surround: true
 
       # Enabling this argument will use the new GHC lib parse to format imports.
       #

@@ -23,16 +23,16 @@ module Cascade.Api.Data.User
     ) where
 
 import qualified Cascade.Api.Data.Aeson.RecordErrorFormat as Aeson
-import           Cascade.Api.Data.ByteString.Password     (Password)
+import           Cascade.Api.Data.ByteString.Password     ( Password )
 import qualified Cascade.Api.Data.ByteString.Password     as Password
 import qualified Cascade.Api.Data.Id                      as Data
-import           Cascade.Api.Data.Text.EmailAddress       (EmailAddress)
+import           Cascade.Api.Data.Text.EmailAddress       ( EmailAddress )
 import qualified Cascade.Api.Data.Text.EmailAddress       as EmailAddress
-import           Cascade.Api.Data.Text.Username           (Username)
+import           Cascade.Api.Data.Text.Username           ( Username )
 import qualified Cascade.Api.Data.Text.Username           as Username
-import           Cascade.Data.Validation                  (Validate, Validation)
+import           Cascade.Data.Validation                  ( Validate, Validation )
 import qualified Cascade.Data.Validation                  as Validation
-import           Data.Aeson                               (FromJSON, ToJSON)
+import           Data.Aeson                               ( FromJSON, ToJSON )
 import           Data.Generics.Labels                     ()
 
 data User

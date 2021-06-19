@@ -17,9 +17,9 @@ module Cascade.Data.Chronos.Future
     , un
     ) where
 
-import           Chronos         (OffsetDatetime, Time, offsetDatetimeToTime)
-import           Control.Lens.TH (makeWrapped)
-import           Data.Aeson      (FromJSON, ToJSON)
+import           Chronos         ( OffsetDatetime, Time, offsetDatetimeToTime )
+import           Control.Lens.TH ( makeWrapped )
+import           Data.Aeson      ( FromJSON, ToJSON )
 
 newtype Future a
   = Mk { un :: a }

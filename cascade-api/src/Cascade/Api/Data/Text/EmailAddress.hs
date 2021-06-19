@@ -20,11 +20,11 @@ module Cascade.Api.Data.Text.EmailAddress
     ) where
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
-import           Cascade.Data.Validation                 (Validation)
+import           Cascade.Data.Validation                 ( Validation )
 import qualified Cascade.Data.Validation                 as Validation
-import           Control.Lens.TH                         (makeWrapped)
-import           Data.Aeson                              (FromJSON, ToJSON)
-import           Text.Email.Validate                     (canonicalizeEmail)
+import           Control.Lens.TH                         ( makeWrapped )
+import           Data.Aeson                              ( FromJSON, ToJSON )
+import           Text.Email.Validate                     ( canonicalizeEmail )
 
 newtype EmailAddress
   = Mk { un :: Text }

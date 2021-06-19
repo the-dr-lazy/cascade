@@ -20,10 +20,10 @@ module Cascade.Api.Data.ByteString.Password
     ) where
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
-import           Cascade.Data.Validation                 (Validation)
+import           Cascade.Data.Validation                 ( Validation )
 import qualified Cascade.Data.Validation                 as Validation
-import           Control.Selective                       (ifS)
-import           Data.Aeson                              (FromJSON, ToJSON)
+import           Control.Selective                       ( ifS )
+import           Data.Aeson                              ( FromJSON, ToJSON )
 import qualified Data.Text                               as Text
 
 newtype Password

@@ -15,7 +15,7 @@ module Test.Cascade.Api.StateMachine.Model.Lens
     , indexTokenByUsername
     ) where
 
-import           Cascade.Api.Network.TestClient      (AuthToken)
+import           Cascade.Api.Network.TestClient      ( AuthToken )
 import           Control.Lens
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Model

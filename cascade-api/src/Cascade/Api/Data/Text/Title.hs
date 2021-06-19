@@ -18,10 +18,10 @@ module Cascade.Api.Data.Text.Title
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
 import qualified Cascade.Data.Text.NonEmpty              as Text.NonEmpty
-import           Cascade.Data.Validation                 (Validation)
+import           Cascade.Data.Validation                 ( Validation )
 import qualified Cascade.Data.Validation                 as Validation
-import           Control.Lens.TH                         (makeWrapped)
-import           Data.Aeson                              (FromJSON, ToJSON)
+import           Control.Lens.TH                         ( makeWrapped )
+import           Data.Aeson                              ( FromJSON, ToJSON )
 
 newtype Title
   = Mk { un :: Text }

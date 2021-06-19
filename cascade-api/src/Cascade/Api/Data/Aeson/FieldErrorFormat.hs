@@ -16,9 +16,9 @@ module Cascade.Api.Data.Aeson.FieldErrorFormat
     ( FieldErrorFormat (..)
     ) where
 
-import           Data.Aeson   (FromJSON, ToJSON)
+import           Data.Aeson   ( FromJSON, ToJSON )
 import qualified Data.Aeson   as Aeson
-import           GHC.Generics (Rep)
+import           GHC.Generics ( Rep )
 
 newtype FieldErrorFormat (error :: Type)
   = FieldErrorFormat error

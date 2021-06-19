@@ -17,8 +17,8 @@ module Cascade.Logger.Severity
 
 import           Cascade.Logger.Formatting
 import qualified Data.Text                 as Text
-import           GHC.Stack                 (SrcLoc (..))
-import           System.Console.ANSI       (Color (..))
+import           GHC.Stack                 ( SrcLoc (..) )
+import           System.Console.ANSI       ( Color (..) )
 
 data Severity = Debug | Info | Warning | Error | Panic deriving stock (Eq)
 

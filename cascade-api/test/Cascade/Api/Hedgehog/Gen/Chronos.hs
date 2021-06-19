@@ -19,12 +19,12 @@ module Cascade.Api.Hedgehog.Gen.Chronos
     ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import           Chronos                          (Offset (..), OffsetDatetime, Time,
-                                                   timeFromYmdhms, timeToOffsetDatetime)
+import           Chronos
+    ( Offset (..), OffsetDatetime, Time, timeFromYmdhms, timeToOffsetDatetime )
 import           Hedgehog
 import qualified Hedgehog.Gen                     as Gen
 import qualified Hedgehog.Range                   as Range
-import           Prelude                          hiding (second)
+import           Prelude                          hiding ( second )
 
 
 time :: MonadGen g => g Time

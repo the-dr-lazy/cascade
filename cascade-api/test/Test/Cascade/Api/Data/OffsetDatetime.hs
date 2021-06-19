@@ -14,7 +14,7 @@ module Test.Cascade.Api.Data.OffsetDatetime
     ( tests
     ) where
 
-import           Cascade.Api.Data.OffsetDatetime  (FormattedOffsetDatetime (..))
+import           Cascade.Api.Data.OffsetDatetime  ( FormattedOffsetDatetime (..) )
 import qualified Cascade.Api.Hedgehog.Gen.Chronos as Gen
 import qualified Data.Aeson                       as Aeson
 import           Hedgehog

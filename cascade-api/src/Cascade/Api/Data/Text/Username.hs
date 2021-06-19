@@ -21,11 +21,11 @@ module Cascade.Api.Data.Text.Username
 
 
 import qualified Cascade.Data.Char                       as Char
-import           Cascade.Data.Validation                 (Validation)
+import           Cascade.Data.Validation                 ( Validation )
 import qualified Cascade.Data.Validation                 as Validation
-import           Control.Lens.TH                         (makeWrapped)
-import           Control.Selective                       (ifS)
-import           Data.Aeson                              (FromJSON, ToJSON)
+import           Control.Lens.TH                         ( makeWrapped )
+import           Control.Selective                       ( ifS )
+import           Data.Aeson                              ( FromJSON, ToJSON )
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
 import qualified Data.Text                               as Text

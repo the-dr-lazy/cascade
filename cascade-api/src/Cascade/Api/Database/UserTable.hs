@@ -19,10 +19,10 @@ module Cascade.Api.Database.UserTable
 import qualified Cascade.Api.Data.User     as User
 import qualified Cascade.Api.Data.WrappedC as Wrapped
 import qualified Cascade.Api.Effect.Scrypt as Scrypt
-import           Chronos                   (OffsetDatetime)
-import           Database.Beam             (Beamable, C, Table (..))
+import           Chronos                   ( OffsetDatetime )
+import           Database.Beam             ( Beamable, C, Table (..) )
 
--- brittany-disable-next-binding
+
 data UserTable (f :: Type -> Type) = Row { id :: Wrapped.C f User.Id
                                          , username :: Wrapped.C f User.Username
                                          , emailAddress :: Wrapped.C f User.EmailAddress

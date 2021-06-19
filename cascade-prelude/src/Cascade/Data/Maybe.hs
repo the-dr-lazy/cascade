@@ -16,7 +16,7 @@ module Cascade.Data.Maybe
     ) where
 
 import           Data.Maybe
-import           Validation (Validation)
+import           Validation ( Validation )
 import qualified Validation
 
 

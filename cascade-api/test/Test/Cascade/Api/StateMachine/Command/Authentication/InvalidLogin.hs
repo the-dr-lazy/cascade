@@ -22,11 +22,11 @@ import qualified Cascade.Api.Network.TestClient.Api.Authentication          as C
 import           Cascade.Api.Test.Prelude                                   ()
 import qualified Cascade.Data.Char                                          as Char
 import qualified Cascade.Data.Validation                                    as Validation
-import           Control.Lens                                               ((^.))
+import           Control.Lens                                               ( (^.) )
 import qualified Data.Text                                                  as Text
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Command.Authentication.Types
-import           Test.Cascade.Api.StateMachine.Model                        (Model)
+import           Test.Cascade.Api.StateMachine.Model                        ( Model )
 
 invalidLogin :: MonadGen g => MonadFail g => MonadTest m => MonadIO m => Command g m Model
 invalidLogin = Command generator execute []

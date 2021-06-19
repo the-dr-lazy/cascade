@@ -19,7 +19,7 @@ module Cascade.Api.Data.Project
     ) where
 
 import qualified Cascade.Api.Data.Id  as Data
-import           Data.Aeson           (FromJSON, ToJSON)
+import           Data.Aeson           ( FromJSON, ToJSON )
 import           Data.Generics.Labels ()
 
 data Project

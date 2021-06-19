@@ -17,16 +17,16 @@ module Cascade.CLI
 import qualified Cascade.Api
 import qualified Cascade.CLI.Data.Contract.Shell.Environment as Environment
 import qualified Cascade.CLI.Data.Contract.Shell.Options     as Options
-import           Cascade.CLI.Data.Model.Config               (ConfigP (..))
+import           Cascade.CLI.Data.Model.Config               ( ConfigP (..) )
 import qualified Cascade.CLI.Data.Model.Config               as Config
 import qualified Cascade.CLI.Data.Model.FreePort             as FreePort
-import           Cascade.Data.Validation                     (Validation)
+import           Cascade.Data.Validation                     ( Validation )
 import qualified Cascade.Data.Validation                     as Validation
 import qualified Cascade.Logger                              as Logger
-import           Cascade.Logger.Message                      (Scope (..))
+import           Cascade.Logger.Message                      ( Scope (..) )
 import qualified Cascade.Logger.Message                      as Logger.Message
-import           Colog                                       (usingLoggerT)
-import           Data.Pool                                   (Pool, createPool)
+import           Colog                                       ( usingLoggerT )
+import           Data.Pool                                   ( Pool, createPool )
 import qualified Data.Pool                                   as Pool
 import qualified Database.PostgreSQL.Simple                  as Postgres
 

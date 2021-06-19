@@ -18,7 +18,7 @@ import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Command.Authentication.CorrectValidLogin
 import           Test.Cascade.Api.StateMachine.Command.Authentication.IncorrectValidLogin
 import           Test.Cascade.Api.StateMachine.Command.Authentication.InvalidLogin
-import           Test.Cascade.Api.StateMachine.Model                                      (Model)
+import           Test.Cascade.Api.StateMachine.Model                                      ( Model )
 
 commands :: MonadGen g => MonadTest m => MonadFail g => MonadIO m => [Command g m Model]
 commands = [invalidLogin, incorrectValidLogin, correctValidLogin]

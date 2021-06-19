@@ -16,12 +16,12 @@ module Cascade.Api.Database.UserProjectTable
     , UserProjectTable (..)
     ) where
 
-import           Cascade.Api.Database.ProjectTable (ProjectTable)
-import           Cascade.Api.Database.UserTable    (UserTable)
-import           Chronos                           (OffsetDatetime)
-import           Database.Beam                     (Beamable, C, Table (..))
+import           Cascade.Api.Database.ProjectTable ( ProjectTable )
+import           Cascade.Api.Database.UserTable    ( UserTable )
+import           Chronos                           ( OffsetDatetime )
+import           Database.Beam                     ( Beamable, C, Table (..) )
 
--- brittany-disable-next-binding
+
 data UserProjectTable (f :: Type -> Type) = Row { userId    :: PrimaryKey UserTable f
                                                 , projectId :: PrimaryKey ProjectTable f
                                                 , createdAt :: C f OffsetDatetime

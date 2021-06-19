@@ -24,11 +24,11 @@ import qualified Cascade.Api.Network.Anatomy.Api.Tasks          as Api.Tasks
 import qualified Cascade.Api.Network.Anatomy.Api.User           as Api.User
 import qualified Cascade.Api.Network.Anatomy.Api.Users          as Api.Users
 import qualified Cascade.Api.Network.TestClient                 as Client
-import           Control.Lens                                   ((^.))
-import           Control.Monad.Free                             (Free)
-import           Servant.API.Generic                            (fromServant)
-import           Servant.Client.Free                            (ClientF)
-import           Servant.Client.Generic                         (AsClientT)
+import           Control.Lens                                   ( (^.) )
+import           Control.Monad.Free                             ( Free )
+import           Servant.API.Generic                            ( fromServant )
+import           Servant.Client.Free                            ( ClientF )
+import           Servant.Client.Generic                         ( AsClientT )
 
 projects :: Api.Projects.Routes (AsClientT (Free ClientF))
 projects = fromServant $ Client.api ^. #projects

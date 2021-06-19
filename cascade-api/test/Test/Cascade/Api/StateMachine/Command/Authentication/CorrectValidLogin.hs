@@ -15,25 +15,22 @@ module Test.Cascade.Api.StateMachine.Command.Authentication.CorrectValidLogin
     ) where
 
 import qualified Cascade.Api.Data.Authentication                            as Authentication
-import           Cascade.Api.Network.TestClient                             (AuthToken)
+import           Cascade.Api.Network.TestClient                             ( AuthToken )
 import qualified Cascade.Api.Network.TestClient.Api.Authentication          as Cascade.Api.Authentication
-import           Cascade.Api.Servant.Authentication                         (headerAndPayloadCookieName,
-                                                                             signatureCookieName)
+import           Cascade.Api.Servant.Authentication
+    ( headerAndPayloadCookieName, signatureCookieName )
 import           Cascade.Api.Test.Prelude                                   ()
-import           Control.Lens                                               (_1, _2, at, findOf,
-                                                                             folded, has, ix, view,
-                                                                             (?~), (^.), (^?),
-                                                                             (^@..))
+import           Control.Lens
+    ( _1, _2, at, findOf, folded, has, ix, view, (?~), (^.), (^?), (^@..) )
 import qualified Data.Sequence                                              as Seq
 import           Hedgehog
 import qualified Hedgehog.Gen                                               as Gen
-import           Network.HTTP.Types.Header                                  (hSetCookie)
+import           Network.HTTP.Types.Header                                  ( hSetCookie )
 import           Test.Cascade.Api.StateMachine.Command.Authentication.Types
-import           Test.Cascade.Api.StateMachine.Model                        (Model)
+import           Test.Cascade.Api.StateMachine.Model                        ( Model )
 import qualified Test.Cascade.Api.StateMachine.Model.Lens                   as Model.Lens
-import           Web.Cookie                                                 (parseSetCookie,
-                                                                             setCookieName,
-                                                                             setCookieValue)
+import           Web.Cookie
+    ( parseSetCookie, setCookieName, setCookieValue )
 
 correctValidLogin :: MonadGen g => MonadTest m => MonadIO m => Command g m Model
 correctValidLogin = Command generator execute [Require require, Update update]

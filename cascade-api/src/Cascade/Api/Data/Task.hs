@@ -24,19 +24,19 @@ module Cascade.Api.Data.Task
 
 import qualified Cascade.Api.Data.Aeson.RecordErrorFormat as Aeson
 import qualified Cascade.Api.Data.Id                      as Data
-import           Cascade.Api.Data.OffsetDatetime          (FormattedOffsetDatetime,
-                                                           unFormattedOffsetDatetime)
-import           Cascade.Api.Data.OffsetDatetime.Deadline (Deadline)
+import           Cascade.Api.Data.OffsetDatetime
+    ( FormattedOffsetDatetime, unFormattedOffsetDatetime )
+import           Cascade.Api.Data.OffsetDatetime.Deadline ( Deadline )
 import qualified Cascade.Api.Data.OffsetDatetime.Deadline as Deadline
 import qualified Cascade.Api.Data.Project                 as Project
-import           Cascade.Api.Data.Text.Title              (Title)
+import           Cascade.Api.Data.Text.Title              ( Title )
 import qualified Cascade.Api.Data.Text.Title              as Title
-import           Cascade.Api.Effect.Time                  (TimeL)
+import           Cascade.Api.Effect.Time                  ( TimeL )
 import qualified Cascade.Api.Effect.Time                  as Time
-import           Cascade.Data.Validation                  (Validate, Validation)
+import           Cascade.Data.Validation                  ( Validate, Validation )
 import qualified Cascade.Data.Validation                  as Validation
-import           Data.Aeson                               (FromJSON (..), ToJSON (..))
-import           Polysemy                                 (Member, Sem)
+import           Data.Aeson                               ( FromJSON (..), ToJSON (..) )
+import           Polysemy                                 ( Member, Sem )
 
 data Task
 

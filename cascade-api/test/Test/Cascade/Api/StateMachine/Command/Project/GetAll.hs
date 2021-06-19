@@ -15,23 +15,23 @@ module Test.Cascade.Api.StateMachine.Command.Project.GetAll
     ) where
 
 import qualified Cascade.Api.Data.Project                         as Project
-import           Cascade.Api.Network.TestClient                   (AuthToken)
+import           Cascade.Api.Network.TestClient                   ( AuthToken )
 import qualified Cascade.Api.Network.TestClient.Api.Projects      as Cascade.Api.Projects
 import qualified Cascade.Api.Network.TestClient.Api.User.Projects as Cascade.Api.User.Projects
 import qualified Cascade.Api.Servant.Response                     as Response
 import           Cascade.Api.Test.Prelude
-import           Control.Lens                                     (at, has, ix, non, (^.), (^@..))
+import           Control.Lens                                     ( at, has, ix, non, (^.), (^@..) )
 import           Data.Generics.Labels                             ()
 import qualified Data.Map.Strict                                  as Map
 import           Hedgehog
 import qualified Hedgehog.Gen                                     as Gen
-import           Prelude                                          hiding (getAll)
-import           Test.Cascade.Api.StateMachine.Model              (Model)
+import           Prelude                                          hiding ( getAll )
+import           Test.Cascade.Api.StateMachine.Model              ( Model )
 import qualified Test.Cascade.Api.StateMachine.Model.Lens         as Model.Lens
 getAll :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getAll = Command generator execute [Require require, Ensure ensure]
 
--- brittany-disable-next-binding
+
 data GetAll (v :: Type -> Type) = GetAll { username :: Text
                                          , token    :: Var AuthToken v
                                          }

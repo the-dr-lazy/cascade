@@ -17,8 +17,8 @@ module Cascade.Data.ByteString
     ) where
 
 import           Data.ByteString
-import           Data.Word8      (isSpace)
-import           Prelude         (fst, (.))
+import           Data.Word8      ( isSpace )
+import           Prelude         ( fst, (.) )
 
 trim :: ByteString -> ByteString
 trim = fst . spanEnd isSpace . dropWhile isSpace

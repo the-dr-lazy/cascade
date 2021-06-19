@@ -19,11 +19,11 @@ import qualified Cascade.Api.Hedgehog.Gen.Api.Project                as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Projects         as Cascade.Api.Projects
 import qualified Cascade.Api.Servant.Response                        as Response
 import           Cascade.Api.Test.Prelude
-import           Control.Lens                                        (has, ix, (%~), (^.))
+import           Control.Lens                                        ( has, ix, (%~), (^.) )
 import           Hedgehog
 import qualified Hedgehog.Gen                                        as Gen
 import           Test.Cascade.Api.StateMachine.Command.Project.Types
-import           Test.Cascade.Api.StateMachine.Model                 (Model)
+import           Test.Cascade.Api.StateMachine.Model                 ( Model )
 import qualified Test.Cascade.Api.StateMachine.Model                 as Model
 
 updateExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model

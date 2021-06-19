@@ -17,7 +17,7 @@ module Prelude
     , module Relude
     ) where
 
-import           Data.Map.Strict (Map)
-import           Data.UUID       (UUID)
-import           Flow            (apply, (!>), (<!), (<|), (|>))
-import           Relude          hiding (id)
+import           Data.Map.Strict ( Map )
+import           Data.UUID       ( UUID )
+import           Flow            ( apply, (!>), (<!), (<|), (|>) )
+import           Relude          hiding ( id )

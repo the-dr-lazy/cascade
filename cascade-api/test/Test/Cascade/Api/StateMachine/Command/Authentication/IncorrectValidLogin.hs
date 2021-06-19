@@ -19,13 +19,13 @@ import           Cascade.Api.Hedgehog.Gen.Prelude
 import qualified Cascade.Api.Hedgehog.Gen.Text                              as Gen
 import qualified Cascade.Api.Network.TestClient.Api.Authentication          as Cascade.Api.Authentication
 import           Cascade.Api.Test.Prelude                                   ()
-import           Cascade.Data.Foldable                                      (defaulting)
-import           Control.Lens                                               (asIndex, ifolded, ix,
-                                                                             (^.), (^..), (^?))
+import           Cascade.Data.Foldable                                      ( defaulting )
+import           Control.Lens
+    ( asIndex, ifolded, ix, (^.), (^..), (^?) )
 import           Hedgehog
 import qualified Hedgehog.Gen                                               as Gen
 import           Test.Cascade.Api.StateMachine.Command.Authentication.Types
-import           Test.Cascade.Api.StateMachine.Model                        (Model)
+import           Test.Cascade.Api.StateMachine.Model                        ( Model )
 
 incorrectValidLogin :: MonadGen g => MonadTest m => MonadIO m => Command g m Model
 incorrectValidLogin = Command generator execute []

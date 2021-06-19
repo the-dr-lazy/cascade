@@ -23,8 +23,8 @@ module Cascade.Api.Servant.Response
     , ok
     ) where
 
-import           Data.Aeson (FromJSON (..), ToJSON (..), object, (.=))
-import           Servant    hiding (Unauthorized)
+import           Data.Aeson ( FromJSON (..), ToJSON (..), object, (.=) )
+import           Servant    hiding ( Unauthorized )
 
 data NotFound = NotFound deriving stock (Show)
 

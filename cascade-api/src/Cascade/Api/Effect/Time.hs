@@ -17,9 +17,9 @@ module Cascade.Api.Effect.Time
     ) where
 
 
-import           Chronos  (Time)
+import           Chronos  ( Time )
 import qualified Chronos
-import           Polysemy (Embed, Member, Sem, embed, interpret, makeSem)
+import           Polysemy ( Embed, Member, Sem, embed, interpret, makeSem )
 
 data TimeL (m :: Type -> Type) (a :: Type) where Now :: TimeL m Time
 

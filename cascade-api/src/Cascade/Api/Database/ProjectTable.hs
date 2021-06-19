@@ -19,9 +19,8 @@ module Cascade.Api.Database.ProjectTable
 import qualified Cascade.Api.Data.Project  as Project
 import qualified Cascade.Api.Data.WrappedC as Wrapped
 import           Data.Generics.Labels      ()
-import           Database.Beam             (Beamable, C, PrimaryKey, Table (..))
+import           Database.Beam             ( Beamable, C, PrimaryKey, Table (..) )
 
--- brittany-disable-next-binding
 data ProjectTable (f :: Type -> Type) = Row { id   :: Wrapped.C f Project.Id
                                             , name :: C f Text
                                             }

@@ -18,7 +18,7 @@ module Cascade.CLI.Data.Model.FreePort
 
 import qualified Control.Exception as X
 import qualified Network.Socket    as Socket
-import           System.IO.Error   (IOError)
+import           System.IO.Error   ( IOError )
 
 newtype FreePort
   = Mk { un :: Word16 }

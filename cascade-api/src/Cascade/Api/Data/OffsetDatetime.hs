@@ -16,9 +16,9 @@ module Cascade.Api.Data.OffsetDatetime
 
 import qualified Chronos
 import           Chronos.Types
-import           Data.Aeson           (FromJSON (..), ToJSON (..), Value (..))
-import           Data.Aeson.Types     (parserThrowError, prependFailure, typeMismatch)
-import           Data.Attoparsec.Text (endOfInput, parseOnly)
+import           Data.Aeson           ( FromJSON (..), ToJSON (..), Value (..) )
+import           Data.Aeson.Types     ( parserThrowError, prependFailure, typeMismatch )
+import           Data.Attoparsec.Text ( endOfInput, parseOnly )
 
 newtype FormattedOffsetDatetime
   = FormattedOffsetDatetime { unFormattedOffsetDatetime :: OffsetDatetime }

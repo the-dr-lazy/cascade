@@ -18,7 +18,7 @@ module Cascade.Api.Data.Session
 
 import qualified Cascade.Api.Data.Jwt         as Jwt
 import qualified Cascade.Api.Servant.Response as Response
-import           Servant                      (IsMember, Union, respond)
+import           Servant                      ( IsMember, Union, respond )
 
 data Session
   = Authenticated Jwt.PrivateClaims

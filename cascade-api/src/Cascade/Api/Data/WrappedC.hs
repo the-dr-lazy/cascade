@@ -20,11 +20,12 @@ module Cascade.Api.Data.WrappedC
     , literal
     ) where
 
-import           Control.Lens                         (Unwrapped, Wrapped, _Wrapped', review, view)
+import           Control.Lens
+    ( Unwrapped, Wrapped, _Wrapped', review, view )
 import qualified Database.Beam                        as Beam
-import           Database.Beam.Backend                (BackendFromField, BeamSqlBackend)
+import           Database.Beam.Backend                ( BackendFromField, BeamSqlBackend )
 import qualified Database.Beam.Backend                as Beam
-import qualified Database.PostgreSQL.Simple.FromField as Postgres (FromField (fromField))
+import qualified Database.PostgreSQL.Simple.FromField as Postgres ( FromField (fromField) )
 
 newtype WrappedC a
   = WrappedC { un :: a }

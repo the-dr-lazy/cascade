@@ -20,10 +20,10 @@ module Cascade.Data.Text.NonEmpty
     ) where
 
 
-import           Control.Lens.TH (makeWrapped)
-import           Data.Aeson      (FromJSON, ToJSON)
+import           Control.Lens.TH ( makeWrapped )
+import           Data.Aeson      ( FromJSON, ToJSON )
 import qualified Data.Text       as Text
-import           Prelude         hiding (NonEmpty)
+import           Prelude         hiding ( NonEmpty )
 
 newtype NonEmpty
   = Mk { un :: Text }

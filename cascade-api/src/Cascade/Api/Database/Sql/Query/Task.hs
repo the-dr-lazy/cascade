@@ -20,12 +20,12 @@ module Cascade.Api.Database.Sql.Query.Task
 
 import qualified Cascade.Api.Data.Project          as Project
 import qualified Cascade.Api.Data.Task             as Task
-import           Cascade.Api.Data.WrappedC         (WrappedC (..))
+import           Cascade.Api.Data.WrappedC         ( WrappedC (..) )
 import qualified Cascade.Api.Database.ProjectTable as ProjectTable
-import           Cascade.Api.Database.Sql          (Q)
+import           Cascade.Api.Database.Sql          ( Q )
 import qualified Cascade.Api.Database.Sql          as SQL
 import qualified Cascade.Api.Database.Sql.Query    as SQL.Query
-import           Cascade.Api.Database.TaskTable    (TaskTable)
+import           Cascade.Api.Database.TaskTable    ( TaskTable )
 import qualified Database.Beam                     as Beam
 
 byId :: _ => Task.Id -> Q backend s (TaskTable (Beam.QExpr backend s))

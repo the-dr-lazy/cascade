@@ -18,13 +18,13 @@ module Cascade.Api.Data.OffsetDatetime.Deadline
     ) where
 
 import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
-import           Cascade.Api.Data.OffsetDatetime         (FormattedOffsetDatetime)
-import           Cascade.Data.Chronos.Future             (Future)
+import           Cascade.Api.Data.OffsetDatetime         ( FormattedOffsetDatetime )
+import           Cascade.Data.Chronos.Future             ( Future )
 import qualified Cascade.Data.Chronos.Future             as Future
-import           Cascade.Data.Validation                 (Validation)
+import           Cascade.Data.Validation                 ( Validation )
 import qualified Cascade.Data.Validation                 as Validation
-import           Chronos                                 (OffsetDatetime, Time)
-import           Data.Aeson                              (FromJSON, ToJSON)
+import           Chronos                                 ( OffsetDatetime, Time )
+import           Data.Aeson                              ( FromJSON, ToJSON )
 
 newtype Deadline
   = Deadline (Future OffsetDatetime)

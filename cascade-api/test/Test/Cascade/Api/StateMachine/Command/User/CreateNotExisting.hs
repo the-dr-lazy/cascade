@@ -22,12 +22,12 @@ import qualified Cascade.Api.Network.TestClient.Api.Users as Cascade.Api.Users
 import           Cascade.Api.Test.Prelude                 ()
 import qualified Cascade.Data.Char                        as Char
 import qualified Cascade.Data.Validation                  as Validation
-import           Control.Lens                             (at, hasn't, ix, to, (?~), (^.))
+import           Control.Lens                             ( at, hasn't, ix, to, (?~), (^.) )
 import qualified Data.Text                                as Text
 import           Hedgehog
 import qualified Hedgehog.Gen                             as Gen
-import           Test.Cascade.Api.StateMachine.Model      (Model)
--- brittany-disable-next-binding
+import           Test.Cascade.Api.StateMachine.Model      ( Model )
+
 data CreateNotExisting (v :: Type -> Type) = CreateNotExisting { validity :: Validity
                                                                , creatable :: User.Creatable Validation.Raw
                                                                }

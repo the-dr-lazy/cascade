@@ -23,14 +23,14 @@ module Cascade.CLI.Data.Model.Config
     ) where
 
 import qualified Cascade.CLI.Data.Model.Config.Default as Config.Default
-import           Cascade.CLI.Data.Model.FreePort       (FreePort)
+import           Cascade.CLI.Data.Model.FreePort       ( FreePort )
 import qualified Cascade.CLI.Data.Model.FreePort       as FreePort
-import           Cascade.Control.Applicative           (pureMaybe)
+import           Cascade.Control.Applicative           ( pureMaybe )
 import qualified Cascade.Data.Maybe                    as Maybe
-import           Control.Lens                          (non, to, (^.))
+import           Control.Lens                          ( non, to, (^.) )
 import           Data.Generics.Labels                  ()
-import           Generic.Data                          (Generically (..))
-import           Validation                            (Validation)
+import           Generic.Data                          ( Generically (..) )
+import           Validation                            ( Validation )
 
 data Phase = Partial | Final
 
@@ -40,7 +40,7 @@ type family Finalize (p :: Phase) (raw :: Type) (parsed :: Type) where
 
 type Finalize' p t = Finalize p t t
 
--- brittany-disable-next-binding
+
 data PostgresP (p :: Phase) = Postgres { host     :: Finalize' p String
                                        , port     :: Finalize' p Word16
                                        , user     :: Finalize' p String
@@ -57,7 +57,7 @@ deriving stock instance Show PostgresFinal
 deriving via Generically PostgresPartial instance Semigroup PostgresPartial
 deriving via Generically PostgresPartial instance Monoid PostgresPartial
 
--- brittany-disable-next-binding
+
 data ConfigP (p :: Phase) = Config { httpPort :: Finalize p Word16 FreePort
                                    , postgres :: PostgresP p
                                    }

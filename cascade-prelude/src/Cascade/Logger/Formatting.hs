@@ -16,8 +16,8 @@ module Cascade.Logger.Formatting
     ) where
 
 import qualified Data.Text           as Text
-import           System.Console.ANSI (Color, ColorIntensity (Vivid), ConsoleLayer (Foreground),
-                                      SGR (..), setSGRCode)
+import           System.Console.ANSI
+    ( Color, ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..), setSGRCode )
 
 square :: Text -> Text
 square t = "[" <> t <> "] "

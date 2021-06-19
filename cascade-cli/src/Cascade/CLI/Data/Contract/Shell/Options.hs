@@ -15,17 +15,15 @@ module Cascade.CLI.Data.Contract.Shell.Options
     ) where
 
 import qualified Cascade.CLI.Data.Contract.Shell.Environment.Var as Environment.Var
-import           Cascade.CLI.Data.Model.Config                   (ConfigP (..))
+import           Cascade.CLI.Data.Model.Config                   ( ConfigP (..) )
 import qualified Cascade.CLI.Data.Model.Config                   as Config
 import qualified Cascade.CLI.Data.Model.Config.Default           as Config.Default
-import           Data.Version                                    (showVersion)
-import           Development.GitRev                              (gitCommitDate, gitHash)
-import           Options.Applicative                             (Mod, Parser, ParserInfo, auto,
-                                                                  execParser, fullDesc, help,
-                                                                  helper, info, infoOption, long,
-                                                                  metavar, option, progDesc, short,
-                                                                  str)
-import qualified Paths_cascade_cli                               as Meta (version)
+import           Data.Version                                    ( showVersion )
+import           Development.GitRev                              ( gitCommitDate, gitHash )
+import           Options.Applicative
+    ( Mod, Parser, ParserInfo, auto, execParser, fullDesc, help, helper, info, infoOption, long,
+    metavar, option, progDesc, short, str )
+import qualified Paths_cascade_cli                               as Meta ( version )
 
 data Postgres = Postgres { host     :: Maybe String
                          , port     :: Maybe Word16

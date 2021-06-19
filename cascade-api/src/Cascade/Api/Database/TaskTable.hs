@@ -18,13 +18,13 @@ module Cascade.Api.Database.TaskTable
 
 import qualified Cascade.Api.Data.Task             as Task
 import qualified Cascade.Api.Data.WrappedC         as Wrapped
-import           Cascade.Api.Database.ProjectTable (ProjectTable)
+import           Cascade.Api.Database.ProjectTable ( ProjectTable )
 import qualified Cascade.Data.Text                 as Text
-import           Chronos                           (OffsetDatetime)
+import           Chronos                           ( OffsetDatetime )
 import           Data.Generics.Labels              ()
-import           Database.Beam                     (Beamable, C, PrimaryKey, Table (..))
+import           Database.Beam                     ( Beamable, C, PrimaryKey, Table (..) )
 
--- brittany-disable-next-binding
+
 data TaskTable (f :: Type -> Type) = Row { id         :: Wrapped.C f Task.Id
                                          , title      :: C f Text
                                          , deadlineAt :: C f OffsetDatetime

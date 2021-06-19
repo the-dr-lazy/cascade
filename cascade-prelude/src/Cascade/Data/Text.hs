@@ -17,5 +17,5 @@ module Cascade.Data.Text
     , NonEmpty
     ) where
 
-import           Cascade.Data.Text.NonEmpty (NonEmpty)
+import           Cascade.Data.Text.NonEmpty ( NonEmpty )
 import           Data.Text

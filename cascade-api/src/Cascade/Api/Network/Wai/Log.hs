@@ -19,16 +19,16 @@ import           Cascade.Api.Servant.Authentication
 import qualified Cascade.Data.ByteString            as W8
 import qualified Cascade.Logger                     as Logger
 import qualified Cascade.Logger.Message             as Logger.Message
-import           Colog                              (LogAction, usingLoggerT)
-import           Control.Lens                       ((^.))
+import           Colog                              ( LogAction, usingLoggerT )
+import           Control.Lens                       ( (^.) )
 import qualified Data.ByteString                    as W8
 import qualified Data.List                          as List
 import qualified Data.Text                          as Text
-import           Network.HTTP.Types                 (hAuthorization, hCookie)
-import           Network.HTTP.Types.Status          (Status (..))
-import           Network.Wai                        (Middleware, Request (..), responseStatus)
+import           Network.HTTP.Types                 ( hAuthorization, hCookie )
+import           Network.HTTP.Types.Status          ( Status (..) )
+import           Network.Wai                        ( Middleware, Request (..), responseStatus )
 import           Network.Wai.Logger
-import           Web.Cookie                         (parseCookies)
+import           Web.Cookie                         ( parseCookies )
 
 getClaims :: Request -> IO (Maybe Jwt.PrivateClaims)
 getClaims request = maybe (pure Nothing) ((fmap . fmap) Jwt.getPrivateClaims . Jwt.decode) token

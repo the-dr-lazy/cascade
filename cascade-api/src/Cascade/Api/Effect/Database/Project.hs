@@ -25,21 +25,22 @@ module Cascade.Api.Effect.Database.Project
 import qualified Cascade.Api.Data.Project               as Project
 import qualified Cascade.Api.Data.User                  as User
 import           Cascade.Api.Data.WrappedC
-import           Cascade.Api.Database.ProjectTable      (ProjectTable)
+import           Cascade.Api.Database.ProjectTable      ( ProjectTable )
 import qualified Cascade.Api.Database.ProjectTable      as ProjectTable
 import qualified Cascade.Api.Database.Sql               as SQL
 import qualified Cascade.Api.Database.Sql.Query         as SQL.Query
 import qualified Cascade.Api.Database.Sql.Query.Project as SQL.Query.Project
 import qualified Cascade.Api.Database.UserProjectTable  as UserProjectTable
 import qualified Cascade.Api.Database.UserTable         as UserTable
-import           Cascade.Api.Effect.Database            (DatabaseL)
+import           Cascade.Api.Effect.Database            ( DatabaseL )
 import qualified Cascade.Api.Effect.Database            as Database
-import           Control.Lens                           ((^.))
-import           Database.Beam                          (insertExpressions, pk, val_, (<-.))
+import           Control.Lens                           ( (^.) )
+import           Database.Beam                          ( insertExpressions, pk, val_, (<-.) )
 import qualified Database.Beam                          as Beam
-import           Database.Beam.Backend                  (BeamSqlBackend, BeamSqlBackendCanSerialize)
-import           Polysemy                               (Member, Sem, interpret, makeSem)
-import qualified Relude.Unsafe                          as Unsafe (fromJust)
+import           Database.Beam.Backend
+    ( BeamSqlBackend, BeamSqlBackendCanSerialize )
+import           Polysemy                               ( Member, Sem, interpret, makeSem )
+import qualified Relude.Unsafe                          as Unsafe ( fromJust )
 
 data ProjectL m a where
   FindAll :: ProjectL m [Project.Readable]

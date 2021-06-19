@@ -22,16 +22,16 @@ module Cascade.Api.Data.Jwt
     ) where
 
 import qualified Cascade.Api.Data.User  as User
-import           Control.Exception      (handle)
-import           Control.Lens           (_1, (%~))
+import           Control.Exception      ( handle )
+import           Control.Lens           ( _1, (%~) )
 import qualified Data.ByteString        as W8
 import qualified Data.ByteString.Char8  as C8
-import           Data.Either.Validation (validationToEither)
+import           Data.Either.Validation ( validationToEither )
 import qualified Data.List              as List
-import           Data.Word8             (_period)
-import           Libjwt.Algorithms      (Algorithm (ECDSA256))
-import           Libjwt.Keys            (EcKeyPair (..))
-import           Libjwt.PrivateClaims   (Ns (..), type (->>), withNs)
+import           Data.Word8             ( _period )
+import           Libjwt.Algorithms      ( Algorithm (ECDSA256) )
+import           Libjwt.Keys            ( EcKeyPair (..) )
+import           Libjwt.PrivateClaims   ( Ns (..), type (->>), withNs )
 import qualified Libjwt.PrivateClaims   as Libjwt
 import qualified Web.Libjwt             as Libjwt
 

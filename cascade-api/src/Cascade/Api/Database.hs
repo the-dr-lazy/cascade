@@ -15,20 +15,18 @@ module Cascade.Api.Database
     , database
     ) where
 
-import           Cascade.Api.Database.ProjectTable     (ProjectTable)
+import           Cascade.Api.Database.ProjectTable     ( ProjectTable )
 import qualified Cascade.Api.Database.ProjectTable     as ProjectTable
-import           Cascade.Api.Database.TaskTable        (TaskTable (..))
-import           Cascade.Api.Database.UserProjectTable (UserProjectTable (..))
-import           Cascade.Api.Database.UserTable        (UserTable (..))
+import           Cascade.Api.Database.TaskTable        ( TaskTable (..) )
+import           Cascade.Api.Database.UserProjectTable ( UserProjectTable (..) )
+import           Cascade.Api.Database.UserTable        ( UserTable (..) )
 import qualified Cascade.Api.Database.UserTable        as UserTable
 import           Data.Generics.Labels                  ()
-import           Database.Beam                         (DatabaseSettings, TableEntity,
-                                                        dbModification, modifyTableFields,
-                                                        setEntityName, tableModification,
-                                                        withDbModification)
+import           Database.Beam
+    ( DatabaseSettings, TableEntity, dbModification, modifyTableFields, setEntityName,
+    tableModification, withDbModification )
 import qualified Database.Beam                         as Beam
 
--- brittany-disable-next-binding
 data Database (f :: Type -> Type) = Database { projects     :: f (TableEntity ProjectTable)
                                              , tasks        :: f (TableEntity TaskTable)
                                              , userProjects :: f (TableEntity UserProjectTable)

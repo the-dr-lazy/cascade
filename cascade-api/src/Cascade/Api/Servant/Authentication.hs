@@ -19,19 +19,19 @@ module Cascade.Api.Servant.Authentication
     ) where
 
 import qualified Cascade.Api.Data.Jwt             as Jwt
-import           Cascade.Api.Data.Session         (Session)
+import           Cascade.Api.Data.Session         ( Session )
 import qualified Cascade.Api.Data.Session         as Session
 import qualified Cascade.Data.ByteString          as W8
 import qualified Data.ByteString                  as W8
 import qualified Data.List                        as List
-import           Network.HTTP.Types               (hAuthorization, hCookie)
-import           Network.Wai                      (requestHeaders)
+import           Network.HTTP.Types               ( hAuthorization, hCookie )
+import           Network.Wai                      ( requestHeaders )
 import qualified Network.Wai                      as Wai
-import           Servant                          (Handler, throwError)
+import           Servant                          ( Handler, throwError )
 import           Servant.API.Experimental.Auth
-import           Servant.Server                   (err401)
+import           Servant.Server                   ( err401 )
 import           Servant.Server.Experimental.Auth
-import           Web.Cookie                       (parseCookies)
+import           Web.Cookie                       ( parseCookies )
 
 type Auth = AuthProtect "JWT"
 

@@ -20,9 +20,9 @@ module Cascade.Api.Database.Sql.Query
 
 import           Cascade.Api.Database
 import           Cascade.Api.Database.Sql
-import           Control.Lens             ((^.))
+import           Control.Lens             ( (^.) )
 import qualified Database.Beam            as Beam
-import           Prelude                  hiding (all)
+import           Prelude                  hiding ( all )
 
 all :: _ => DatabaseEntityGetting backend table -> Q backend s (table (Beam.QExpr backend s))
 all = Beam.all_ . (database ^.)

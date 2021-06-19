@@ -21,13 +21,13 @@ module Cascade.Api.Database.Sql.Query.Project
 
 import qualified Cascade.Api.Data.Project            as Project
 import qualified Cascade.Api.Data.User               as User
-import           Cascade.Api.Data.WrappedC           (WrappedC (..))
+import           Cascade.Api.Data.WrappedC           ( WrappedC (..) )
 import           Cascade.Api.Database.ProjectTable   as ProjectTable
-import           Cascade.Api.Database.Sql            (Q, filterProjectsByRelatedUsers)
+import           Cascade.Api.Database.Sql            ( Q, filterProjectsByRelatedUsers )
 import qualified Cascade.Api.Database.Sql            as SQL
 import qualified Cascade.Api.Database.Sql.Query      as SQL.Query
 import qualified Cascade.Api.Database.Sql.Query.User as SQL.Query.User
-import           Cascade.Api.Database.UserTable      (UserTable)
+import           Cascade.Api.Database.UserTable      ( UserTable )
 import qualified Database.Beam                       as Beam
 
 byId :: _ => Project.Id -> Q backend s (ProjectTable (Beam.QExpr backend s))

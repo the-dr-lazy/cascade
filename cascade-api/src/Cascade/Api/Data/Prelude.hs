@@ -15,7 +15,6 @@ module Cascade.Api.Data.Prelude
     , Validate
     ) where
 
--- brittany-disable-next-binding
 data Validate (a :: Type)
 
 type family Validatable (f :: Type -> Type) (a :: Type) (error :: Type) where

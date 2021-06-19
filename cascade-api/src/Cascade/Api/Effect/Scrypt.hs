@@ -20,12 +20,12 @@ module Cascade.Api.Effect.Scrypt
     , verifyPassword
     ) where
 
-import           Cascade.Api.Data.ByteString.Password (Password, pattern Password)
+import           Cascade.Api.Data.ByteString.Password ( Password, pattern Password )
 import qualified Cascade.Api.Data.ByteString.Password as Password
-import           Control.Lens.TH                      (makeWrapped)
+import           Control.Lens.TH                      ( makeWrapped )
 import qualified Crypto.Scrypt                        as Scrypt
-import           Polysemy                             (Embed, Member, Sem, embed, interpret,
-                                                       makeSem)
+import           Polysemy
+    ( Embed, Member, Sem, embed, interpret, makeSem )
 
 newtype Encrypted (a :: Type)
   = Mk { un :: ByteString }

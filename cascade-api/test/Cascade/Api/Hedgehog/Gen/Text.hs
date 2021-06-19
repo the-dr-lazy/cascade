@@ -19,7 +19,7 @@ module Cascade.Api.Hedgehog.Gen.Text
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
 import qualified Data.Text                        as Text
-import           Hedgehog                         (MonadGen)
+import           Hedgehog                         ( MonadGen )
 import qualified Hedgehog.Gen                     as Gen
 import qualified Hedgehog.Range                   as Range
 

@@ -24,9 +24,9 @@ module Cascade.Logger
 import qualified Cascade.Logger.Message  as Message
 import           Cascade.Logger.Severity
 import qualified Chronos
-import           Colog                   (LogAction (..), WithLog, logMsg, logTextStderr,
-                                          logTextStdout, (&>))
-import           Prelude                 hiding (error)
+import           Colog
+    ( LogAction (..), WithLog, logMsg, logTextStderr, logTextStdout, (&>) )
+import           Prelude                 hiding ( error )
 
 log :: WithLog env Message.Minimal m => MonadIO m => Severity -> Text -> m ()
 log severity message = do

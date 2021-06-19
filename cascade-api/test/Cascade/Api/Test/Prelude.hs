@@ -16,9 +16,9 @@ module Cascade.Api.Test.Prelude
     ) where
 
 import           Cascade.Api.Test.Prelude.Orphans ()
-import           Control.Lens                     (Optic', Profunctor, to)
-import           Hedgehog                         (Concrete, MonadTest, Var, concrete, evalMaybe)
-import           Servant.API.UVerb.Union          (IsMember, Union, matchUnion)
+import           Control.Lens                     ( Optic', Profunctor, to )
+import           Hedgehog                         ( Concrete, MonadTest, Var, concrete, evalMaybe )
+import           Servant.API.UVerb.Union          ( IsMember, Union, matchUnion )
 
 concreted :: (Profunctor p, Contravariant f) => Optic' p f (Var a Concrete) a
 concreted = to concrete

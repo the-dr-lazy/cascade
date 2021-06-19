@@ -21,12 +21,12 @@ import           Chronos.Types
 import qualified Data.Attoparsec.ByteString                 as Attoparsec
 import qualified Database.Beam                              as Beam
 import qualified Database.Beam.Backend                      as Beam
-import           Database.Beam.Postgres                     (Postgres, ResultError (..))
-import           Database.Beam.Postgres.Syntax              (PgValueSyntax, defaultPgValueSyntax)
-import           Database.PostgreSQL.Simple.FromField       (typeOid)
+import           Database.Beam.Postgres                     ( Postgres, ResultError (..) )
+import           Database.Beam.Postgres.Syntax              ( PgValueSyntax, defaultPgValueSyntax )
+import           Database.PostgreSQL.Simple.FromField       ( typeOid )
 import qualified Database.PostgreSQL.Simple.FromField       as Postgres
 import qualified Database.PostgreSQL.Simple.ToField         as Postgres
-import           Database.PostgreSQL.Simple.TypeInfo.Static (timestamptzOid)
+import           Database.PostgreSQL.Simple.TypeInfo.Static ( timestamptzOid )
 
 instance Postgres.ToField OffsetDatetime where
   toField = Postgres.Plain . Postgres.inQuotes . encode

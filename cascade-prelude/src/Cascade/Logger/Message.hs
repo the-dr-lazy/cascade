@@ -18,11 +18,11 @@ module Cascade.Logger.Message
     ) where
 
 import qualified Cascade.Chronos           as Choronos
-import           Cascade.Logger.Formatting (color, square)
+import           Cascade.Logger.Formatting ( color, square )
 import           Cascade.Logger.Severity
-import           Chronos                   (DatetimeFormat (..), Time)
+import           Chronos                   ( DatetimeFormat (..), Time )
 import qualified Data.Text.Lazy.Builder    as TB
-import           System.Console.ANSI       (Color (Cyan))
+import           System.Console.ANSI       ( Color (Cyan) )
 
 data Minimal = Minimal { message  :: Text
                        , severity :: Severity

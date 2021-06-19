@@ -18,24 +18,24 @@ module Cascade.Api.Effect.Database.User
     , run
     ) where
 
-import           Cascade.Api.Data.ByteString.Password (Password)
+import           Cascade.Api.Data.ByteString.Password ( Password )
 import qualified Cascade.Api.Data.User                as User
-import           Cascade.Api.Data.WrappedC            (WrappedC (..))
+import           Cascade.Api.Data.WrappedC            ( WrappedC (..) )
 import qualified Cascade.Api.Database.Sql             as SQL
 import qualified Cascade.Api.Database.Sql.Query       as SQL.Query
 import qualified Cascade.Api.Database.Sql.Query.User  as SQL.Query.User
-import           Cascade.Api.Database.UserTable       (UserTable)
+import           Cascade.Api.Database.UserTable       ( UserTable )
 import qualified Cascade.Api.Database.UserTable       as UserTable
-import           Cascade.Api.Effect.Database          (DatabaseL)
+import           Cascade.Api.Effect.Database          ( DatabaseL )
 import qualified Cascade.Api.Effect.Database          as Database
-import           Cascade.Api.Effect.Scrypt            (ScryptL)
+import           Cascade.Api.Effect.Scrypt            ( ScryptL )
 import qualified Cascade.Api.Effect.Scrypt            as Scrypt
 import qualified Cascade.Data.Validation              as Validation
-import           Control.Lens                         ((^.))
-import           Database.Beam                        (insertExpressions)
+import           Control.Lens                         ( (^.) )
+import           Database.Beam                        ( insertExpressions )
 import qualified Database.Beam                        as Beam
-import           Database.Beam.Backend                (BeamSqlBackend, BeamSqlBackendCanSerialize)
-import           Polysemy                             (Members, Sem, interpret, makeSem)
+import           Database.Beam.Backend                ( BeamSqlBackend, BeamSqlBackendCanSerialize )
+import           Polysemy                             ( Members, Sem, interpret, makeSem )
 import qualified Relude.Unsafe                        as Unsafe
 
 data UserL m a where

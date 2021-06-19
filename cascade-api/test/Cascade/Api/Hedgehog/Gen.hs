@@ -17,9 +17,9 @@ module Cascade.Api.Hedgehog.Gen
     ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import           Data.UUID.Util                   (UnpackedUUID (..))
+import           Data.UUID.Util                   ( UnpackedUUID (..) )
 import qualified Data.UUID.Util                   as UUID
-import           Hedgehog                         (MonadGen)
+import           Hedgehog                         ( MonadGen )
 import qualified Hedgehog.Gen                     as Gen
 import qualified Hedgehog.Range                   as Range
 

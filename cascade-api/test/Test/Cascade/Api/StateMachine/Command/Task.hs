@@ -14,8 +14,8 @@ module Test.Cascade.Api.StateMachine.Command.Task
     ( commands
     ) where
 
-import           Cascade.Api.Data.OffsetDatetime                   (FormattedOffsetDatetime (..),
-                                                                    unFormattedOffsetDatetime)
+import           Cascade.Api.Data.OffsetDatetime
+    ( FormattedOffsetDatetime (..), unFormattedOffsetDatetime )
 import qualified Cascade.Api.Data.Project                          as Project
 import qualified Cascade.Api.Data.Task                             as Task
 import qualified Cascade.Api.Data.Text.Title                       as Title
@@ -31,17 +31,16 @@ import           Cascade.Api.Test.Prelude
 import qualified Cascade.Data.Text                                 as Text
 import qualified Cascade.Data.Text.NonEmpty                        as Text.NonEmpty
 import qualified Cascade.Data.Validation                           as Validation
-import           Chronos                                           (offsetDatetimeToTime)
+import           Chronos                                           ( offsetDatetimeToTime )
 import qualified Chronos
-import           Control.Lens                                      (asIndex, at, cons, folded, has,
-                                                                    ifolded, ix, non, sans, to,
-                                                                    traversed, (%~), (?~), (^.),
-                                                                    (^..), (^?))
+import           Control.Lens
+    ( asIndex, at, cons, folded, has, ifolded, ix, non, sans, to, traversed, (%~), (?~), (^.),
+    (^..), (^?) )
 import qualified Data.Map                                          as Map
 import           Hedgehog
 import qualified Hedgehog.Gen                                      as Gen
-import           Servant.API.UVerb.Union                           (matchUnion)
-import           Test.Cascade.Api.StateMachine.Model               (Model)
+import           Servant.API.UVerb.Union                           ( matchUnion )
+import           Test.Cascade.Api.StateMachine.Model               ( Model )
 
 commands :: MonadGen g => MonadFail g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
@@ -60,7 +59,7 @@ commands =
   , deleteNotExistingById
   ]
 
--- brittany-disable-next-binding
+
 data Create (v :: Type -> Type) = Create { projectId :: Var Project.Id v
                                          , creatable :: Task.Creatable Validation.Raw
                                          }
@@ -165,7 +164,7 @@ createInvalid =
         response ^. #responseStatusCode . #statusCode === 422
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
+
 data GetAllByProjectId (v :: Type -> Type) = GetAllByProjectId { projectId :: Var Project.Id v
                                                                }
   deriving stock (Generic, Show)
@@ -229,7 +228,7 @@ getAllByProjectIdForNonExistingProject =
   in
     Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
+
 data AddNotExistingId (v :: Type -> Type) = AddNotExistingId { id :: Task.Id
                                                              }
   deriving stock (Show)
@@ -249,7 +248,7 @@ addNotExistingId =
       update model _input id = model |> #task . #notExistingIds %~ cons id
   in  Command generator execute [Update update]
 
--- brittany-disable-next-binding
+
 newtype GetById (v :: Type -> Type)
   = GetById { id :: Var Task.Id v }
   deriving stock (Generic, Show)
@@ -304,7 +303,7 @@ getNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
+
 data UpdateById (v :: Type -> Type) = UpdateById { id        :: Var Task.Id v
                                                  , updatable :: Task.Updatable Validation.Raw
                                                  }
@@ -408,7 +407,7 @@ updateNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
+
 newtype DeleteById (v :: Type -> Type)
   = DeleteById { id :: Var Task.Id v }
   deriving stock (Generic, Show)

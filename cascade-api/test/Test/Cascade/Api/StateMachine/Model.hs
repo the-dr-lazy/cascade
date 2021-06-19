@@ -23,14 +23,14 @@ module Test.Cascade.Api.StateMachine.Model
 import qualified Cascade.Api.Data.Project       as Project
 import qualified Cascade.Api.Data.Task          as Task
 import qualified Cascade.Api.Data.User          as User
-import           Cascade.Api.Network.TestClient (AuthToken)
+import           Cascade.Api.Network.TestClient ( AuthToken )
 import qualified Cascade.Data.Validation        as Validation
-import           Control.Lens                   (at, foldMapOf, folded, to, (^..))
+import           Control.Lens                   ( at, foldMapOf, folded, to, (^..) )
 import           Data.Generics.Labels           ()
 import qualified Data.Map.Strict                as Map
-import           Hedgehog.Internal.State        (Var)
+import           Hedgehog.Internal.State        ( Var )
 
--- brittany-disable-next-binding
+
 data Model (v :: Type -> Type) = Model { project   :: ProjectModel v
                                        , user      :: UserModel
                                        , task      :: TaskModel v
@@ -49,18 +49,18 @@ type Username = Text
 type EmailAddress = Text
 type Password = Text
 
--- brittany-disable-next-binding
+
 data AuthTokenModel (v :: Type -> Type) = AuthTokenModel { byUsername :: Map Text (Var AuthToken v)
                                                          }
   deriving stock (Generic)
 
--- brittany-disable-next-binding
+
 data ProjectModel (v :: Type -> Type) = ProjectModel { notExistingIds :: [Var Project.Id v]
                                                      , byUsername :: Map Username (Map (Var Project.Id v) Project.Creatable)
                                                      }
   deriving stock (Generic)
 
--- brittany-disable-next-binding
+
 data TaskModel (v :: Type -> Type) = TaskModel { byProjectId :: Map (Var Project.Id v) (Map (Var Task.Id v) (Task.Creatable Validation.Raw))
                                                , notExistingIds :: [Var Task.Id v]
                                                }

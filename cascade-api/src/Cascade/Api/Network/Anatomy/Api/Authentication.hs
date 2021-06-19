@@ -19,7 +19,7 @@ import qualified Cascade.Api.Data.Authentication     as Authentication
 import           Cascade.Api.Network.Anatomy.Prelude
 import qualified Cascade.Data.Validation             as Validation
 import           Data.Generics.Labels                ()
-import           Web.Cookie                          (SetCookie)
+import           Web.Cookie                          ( SetCookie )
 
 type LoginResponse = Headers '[Header "Set-Cookie" SetCookie , Header "Set-Cookie" SetCookie] NoContent
 

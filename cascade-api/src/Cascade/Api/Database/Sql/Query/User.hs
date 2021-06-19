@@ -19,8 +19,8 @@ module Cascade.Api.Database.Sql.Query.User
     ) where
 
 import qualified Cascade.Api.Data.User          as User
-import           Cascade.Api.Data.WrappedC      (WrappedC (..))
-import           Cascade.Api.Database.Sql       (Q)
+import           Cascade.Api.Data.WrappedC      ( WrappedC (..) )
+import           Cascade.Api.Database.Sql       ( Q )
 import qualified Cascade.Api.Database.Sql       as SQL
 import qualified Cascade.Api.Database.Sql.Query as SQL.Query
 import           Cascade.Api.Database.UserTable

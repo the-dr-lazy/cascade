@@ -17,11 +17,11 @@ module Cascade.Api.Network.TestClient.Api.Authentication
 
 import qualified Cascade.Api.Data.Authentication                as Authentication
 import qualified Cascade.Api.Network.Anatomy.Api.Authentication as Api.Authentication
-import           Cascade.Api.Network.TestClient                 (interpret)
+import           Cascade.Api.Network.TestClient                 ( interpret )
 import qualified Cascade.Api.Network.TestClient.Api             as Client.Api
 import qualified Cascade.Data.Validation                        as Validation
-import           Control.Lens                                   ((^.))
-import           Servant.Client                                 (ResponseF)
+import           Control.Lens                                   ( (^.) )
+import           Servant.Client                                 ( ResponseF )
 
 type LoginResponse = ResponseF Api.Authentication.LoginResponse
 
