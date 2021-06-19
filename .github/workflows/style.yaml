@@ -62,13 +62,7 @@ jobs:
 
       - name: Check Formatting
         run: |
-          ROOT=$PWD
-          for cabal in $(find $ROOT -type f -name \*.cabal); do
-            cd $(dirname $cabal)
-            stylish-haskell -r -i .
-          done
-
-          cd $ROOT
+          make format
 
           if [ -z "$(git status --porcelain)" ]; then
             echo "No formatting errors detected."
