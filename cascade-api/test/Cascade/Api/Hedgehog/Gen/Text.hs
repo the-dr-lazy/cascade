@@ -10,13 +10,18 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen.Text (username, emailAddress, password, nonEmptyText) where
+module Cascade.Api.Hedgehog.Gen.Text
+    ( emailAddress
+    , nonEmptyText
+    , password
+    , username
+    ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Data.Text                          as Text
-import           Hedgehog                            ( MonadGen )
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Data.Text                        as Text
+import           Hedgehog                         ( MonadGen )
+import qualified Hedgehog.Gen                     as Gen
+import qualified Hedgehog.Range                   as Range
 
 nonEmptyText :: MonadGen g => Int -> Validity -> g Text
 nonEmptyText upperLimit Valid   = Gen.text (Range.linear 1 upperLimit) Gen.alphaNum

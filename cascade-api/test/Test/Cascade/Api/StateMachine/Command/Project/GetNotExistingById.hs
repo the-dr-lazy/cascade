@@ -10,22 +10,18 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById (getNotExistingById) where
+module Test.Cascade.Api.StateMachine.Command.Project.GetNotExistingById
+    ( getNotExistingById
+    ) where
 
-import qualified Cascade.Api.Network.TestClient.Api.Projects
-                                                    as Cascade.Api.Projects
-import           Cascade.Api.Test.Prelude            ( )
-import           Control.Lens                        ( (^.)
-                                                     , (^@..)
-                                                     , has
-                                                     , ix
-                                                     )
+import qualified Cascade.Api.Network.TestClient.Api.Projects         as Cascade.Api.Projects
+import           Cascade.Api.Test.Prelude                            ()
+import           Control.Lens                                        ( has, ix, (^.), (^@..) )
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Gen                                        as Gen
 import           Test.Cascade.Api.StateMachine.Command.Project.Types
-import           Test.Cascade.Api.StateMachine.Model ( Model )
-import qualified Test.Cascade.Api.StateMachine.Model.Lens
-                                                    as Model.Lens
+import           Test.Cascade.Api.StateMachine.Model                 ( Model )
+import qualified Test.Cascade.Api.StateMachine.Model.Lens            as Model.Lens
 
 getNotExistingById :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getNotExistingById = Command generator execute [Require require, Ensure \_ _ _ -> ensure]

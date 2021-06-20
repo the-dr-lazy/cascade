@@ -10,19 +10,21 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen.Chronos (time, offsetDateTime, past, future, deadline) where
+module Cascade.Api.Hedgehog.Gen.Chronos
+    ( deadline
+    , future
+    , offsetDateTime
+    , past
+    , time
+    ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import           Chronos                             ( Offset(..)
-                                                     , OffsetDatetime
-                                                     , Time
-                                                     , timeFromYmdhms
-                                                     , timeToOffsetDatetime
-                                                     )
+import           Chronos
+    ( Offset (..), OffsetDatetime, Time, timeFromYmdhms, timeToOffsetDatetime )
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
-import           Prelude                      hiding ( second )
+import qualified Hedgehog.Gen                     as Gen
+import qualified Hedgehog.Range                   as Range
+import           Prelude                          hiding ( second )
 
 
 time :: MonadGen g => g Time

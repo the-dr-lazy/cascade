@@ -10,40 +10,38 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Database.User (UserL, findByUsername, create, doesExistsByUsernameOrEmailAddress, run) where
+module Cascade.Api.Effect.Database.User
+    ( UserL
+    , create
+    , doesExistsByUsernameOrEmailAddress
+    , findByUsername
+    , run
+    ) where
 
-import           Cascade.Api.Data.ByteString.Password
-                                                     ( Password )
-import qualified Cascade.Api.Data.User              as User
-import           Cascade.Api.Data.WrappedC           ( WrappedC(..) )
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
-import qualified Cascade.Api.Database.Sql.Query.User
-                                                    as SQL.Query.User
-import qualified Cascade.Api.Database.UserTable     as UserTable
-import           Cascade.Api.Database.UserTable      ( UserTable )
-import qualified Cascade.Api.Effect.Database        as Database
-import           Cascade.Api.Effect.Database         ( DatabaseL )
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
-import           Cascade.Api.Effect.Scrypt           ( ScryptL )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.) )
-import           Database.Beam                       ( insertExpressions )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend
-                                                     , BeamSqlBackendCanSerialize
-                                                     )
-import           Polysemy                            ( Members
-                                                     , Sem
-                                                     , interpret
-                                                     , makeSem
-                                                     )
-import qualified Relude.Unsafe                      as Unsafe
+import           Cascade.Api.Data.ByteString.Password ( Password )
+import qualified Cascade.Api.Data.User                as User
+import           Cascade.Api.Data.WrappedC            ( WrappedC (..) )
+import qualified Cascade.Api.Database.Sql             as SQL
+import qualified Cascade.Api.Database.Sql.Query       as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.User  as SQL.Query.User
+import           Cascade.Api.Database.UserTable       ( UserTable )
+import qualified Cascade.Api.Database.UserTable       as UserTable
+import           Cascade.Api.Effect.Database          ( DatabaseL )
+import qualified Cascade.Api.Effect.Database          as Database
+import           Cascade.Api.Effect.Scrypt            ( ScryptL )
+import qualified Cascade.Api.Effect.Scrypt            as Scrypt
+import qualified Cascade.Data.Validation              as Validation
+import           Control.Lens                         ( (^.) )
+import           Database.Beam                        ( insertExpressions )
+import qualified Database.Beam                        as Beam
+import           Database.Beam.Backend                ( BeamSqlBackend, BeamSqlBackendCanSerialize )
+import           Polysemy                             ( Members, Sem, interpret, makeSem )
+import qualified Relude.Unsafe                        as Unsafe
 
 data UserL m a where
-  FindByUsername                     ::User.Username -> UserL m (Maybe UserTable.Row)
-  DoesExistsByUsernameOrEmailAddress ::User.Username -> User.EmailAddress -> UserL m Bool
-  Create                             ::User.Creatable 'Validation.Parsed -> UserL m User.Readable
+  FindByUsername :: User.Username -> UserL m (Maybe UserTable.Row)
+  DoesExistsByUsernameOrEmailAddress :: User.Username -> User.EmailAddress -> UserL m Bool
+  Create :: User.Creatable 'Validation.Parsed -> UserL m User.Readable
 
 makeSem ''UserL
 

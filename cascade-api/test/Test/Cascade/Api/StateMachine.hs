@@ -13,28 +13,26 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Test.Cascade.Api.StateMachine (tests) where
+module Test.Cascade.Api.StateMachine
+    ( tests
+    ) where
 
 import qualified Cascade.Api
 import           Control.Concurrent.Async.Lifted
 
-import qualified Cascade.Api.Test.Resource          as Resource
+import qualified Cascade.Api.Test.Resource                            as Resource
 import           Control.Monad.Managed
 import           Control.Monad.Trans.Control
-import qualified Data.Pool                          as Pool
-import qualified Database.Postgres.Temp             as TempPostgres
+import qualified Data.Pool                                            as Pool
+import qualified Database.Postgres.Temp                               as TempPostgres
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
-import qualified Network.Socket.Wait                as Socket
-import qualified Test.Cascade.Api.StateMachine.Command.Authentication
-                                                    as Command.Authentication
-import qualified Test.Cascade.Api.StateMachine.Command.Project
-                                                    as Command.Project
-import qualified Test.Cascade.Api.StateMachine.Command.Task
-                                                    as Command.Task
-import qualified Test.Cascade.Api.StateMachine.Command.User
-                                                    as Command.User
+import qualified Hedgehog.Gen                                         as Gen
+import qualified Hedgehog.Range                                       as Range
+import qualified Network.Socket.Wait                                  as Socket
+import qualified Test.Cascade.Api.StateMachine.Command.Authentication as Command.Authentication
+import qualified Test.Cascade.Api.StateMachine.Command.Project        as Command.Project
+import qualified Test.Cascade.Api.StateMachine.Command.Task           as Command.Task
+import qualified Test.Cascade.Api.StateMachine.Command.User           as Command.User
 import           Test.Cascade.Api.StateMachine.Model
 import           Test.Tasty
 import           Test.Tasty.Hedgehog

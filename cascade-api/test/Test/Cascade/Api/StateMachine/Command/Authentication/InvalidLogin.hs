@@ -10,22 +10,23 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Authentication.InvalidLogin (invalidLogin) where
+module Test.Cascade.Api.StateMachine.Command.Authentication.InvalidLogin
+    ( invalidLogin
+    ) where
 
-import qualified Cascade.Api.Data.Authentication    as Authentication
-import qualified Cascade.Api.Hedgehog.Gen           as Gen
+import qualified Cascade.Api.Data.Authentication                            as Authentication
+import qualified Cascade.Api.Hedgehog.Gen                                   as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
-import qualified Cascade.Api.Network.TestClient.Api.Authentication
-                                                    as Cascade.Api.Authentication
-import           Cascade.Api.Test.Prelude            ( )
-import qualified Cascade.Data.Char                  as Char
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.) )
-import qualified Data.Text                          as Text
+import qualified Cascade.Api.Hedgehog.Gen.Text                              as Gen
+import qualified Cascade.Api.Network.TestClient.Api.Authentication          as Cascade.Api.Authentication
+import           Cascade.Api.Test.Prelude                                   ()
+import qualified Cascade.Data.Char                                          as Char
+import qualified Cascade.Data.Validation                                    as Validation
+import           Control.Lens                                               ( (^.) )
+import qualified Data.Text                                                  as Text
 import           Hedgehog
 import           Test.Cascade.Api.StateMachine.Command.Authentication.Types
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import           Test.Cascade.Api.StateMachine.Model                        ( Model )
 
 invalidLogin :: MonadGen g => MonadFail g => MonadTest m => MonadIO m => Command g m Model
 invalidLogin = Command generator execute []

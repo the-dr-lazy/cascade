@@ -1,0 +1,93 @@
+cabal-version: 1.18
+
+-- This file has been generated from package.dhall by hpack version 0.34.3.
+--
+-- see: https://github.com/sol/hpack
+
+name:           cascade-prelude
+version:        0.0.0
+synopsis:       Cascade custom prelude
+description:    Cascade custom prelude
+author:         Mohammad Hasani <the-dr-lazy@pm.me>
+maintainer:     Mohammad Hasani <the-dr-lazy@pm.me>
+copyright:      2021 Mohammad Hasani
+license:        MPL-2.0
+license-file:   LICENSE
+build-type:     Simple
+tested-with:
+    GHC == 8.8.4
+extra-source-files:
+    package.dhall
+extra-doc-files:
+    CHANGELOG.md
+
+library
+  exposed-modules:
+      Cascade.Chronos
+      Cascade.Control.Applicative
+      Cascade.Data.ByteString
+      Cascade.Data.Char
+      Cascade.Data.Chronos.Future
+      Cascade.Data.Foldable
+      Cascade.Data.Maybe
+      Cascade.Data.Text
+      Cascade.Data.Text.NonEmpty
+      Cascade.Data.Validation
+      Cascade.Logger
+      Cascade.Logger.Formatting
+      Cascade.Logger.Message
+      Cascade.Logger.Severity
+      Cascade.Type.Monoid
+      Prelude
+  other-modules:
+      Paths_cascade_prelude
+  hs-source-dirs:
+      src
+  default-extensions: ApplicativeDo Arrows BangPatterns BlockArguments ConstraintKinds DataKinds DefaultSignatures DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveLift DeriveTraversable DerivingStrategies DerivingVia DuplicateRecordFields EmptyCase ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedLabels OverloadedStrings PatternSynonyms PolyKinds RankNTypes RecordWildCards ScopedTypeVariables StandaloneDeriving StrictData TemplateHaskell TupleSections TypeApplications TypeFamilies TypeFamilyDependencies TypeOperators ViewPatterns
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-implicit-prelude -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction
+  build-depends:
+      aeson
+    , ansi-terminal
+    , base-noprelude
+    , bytestring
+    , chronos
+    , co-log
+    , co-log-core
+    , containers
+    , flow
+    , lens
+    , relude
+    , text
+    , uuid
+    , validation-selective
+    , vector
+    , word8
+  default-language: Haskell2010
+
+test-suite cascade-prelude-test
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Test.Cascade.Control.Applicative
+      Test.Cascade.Data.ByteString
+      Test.Cascade.Data.Char
+      Test.Cascade.Data.Chronos.Future
+      Test.Cascade.Data.Maybe
+      Test.Cascade.Data.Text.NonEmpty
+      Paths_cascade_prelude
+  hs-source-dirs:
+      test
+  default-extensions: ApplicativeDo Arrows BangPatterns BlockArguments ConstraintKinds DataKinds DefaultSignatures DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveLift DeriveTraversable DerivingStrategies DerivingVia DuplicateRecordFields EmptyCase ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns OverloadedLabels OverloadedStrings PatternSynonyms PolyKinds RankNTypes RecordWildCards ScopedTypeVariables StandaloneDeriving StrictData TemplateHaskell TupleSections TypeApplications TypeFamilies TypeFamilyDependencies TypeOperators ViewPatterns
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-implicit-prelude -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base-noprelude
+    , bytestring
+    , cascade-prelude
+    , chronos
+    , hedgehog
+    , tasty
+    , tasty-hedgehog
+    , tasty-hunit
+    , validation-selective
+    , word8
+  default-language: Haskell2010

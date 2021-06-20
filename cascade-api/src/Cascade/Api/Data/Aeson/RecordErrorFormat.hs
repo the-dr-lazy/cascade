@@ -12,15 +12,16 @@ Portability : POSIX
 
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cascade.Api.Data.Aeson.RecordErrorFormat (RecordErrorFormat(..)) where
+module Cascade.Api.Data.Aeson.RecordErrorFormat
+    ( RecordErrorFormat (..)
+    ) where
 
-import qualified Data.Aeson                         as Aeson
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import           GHC.Generics                        ( Rep )
+import           Data.Aeson   ( FromJSON, ToJSON )
+import qualified Data.Aeson   as Aeson
+import           GHC.Generics ( Rep )
 
-newtype RecordErrorFormat (error :: Type) = RecordErrorFormat error
+newtype RecordErrorFormat (error :: Type)
+  = RecordErrorFormat error
 
 options :: Aeson.Options
 options = Aeson.defaultOptions { Aeson.omitNothingFields = True }

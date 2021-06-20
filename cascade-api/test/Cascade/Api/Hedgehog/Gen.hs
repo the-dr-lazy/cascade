@@ -10,14 +10,18 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen (uuid, replicateAtLeastOne, withValidity) where
+module Cascade.Api.Hedgehog.Gen
+    ( replicateAtLeastOne
+    , uuid
+    , withValidity
+    ) where
 
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import           Data.UUID.Util                      ( UnpackedUUID(..) )
-import qualified Data.UUID.Util                     as UUID
-import           Hedgehog                            ( MonadGen )
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import           Data.UUID.Util                   ( UnpackedUUID (..) )
+import qualified Data.UUID.Util                   as UUID
+import           Hedgehog                         ( MonadGen )
+import qualified Hedgehog.Gen                     as Gen
+import qualified Hedgehog.Range                   as Range
 
 uuid :: MonadGen m => m UUID
 uuid = do

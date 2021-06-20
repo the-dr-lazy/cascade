@@ -13,21 +13,22 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql.Query.Project (byId, byUser, byUserId) where
+module Cascade.Api.Database.Sql.Query.Project
+    ( byId
+    , byUser
+    , byUserId
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.User              as User
-import           Cascade.Api.Data.WrappedC           ( WrappedC(..) )
-import           Cascade.Api.Database.ProjectTable  as ProjectTable
-import           Cascade.Api.Database.Sql            ( Q
-                                                     , filterProjectsByRelatedUsers
-                                                     )
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
-import qualified Cascade.Api.Database.Sql.Query.User
-                                                    as SQL.Query.User
+import qualified Cascade.Api.Data.Project            as Project
+import qualified Cascade.Api.Data.User               as User
+import           Cascade.Api.Data.WrappedC           ( WrappedC (..) )
+import           Cascade.Api.Database.ProjectTable   as ProjectTable
+import           Cascade.Api.Database.Sql            ( Q, filterProjectsByRelatedUsers )
+import qualified Cascade.Api.Database.Sql            as SQL
+import qualified Cascade.Api.Database.Sql.Query      as SQL.Query
+import qualified Cascade.Api.Database.Sql.Query.User as SQL.Query.User
 import           Cascade.Api.Database.UserTable      ( UserTable )
-import qualified Database.Beam                      as Beam
+import qualified Database.Beam                       as Beam
 
 byId :: _ => Project.Id -> Q backend s (ProjectTable (Beam.QExpr backend s))
 byId id = SQL.Query.all #projects |> SQL.filter (#id `SQL.eq` SQL.literal id)

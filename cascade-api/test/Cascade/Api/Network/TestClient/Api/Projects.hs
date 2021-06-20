@@ -11,38 +11,31 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.TestClient.Api.Projects
-  ( GetByIdResponse
-  , UpdateByIdResponse
-  , DeleteByIdResponse
-  , getById
-  , updateById
-  , deleteById
-  , tasks
-  , testReadableVsCreatable
-  , updateCreatable
-  ) where
+    ( DeleteByIdResponse
+    , GetByIdResponse
+    , UpdateByIdResponse
+    , deleteById
+    , getById
+    , tasks
+    , testReadableVsCreatable
+    , updateById
+    , updateCreatable
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Network.Anatomy.Api.Projects
-                                                    as Api.Projects
-import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks
-                                                    as Api.Projects.Tasks
-import           Cascade.Api.Network.TestClient      ( AuthToken
-                                                     , authenticated
-                                                     , interpret
-                                                     )
-import qualified Cascade.Api.Network.TestClient.Api as Client.Api
-import           Control.Lens                        ( (^.) )
-import           Control.Monad.Free                  ( Free )
-import           Data.Generics.Labels                ( )
-import           Hedgehog                            ( (===)
-                                                     , Test
-                                                     )
-import           Servant.API                         ( Union )
-import           Servant.API.Generic                 ( fromServant )
-import           Servant.Client.Free                 ( ResponseF )
-import           Servant.Client.Free                 ( ClientF )
-import           Servant.Client.Generic              ( AsClientT )
+import qualified Cascade.Api.Data.Project                       as Project
+import qualified Cascade.Api.Network.Anatomy.Api.Projects       as Api.Projects
+import qualified Cascade.Api.Network.Anatomy.Api.Projects.Tasks as Api.Projects.Tasks
+import           Cascade.Api.Network.TestClient
+    ( AuthToken, authenticated, interpret )
+import qualified Cascade.Api.Network.TestClient.Api             as Client.Api
+import           Control.Lens                                   ( (^.) )
+import           Control.Monad.Free                             ( Free )
+import           Data.Generics.Labels                           ()
+import           Hedgehog                                       ( Test, (===) )
+import           Servant.API                                    ( Union )
+import           Servant.API.Generic                            ( fromServant )
+import           Servant.Client.Free                            ( ClientF, ResponseF )
+import           Servant.Client.Generic                         ( AsClientT )
 
 type GetByIdResponse = (ResponseF (Union Api.Projects.GetByIdResponse))
 

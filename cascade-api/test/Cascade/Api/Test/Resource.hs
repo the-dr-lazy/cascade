@@ -12,33 +12,29 @@ Portability : POSIX
 
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Cascade.Api.Test.Resource (withMigratedDatabaseConfig, withPostgresConnectionPool) where
+module Cascade.Api.Test.Resource
+    ( withMigratedDatabaseConfig
+    , withPostgresConnectionPool
+    ) where
 
-import           Cascade.Api.Test.FilePath           ( findSqitchConfigFileUpward )
+import           Cascade.Api.Test.FilePath          ( findSqitchConfigFileUpward )
 import qualified Control.Exception.Lifted           as X
-import           Control.Lens                        ( _2
-                                                     , view
-                                                     )
-import           Control.Monad.Base                  ( MonadBase )
+import           Control.Lens                       ( _2, view )
+import           Control.Monad.Base                 ( MonadBase )
 import           Control.Monad.Managed
-import           Data.Pool                           ( Pool
-                                                     , createPool
-                                                     )
+import           Data.Pool                          ( Pool, createPool )
+import           Database.PostgreSQL.Simple         ( connectPostgreSQL )
 import qualified Database.PostgreSQL.Simple         as Postgres
-import           Database.PostgreSQL.Simple          ( connectPostgreSQL )
 import qualified Database.PostgreSQL.Simple.Options as Postgres
 import qualified Database.Postgres.Temp             as TempPostgres
 import qualified Relude.Unsafe                      as Unsafe
-import           System.Directory                    ( getCurrentDirectory )
-import           System.FilePath                     ( takeDirectory )
-import           System.Process.Typed                ( nullStream
-                                                     , runProcess_
-                                                     , setStdout
-                                                     , setWorkingDir
-                                                     )
+import           System.Directory                   ( getCurrentDirectory )
+import           System.FilePath                    ( takeDirectory )
+import           System.Process.Typed
+    ( nullStream, runProcess_, setStdout, setWorkingDir )
 import qualified System.Process.Typed               as Process
+import           Test.Tasty                         ( TestTree )
 import qualified Test.Tasty                         as Tasty
-import           Test.Tasty                          ( TestTree )
 
 migrate :: HasCallStack => TempPostgres.DB -> IO ()
 migrate db = do

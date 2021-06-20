@@ -10,32 +10,33 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.ByteString.Password (Password, pattern Password, Error(..), Errors, mk, un) where
+module Cascade.Api.Data.ByteString.Password
+    ( Error (..)
+    , Errors
+    , Password
+    , mk
+    , pattern Password
+    , un
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
-                                                    as Aeson
-import           Cascade.Data.Validation             ( Validation )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Selective                   ( ifS )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import qualified Data.Text                          as Text
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
+import           Cascade.Data.Validation                 ( Validation )
+import qualified Cascade.Data.Validation                 as Validation
+import           Control.Selective                       ( ifS )
+import           Data.Aeson                              ( FromJSON, ToJSON )
+import qualified Data.Text                               as Text
 
-newtype Password = Mk
-  { un :: ByteString }
-  deriving newtype (Show, Eq)
+newtype Password
+  = Mk { un :: ByteString }
+  deriving newtype (Eq, Show)
 
 pattern Password :: ByteString -> Password
 pattern Password a <- Mk a
 {-# COMPLETE Password #-}
 
-data Error
-  = IsEmpty
-  | IsShort
-  deriving stock (Generic, Show)
-  deriving ToJSON via Aeson.FieldErrorFormat Error
-  deriving FromJSON via Aeson.FieldErrorFormat Error
+data Error = IsEmpty | IsShort deriving stock (Generic, Show)
+  deriving (ToJSON) via Aeson.FieldErrorFormat Error
+  deriving (FromJSON) via Aeson.FieldErrorFormat Error
 
 type Errors = NonEmpty Error
 

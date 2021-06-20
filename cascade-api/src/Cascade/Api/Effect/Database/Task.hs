@@ -10,49 +10,44 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Effect.Database.Task (TaskL(..), findByProjectId, findById, create, updateById, deleteById, run) where
+module Cascade.Api.Effect.Database.Task
+    ( TaskL (..)
+    , create
+    , deleteById
+    , findById
+    , findByProjectId
+    , run
+    , updateById
+    ) where
 
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..) )
-import qualified Cascade.Api.Data.OffsetDatetime.Deadline
-                                                    as Deadline
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.Task              as Task
-import qualified Cascade.Api.Data.Text.Title        as Title
+import           Cascade.Api.Data.OffsetDatetime          ( FormattedOffsetDatetime (..) )
+import qualified Cascade.Api.Data.OffsetDatetime.Deadline as Deadline
+import qualified Cascade.Api.Data.Project                 as Project
+import qualified Cascade.Api.Data.Task                    as Task
+import qualified Cascade.Api.Data.Text.Title              as Title
 import           Cascade.Api.Data.WrappedC
-import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query.Task
-                                                    as SQL.Query.Task
-import           Cascade.Api.Database.TaskTable      ( TaskTable )
-import qualified Cascade.Api.Database.TaskTable     as TaskTable
-import qualified Cascade.Api.Effect.Database        as Database
-import           Cascade.Api.Effect.Database         ( DatabaseL )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.)
-                                                     , to
-                                                     )
-import           Database.Beam                       ( (<-.)
-                                                     , insertExpressions
-                                                     , val_
-                                                     )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend
-                                                     , BeamSqlBackendCanSerialize
-                                                     )
-import           Polysemy                            ( Member
-                                                     , Sem
-                                                     , interpret
-                                                     , makeSem
-                                                     )
-import qualified Relude.Unsafe                      as Unsafe
-                                                     ( fromJust )
+import qualified Cascade.Api.Database.ProjectTable        as ProjectTable
+import qualified Cascade.Api.Database.Sql                 as SQL
+import qualified Cascade.Api.Database.Sql.Query.Task      as SQL.Query.Task
+import           Cascade.Api.Database.TaskTable           ( TaskTable )
+import qualified Cascade.Api.Database.TaskTable           as TaskTable
+import           Cascade.Api.Effect.Database              ( DatabaseL )
+import qualified Cascade.Api.Effect.Database              as Database
+import qualified Cascade.Data.Validation                  as Validation
+import           Control.Lens                             ( to, (^.) )
+import           Database.Beam                            ( insertExpressions, val_, (<-.) )
+import qualified Database.Beam                            as Beam
+import           Database.Beam.Backend
+    ( BeamSqlBackend, BeamSqlBackendCanSerialize )
+import           Polysemy                                 ( Member, Sem, interpret, makeSem )
+import qualified Relude.Unsafe                            as Unsafe ( fromJust )
 
 data TaskL m a where
-  FindByProjectId ::Project.Id -> TaskL m [Task.Readable]
-  FindById        ::Task.Id -> TaskL m (Maybe Task.Readable)
-  Create          ::Task.Creatable 'Validation.Parsed -> Project.Id -> TaskL m Task.Readable
-  UpdateById      ::Task.Id -> Task.Updatable 'Validation.Parsed -> TaskL m (Maybe Task.Readable)
-  DeleteById      ::Task.Id -> TaskL m (Maybe Task.Readable)
+  FindByProjectId :: Project.Id -> TaskL m [Task.Readable]
+  FindById :: Task.Id -> TaskL m (Maybe Task.Readable)
+  Create :: Task.Creatable 'Validation.Parsed -> Project.Id -> TaskL m Task.Readable
+  UpdateById :: Task.Id -> Task.Updatable 'Validation.Parsed -> TaskL m (Maybe Task.Readable)
+  DeleteById :: Task.Id -> TaskL m (Maybe Task.Readable)
 
 makeSem ''TaskL
 

@@ -11,21 +11,17 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Network.Anatomy.Prelude
-  ( module Servant.API
-  , module Servant.API.Generic
-  , module Cascade.Api.Servant.Authentication
-  , Get
-  , Post
-  , Patch
-  , Delete
-  ) where
+    ( module Cascade.Api.Servant.Authentication
+    , Delete
+    , Get
+    , Patch
+    , Post
+    , module Servant.API
+    , module Servant.API.Generic
+    ) where
 
-import           Cascade.Api.Servant.Authentication  ( Auth )
-import           Servant.API                  hiding ( Delete
-                                                     , Get
-                                                     , Patch
-                                                     , Post
-                                                     )
+import           Cascade.Api.Servant.Authentication ( Auth )
+import           Servant.API                        hiding ( Delete, Get, Patch, Post )
 import           Servant.API.Generic
 
 type Get = UVerb 'GET

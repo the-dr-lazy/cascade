@@ -10,7 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.CLI.Data.Model.Config.Default (httpPort, postgresHost, postgresPort, postgresUser, postgresPassword, postgresDatabase) where
+module Cascade.CLI.Data.Model.Config.Default
+    ( httpPort
+    , postgresDatabase
+    , postgresHost
+    , postgresPassword
+    , postgresPort
+    , postgresUser
+    ) where
 
 httpPort :: Word16
 httpPort = 3141

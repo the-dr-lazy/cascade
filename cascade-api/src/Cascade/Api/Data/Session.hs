@@ -10,19 +10,20 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Session (Session(..), withAnonymous, withAuthenticated) where
+module Cascade.Api.Data.Session
+    ( Session (..)
+    , withAnonymous
+    , withAuthenticated
+    ) where
 
-import qualified Cascade.Api.Data.Jwt               as Jwt
-import qualified Cascade.Api.Servant.Response       as Response
-import           Servant                             ( IsMember
-                                                     , Union
-                                                     , respond
-                                                     )
+import qualified Cascade.Api.Data.Jwt         as Jwt
+import qualified Cascade.Api.Servant.Response as Response
+import           Servant                      ( IsMember, Union, respond )
 
 data Session
   = Authenticated Jwt.PrivateClaims
   | Anonymous
-  deriving stock (Generic, Show, Eq)
+  deriving stock (Eq, Generic, Show)
 
 withAnonymous :: Applicative m => IsMember Response.Forbidden as => m (Union as) -> Session -> m (Union as)
 withAnonymous m Anonymous         = m

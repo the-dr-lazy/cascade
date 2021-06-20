@@ -10,30 +10,31 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.TestClient (api, interpret, authenticated, AuthToken) where
+module Cascade.Api.Network.TestClient
+    ( AuthToken
+    , api
+    , authenticated
+    , interpret
+    ) where
 
-import           Cascade.Api.Data.Jwt                ( JwtSections )
-import           Cascade.Api.Network.Anatomy         ( Routes )
+import           Cascade.Api.Data.Jwt               ( JwtSections )
+import           Cascade.Api.Network.Anatomy        ( Routes )
 import qualified Cascade.Api.Network.Anatomy.Api    as Api
 import           Cascade.Api.Servant.Authentication
-import           Control.Lens                        ( (^.) )
+import           Control.Lens                       ( (^.) )
 import           Control.Monad.Free
 import qualified Data.Binary.Builder                as Builder
 import qualified Data.ByteString.Lazy               as LW8
 import qualified Data.Sequence                      as Seq
 import qualified Network.HTTP.Client                as Http
-import           Network.HTTP.Types                  ( hCookie )
-import           Servant.API.Generic                 ( fromServant )
+import           Network.HTTP.Types                 ( hCookie )
+import           Servant.API.Generic                ( fromServant )
 import           Servant.Client.Core
-import           Servant.Client.Free                 ( ClientF(..) )
-import           Servant.Client.Generic              ( AsClientT
-                                                     , genericClient
-                                                     )
+import           Servant.Client.Free                ( ClientF (..) )
+import           Servant.Client.Generic             ( AsClientT, genericClient )
 import qualified Servant.Client.Internal.HttpClient as Http
-                                                     ( clientResponseToResponse
-                                                     , defaultMakeClientRequest
-                                                     )
-import           Web.Cookie                          ( renderCookies )
+    ( clientResponseToResponse, defaultMakeClientRequest )
+import           Web.Cookie                         ( renderCookies )
 
 client :: Routes (AsClientT (Free ClientF))
 client = genericClient

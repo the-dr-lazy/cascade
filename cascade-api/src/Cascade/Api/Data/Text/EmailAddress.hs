@@ -10,21 +10,25 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.Text.EmailAddress (EmailAddress, pattern EmailAddress, Error(..), un, mk, parse) where
+module Cascade.Api.Data.Text.EmailAddress
+    ( EmailAddress
+    , Error (..)
+    , mk
+    , parse
+    , pattern EmailAddress
+    , un
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.FieldErrorFormat
-                                                    as Aeson
-import           Cascade.Data.Validation             ( Validation )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens.TH                     ( makeWrapped )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import           Text.Email.Validate                 ( canonicalizeEmail )
+import qualified Cascade.Api.Data.Aeson.FieldErrorFormat as Aeson
+import           Cascade.Data.Validation                 ( Validation )
+import qualified Cascade.Data.Validation                 as Validation
+import           Control.Lens.TH                         ( makeWrapped )
+import           Data.Aeson                              ( FromJSON, ToJSON )
+import           Text.Email.Validate                     ( canonicalizeEmail )
 
-newtype EmailAddress = Mk
-  { un :: Text }
-  deriving newtype (Show, Eq, FromJSON, ToJSON)
+newtype EmailAddress
+  = Mk { un :: Text }
+  deriving newtype (Eq, FromJSON, Show, ToJSON)
 
 makeWrapped ''EmailAddress
 
@@ -32,10 +36,9 @@ pattern EmailAddress :: Text -> EmailAddress
 pattern EmailAddress a <- Mk a
 {-# COMPLETE EmailAddress #-}
 
-data Error = IsInvalid
-  deriving stock (Generic, Show)
-  deriving ToJSON via Aeson.FieldErrorFormat Error
-  deriving FromJSON via Aeson.FieldErrorFormat Error
+data Error = IsInvalid deriving stock (Generic, Show)
+  deriving (ToJSON) via Aeson.FieldErrorFormat Error
+  deriving (FromJSON) via Aeson.FieldErrorFormat Error
 
 type Errors = NonEmpty Error
 

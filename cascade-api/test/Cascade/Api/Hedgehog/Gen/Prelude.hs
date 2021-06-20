@@ -10,12 +10,11 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Hedgehog.Gen.Prelude (Validity(..)) where
+module Cascade.Api.Hedgehog.Gen.Prelude
+    ( Validity (..)
+    ) where
 
-data Validity
-  = Valid
-  | Invalid
-  deriving stock (Show, Eq, Enum, Bounded)
+data Validity = Valid | Invalid deriving stock (Bounded, Enum, Eq, Show)
 
 instance Semigroup Validity where
   Valid <> Valid = Valid

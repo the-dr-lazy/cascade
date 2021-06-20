@@ -11,51 +11,39 @@ Portability : POSIX
 -}
 
 module Cascade.Api.Effect.Database
-  ( DatabaseL
-  , runSelectReturningList
-  , runSelectReturningOne
-  , runInsert
-  , runInsertReturningOne
-  , runUpdateReturningOne
-  , runDeleteReturningOne
-  , withTransaction
-  , postgresToFinal
-  ) where
+    ( DatabaseL
+    , postgresToFinal
+    , runDeleteReturningOne
+    , runInsert
+    , runInsertReturningOne
+    , runSelectReturningList
+    , runSelectReturningOne
+    , runUpdateReturningOne
+    , withTransaction
+    ) where
 
-import qualified Database.Beam                      as Beam
-import           Database.Beam                       ( Beamable )
-import           Database.Beam.Backend               ( BeamSqlBackend )
-import qualified Database.Beam.Backend.SQL.BeamExtensions
-                                                    as Beam
-                                                     ( runDeleteReturningList
-                                                     , runInsertReturningList
-                                                     , runUpdateReturningList
-                                                     )
-import qualified Database.Beam.Postgres             as Beam
-                                                     ( Postgres )
-import           Database.Beam.Postgres              ( Pg
-                                                     , runBeamPostgres
-                                                     )
-import qualified Database.PostgreSQL.Simple         as Postgres
-import           Polysemy                            ( Member
-                                                     , Sem
-                                                     , interpretH
-                                                     , makeSem
-                                                     , raise
-                                                     , runT
-                                                     )
+import           Database.Beam                            ( Beamable )
+import qualified Database.Beam                            as Beam
+import           Database.Beam.Backend                    ( BeamSqlBackend )
+import qualified Database.Beam.Backend.SQL.BeamExtensions as Beam
+    ( runDeleteReturningList, runInsertReturningList, runUpdateReturningList )
+import           Database.Beam.Postgres                   ( Pg, runBeamPostgres )
+import qualified Database.Beam.Postgres                   as Beam ( Postgres )
+import qualified Database.PostgreSQL.Simple               as Postgres
+import           Polysemy
+    ( Member, Sem, interpretH, makeSem, raise, runT )
 import           Polysemy.Final
-import           Polysemy.Internal.Tactics           ( liftT )
-import           Prelude                      hiding ( state )
+import           Polysemy.Internal.Tactics                ( liftT )
+import           Prelude                                  hiding ( state )
 
 data DatabaseL backend (m :: Type -> Type) a where
-  RunSelectReturningList ::(BeamSqlBackend backend, Beam.FromBackendRow backend a) => Beam.SqlSelect backend a -> DatabaseL backend m [a]
-  RunSelectReturningOne  ::(BeamSqlBackend backend, Beam.FromBackendRow backend a) => Beam.SqlSelect backend a -> DatabaseL backend m (Maybe a)
-  RunInsert              ::BeamSqlBackend backend => Beam.SqlInsert backend table -> DatabaseL backend m ()
-  RunInsertReturningOne  ::(BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity))=> Beam.SqlInsert backend table -> DatabaseL backend m (Maybe (table Identity))
-  RunUpdateReturningOne  ::(BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity)) => Beam.SqlUpdate backend table -> DatabaseL backend m (Maybe (table Identity))
-  RunDeleteReturningOne  ::(BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity)) => Beam.SqlDelete backend table -> DatabaseL backend m (Maybe (table Identity))
-  WithTransaction        ::m a -> DatabaseL backend m a
+  RunSelectReturningList :: (BeamSqlBackend backend, Beam.FromBackendRow backend a) => Beam.SqlSelect backend a -> DatabaseL backend m [a]
+  RunSelectReturningOne :: (BeamSqlBackend backend, Beam.FromBackendRow backend a) => Beam.SqlSelect backend a -> DatabaseL backend m (Maybe a)
+  RunInsert :: BeamSqlBackend backend => Beam.SqlInsert backend table -> DatabaseL backend m ()
+  RunInsertReturningOne :: (BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity)) => Beam.SqlInsert backend table -> DatabaseL backend m (Maybe (table Identity))
+  RunUpdateReturningOne :: (BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity)) => Beam.SqlUpdate backend table -> DatabaseL backend m (Maybe (table Identity))
+  RunDeleteReturningOne :: (BeamSqlBackend backend, Beamable table, Beam.FromBackendRow backend (table Identity)) => Beam.SqlDelete backend table -> DatabaseL backend m (Maybe (table Identity))
+  WithTransaction :: m a -> DatabaseL backend m a
 
 makeSem ''DatabaseL
 

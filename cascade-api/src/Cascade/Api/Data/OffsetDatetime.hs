@@ -10,26 +10,20 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Data.OffsetDatetime (FormattedOffsetDatetime(..)) where
+module Cascade.Api.Data.OffsetDatetime
+    ( FormattedOffsetDatetime (..)
+    ) where
 
 import qualified Chronos
 import           Chronos.Types
-import           Data.Aeson                          ( FromJSON(..)
-                                                     , ToJSON(..)
-                                                     , Value(..)
-                                                     )
-import           Data.Aeson.Types                    ( parserThrowError
-                                                     , prependFailure
-                                                     , typeMismatch
-                                                     )
-import           Data.Attoparsec.Text                ( endOfInput
-                                                     , parseOnly
-                                                     )
+import           Data.Aeson           ( FromJSON (..), ToJSON (..), Value (..) )
+import           Data.Aeson.Types     ( parserThrowError, prependFailure, typeMismatch )
+import           Data.Attoparsec.Text ( endOfInput, parseOnly )
 
-newtype FormattedOffsetDatetime = FormattedOffsetDatetime
-  { unFormattedOffsetDatetime :: OffsetDatetime }
+newtype FormattedOffsetDatetime
+  = FormattedOffsetDatetime { unFormattedOffsetDatetime :: OffsetDatetime }
   deriving stock (Generic, Show)
-  deriving newtype Eq
+  deriving newtype (Eq)
 
 instance FromJSON FormattedOffsetDatetime where
   parseJSON (String x) =

@@ -10,25 +10,20 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Project.DeleteExistingById (deleteExistingById) where
+module Test.Cascade.Api.StateMachine.Command.Project.DeleteExistingById
+    ( deleteExistingById
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Network.TestClient.Api.Projects
-                                                    as Cascade.Api.Projects
-import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Api.Data.Project                            as Project
+import qualified Cascade.Api.Network.TestClient.Api.Projects         as Cascade.Api.Projects
+import qualified Cascade.Api.Servant.Response                        as Response
 import           Cascade.Api.Test.Prelude
-import           Control.Lens                        ( (%~)
-                                                     , (^.)
-                                                     , has
-                                                     , ix
-                                                     , sans
-                                                     )
+import           Control.Lens                                        ( has, ix, sans, (%~), (^.) )
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Gen                                        as Gen
 import           Test.Cascade.Api.StateMachine.Command.Project.Types
-import           Test.Cascade.Api.StateMachine.Model ( Model )
-import qualified Test.Cascade.Api.StateMachine.Model
-                                                    as Model
+import           Test.Cascade.Api.StateMachine.Model                 ( Model )
+import qualified Test.Cascade.Api.StateMachine.Model                 as Model
 
 deleteExistingById :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 deleteExistingById = Command generator execute [Require require, Update update, Ensure ensure]

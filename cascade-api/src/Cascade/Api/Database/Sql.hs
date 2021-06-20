@@ -10,53 +10,43 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Cascade.Api.Database.Sql
-  ( (==)
-  , Q
-  , DatabaseEntityGetting
-  , TableFieldsFulfillConstraint
-  , TableFieldsFulfillConstraints
-  , and
-  , def
-  , delete
-  , eq
-  , filter
-  , filterProjectsByRelatedUsers
-  , insert
-  , literal
-  , lookup
-  , manyToMany
-  , or
-  , update
-  , Beam.select
-  ) where
+    ( Beam.select
+    , DatabaseEntityGetting
+    , Q
+    , TableFieldsFulfillConstraint
+    , TableFieldsFulfillConstraints
+    , and
+    , def
+    , delete
+    , eq
+    , filter
+    , filterProjectsByRelatedUsers
+    , insert
+    , literal
+    , lookup
+    , manyToMany
+    , or
+    , update
+    , (==)
+    ) where
 
-import           Cascade.Api.Data.WrappedC           ( WrappedC )
+import           Cascade.Api.Data.WrappedC         ( WrappedC )
 import           Cascade.Api.Database
-import           Cascade.Api.Database.ProjectTable   ( ProjectTable )
-import           Cascade.Api.Database.UserTable      ( UserTable )
-import           Control.Lens                 hiding ( (|>) )
-import           Database.Beam                hiding ( Database
-                                                     , ManyToMany
-                                                     , Q
-                                                     , delete
-                                                     , insert
-                                                     , update
-                                                     )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BeamSqlBackend )
-import           Database.Beam.Schema.Tables         ( HasConstraint )
+import           Cascade.Api.Database.ProjectTable ( ProjectTable )
+import           Cascade.Api.Database.UserTable    ( UserTable )
+import           Control.Lens                      hiding ( (|>) )
+import           Database.Beam                     hiding
+    ( Database, ManyToMany, Q, delete, insert, update )
+import qualified Database.Beam                     as Beam
+import           Database.Beam.Backend             ( BeamSqlBackend )
+import           Database.Beam.Schema.Tables       ( HasConstraint )
 import           GHC.Generics
-import           Prelude                      hiding ( (==)
-                                                     , all
-                                                     , and
-                                                     , filter
-                                                     , or
-                                                     )
+import           Prelude                           hiding ( all, and, filter, or, (==) )
 
 type DatabaseEntityGetting backend table
   = Getting
@@ -152,8 +142,6 @@ filterProjectsByRelatedUsers :: _
                              -> Q backend s (ProjectTable (Beam.QExpr backend s))
 filterProjectsByRelatedUsers queryUsers queryProjects = view _2 <$> userProjectsRelationship queryUsers queryProjects
 
-
--- brittany-disable-next-binding
 type family TableFieldsFulfillConstraint' (constraint :: Type -> Constraint) (table :: Type -> Type) :: Constraint where
   TableFieldsFulfillConstraint' _ U1 = ()
   TableFieldsFulfillConstraint' constraint (x :*: y) = (TableFieldsFulfillConstraint' constraint x, TableFieldsFulfillConstraint' constraint y)
@@ -162,11 +150,12 @@ type family TableFieldsFulfillConstraint' (constraint :: Type -> Constraint) (ta
   TableFieldsFulfillConstraint' constraint (K1 R (PrimaryKey table _)) = TableFieldsFulfillConstraint constraint table
   TableFieldsFulfillConstraint' constraint (M1 _ _ table) = TableFieldsFulfillConstraint' constraint table
 
--- brittany-disable-next-binding
 type TableFieldsFulfillConstraint (constraint :: Type -> Constraint) (table :: (Type -> Type) -> Type)
-  = (Generic (table (HasConstraint constraint)), TableFieldsFulfillConstraint' constraint (Rep (table (HasConstraint constraint))))
+  = ( Generic (table (HasConstraint constraint))
+    , TableFieldsFulfillConstraint' constraint (Rep (table (HasConstraint constraint)))
+    )
 
--- brittany-disable-next-binding
 type family TableFieldsFulfillConstraints (constraint :: [Type -> Constraint]) (table :: (Type -> Type) -> Type) :: Constraint where
-  TableFieldsFulfillConstraints '[] _ = ()
-  TableFieldsFulfillConstraints (constraint ': constraints) table = (TableFieldsFulfillConstraint constraint table, TableFieldsFulfillConstraints constraints table)
+  TableFieldsFulfillConstraints '[]                         _     = ()
+  TableFieldsFulfillConstraints (constraint ': constraints) table =
+    (TableFieldsFulfillConstraint constraint table, TableFieldsFulfillConstraints constraints table)

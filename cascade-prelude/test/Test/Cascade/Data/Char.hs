@@ -10,12 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Data.Char (tests) where
+module Test.Cascade.Data.Char
+    ( tests
+    ) where
 
 import           Cascade.Data.Char
-import qualified Data.Char                          as Char
+import qualified Data.Char           as Char
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Gen        as Gen
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 

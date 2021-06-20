@@ -10,26 +10,22 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Authentication.IncorrectValidLogin (incorrectValidLogin) where
+module Test.Cascade.Api.StateMachine.Command.Authentication.IncorrectValidLogin
+    ( incorrectValidLogin
+    ) where
 
-import qualified Cascade.Api.Data.Authentication    as Authentication
+import qualified Cascade.Api.Data.Authentication                            as Authentication
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
-import qualified Cascade.Api.Network.TestClient.Api.Authentication
-                                                    as Cascade.Api.Authentication
-import           Cascade.Api.Test.Prelude            ( )
-import           Cascade.Data.Foldable               ( defaulting )
-import           Control.Lens                        ( (^.)
-                                                     , (^..)
-                                                     , (^?)
-                                                     , asIndex
-                                                     , ifolded
-                                                     , ix
-                                                     )
+import qualified Cascade.Api.Hedgehog.Gen.Text                              as Gen
+import qualified Cascade.Api.Network.TestClient.Api.Authentication          as Cascade.Api.Authentication
+import           Cascade.Api.Test.Prelude                                   ()
+import           Cascade.Data.Foldable                                      ( defaulting )
+import           Control.Lens
+    ( asIndex, ifolded, ix, (^.), (^..), (^?) )
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
+import qualified Hedgehog.Gen                                               as Gen
 import           Test.Cascade.Api.StateMachine.Command.Authentication.Types
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import           Test.Cascade.Api.StateMachine.Model                        ( Model )
 
 incorrectValidLogin :: MonadGen g => MonadTest m => MonadIO m => Command g m Model
 incorrectValidLogin = Command generator execute []

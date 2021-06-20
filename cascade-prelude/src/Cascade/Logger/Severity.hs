@@ -10,20 +10,17 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Logger.Severity (Severity(..), prettyPrintSeverity) where
+module Cascade.Logger.Severity
+    ( Severity (..)
+    , prettyPrintSeverity
+    ) where
 
 import           Cascade.Logger.Formatting
-import qualified Data.Text                          as Text
-import           GHC.Stack                           ( SrcLoc(..) )
-import           System.Console.ANSI                 ( Color(..) )
+import qualified Data.Text                 as Text
+import           GHC.Stack                 ( SrcLoc (..) )
+import           System.Console.ANSI       ( Color (..) )
 
-data Severity
-  = Debug
-  | Info
-  | Warning
-  | Error
-  | Panic
-  deriving stock Eq
+data Severity = Debug | Info | Warning | Error | Panic deriving stock (Eq)
 
 prettyPrintSeverity :: Severity -> CallStack -> Text
 prettyPrintSeverity Debug   _  = color Green . square <| "Debug"
@@ -34,8 +31,8 @@ prettyPrintSeverity Panic   cs = color Red . square <| "Panic " <> prettyPrintSt
 
 prettyPrintStackTrace :: CallStack -> Text
 prettyPrintStackTrace cs = case getCallStack cs of
-  [] -> "<unknown location>"
-  [(callerName, location)] -> prettyPrintStackTraceLocation callerName location
+  []                                  -> "<unknown location>"
+  [(callerName, location)]            -> prettyPrintStackTraceLocation callerName location
   (_, location) : (callerName, _) : _ -> prettyPrintStackTraceLocation callerName location
 
 prettyPrintStackTraceLocation :: String -> SrcLoc -> Text

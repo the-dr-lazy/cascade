@@ -1,15 +1,11 @@
 #!/bin/bash
 
-# set -e
+if [[ $(git diff --cached --name-only --diff-filter=ACM | grep .dhall) ]]; then
+	echo "Found *.dhall file change. Generating cabal files:"
 
-stagedFiles=$(git diff --cached --name-only --diff-filter=ACM)
-
-for file in $stagedFiles; do
-	echo "Running Headroom: "
-
-	headroom run -s $file 2>&1
-	git add $file >/dev/null 2>&1
-done
+	./scripts/cabal
+	git add **/*.cabal
+fi
 
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
 	against=HEAD

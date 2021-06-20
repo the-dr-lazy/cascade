@@ -10,32 +10,29 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.User.CreateExisting (createExisting) where
+module Test.Cascade.Api.StateMachine.Command.User.CreateExisting
+    ( createExisting
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
+import qualified Cascade.Api.Data.User                    as User
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
-import qualified Cascade.Api.Network.TestClient.Api.Users
-                                                    as Cascade.Api.Users
-import           Cascade.Api.Test.Prelude            ( )
-import qualified Cascade.Data.Validation            as Validation
-import           Control.Lens                        ( (^.)
-                                                     , has
-                                                     , ix
-                                                     , to
-                                                     )
-import qualified Data.Map                           as Map
+import qualified Cascade.Api.Hedgehog.Gen.Text            as Gen
+import qualified Cascade.Api.Network.TestClient.Api.Users as Cascade.Api.Users
+import           Cascade.Api.Test.Prelude                 ()
+import qualified Cascade.Data.Validation                  as Validation
+import           Control.Lens                             ( has, ix, to, (^.) )
+import qualified Data.Map                                 as Map
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import qualified Hedgehog.Gen                             as Gen
+import           Test.Cascade.Api.StateMachine.Model      ( Model )
 
 createExisting :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 createExisting = Command generator execute [Require require, Ensure ensure]
 
--- brittany-disable-next-binding
-newtype CreateExisting (v :: Type -> Type) = CreateExisting
-  { creatable :: User.Creatable 'Validation.Raw }
-  deriving stock Show
+
+newtype CreateExisting (v :: Type -> Type)
+  = CreateExisting { creatable :: User.Creatable Validation.Raw }
+  deriving stock (Show)
 
 instance HTraversable CreateExisting where
   htraverse _ input = pure $ coerce input

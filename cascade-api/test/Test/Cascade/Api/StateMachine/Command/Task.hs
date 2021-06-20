@@ -10,52 +10,37 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Test.Cascade.Api.StateMachine.Command.Task (commands) where
+module Test.Cascade.Api.StateMachine.Command.Task
+    ( commands
+    ) where
 
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime(..)
-                                                     , unFormattedOffsetDatetime
-                                                     )
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.Task              as Task
-import qualified Cascade.Api.Data.Text.Title        as Title
-import qualified Cascade.Api.Hedgehog.Gen           as Gen
-import qualified Cascade.Api.Hedgehog.Gen.Chronos   as Gen
-import qualified Cascade.Api.Hedgehog.Gen.Id        as Gen
+import           Cascade.Api.Data.OffsetDatetime
+    ( FormattedOffsetDatetime (..), unFormattedOffsetDatetime )
+import qualified Cascade.Api.Data.Project                          as Project
+import qualified Cascade.Api.Data.Task                             as Task
+import qualified Cascade.Api.Data.Text.Title                       as Title
+import qualified Cascade.Api.Hedgehog.Gen                          as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Chronos                  as Gen
+import qualified Cascade.Api.Hedgehog.Gen.Id                       as Gen
 import           Cascade.Api.Hedgehog.Gen.Prelude
-import qualified Cascade.Api.Hedgehog.Gen.Text      as Gen
-import qualified Cascade.Api.Network.TestClient.Api.Projects.Tasks
-                                                    as Cascade.Api.Projects.Tasks
-import qualified Cascade.Api.Network.TestClient.Api.Tasks
-                                                    as Cascade.Api.Tasks
-import qualified Cascade.Api.Servant.Response       as Response
+import qualified Cascade.Api.Hedgehog.Gen.Text                     as Gen
+import qualified Cascade.Api.Network.TestClient.Api.Projects.Tasks as Cascade.Api.Projects.Tasks
+import qualified Cascade.Api.Network.TestClient.Api.Tasks          as Cascade.Api.Tasks
+import qualified Cascade.Api.Servant.Response                      as Response
 import           Cascade.Api.Test.Prelude
-import qualified Cascade.Data.Text                  as Text
-import qualified Cascade.Data.Text.NonEmpty         as Text.NonEmpty
-import qualified Cascade.Data.Validation            as Validation
+import qualified Cascade.Data.Text                                 as Text
+import qualified Cascade.Data.Text.NonEmpty                        as Text.NonEmpty
+import qualified Cascade.Data.Validation                           as Validation
+import           Chronos                                           ( offsetDatetimeToTime )
 import qualified Chronos
-import           Chronos                             ( offsetDatetimeToTime )
-import           Control.Lens                        ( (%~)
-                                                     , (?~)
-                                                     , (^.)
-                                                     , (^..)
-                                                     , (^?)
-                                                     , asIndex
-                                                     , at
-                                                     , cons
-                                                     , folded
-                                                     , has
-                                                     , ifolded
-                                                     , ix
-                                                     , non
-                                                     , sans
-                                                     , to
-                                                     , traversed
-                                                     )
-import qualified Data.Map                           as Map
+import           Control.Lens
+    ( asIndex, at, cons, folded, has, ifolded, ix, non, sans, to, traversed, (%~), (?~), (^.),
+    (^..), (^?) )
+import qualified Data.Map                                          as Map
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import           Servant.API.UVerb.Union             ( matchUnion )
-import           Test.Cascade.Api.StateMachine.Model ( Model )
+import qualified Hedgehog.Gen                                      as Gen
+import           Servant.API.UVerb.Union                           ( matchUnion )
+import           Test.Cascade.Api.StateMachine.Model               ( Model )
 
 commands :: MonadGen g => MonadFail g => GenBase g ~ Identity => MonadIO m => MonadTest m => [Command g m Model]
 commands =
@@ -74,11 +59,10 @@ commands =
   , deleteNotExistingById
   ]
 
--- brittany-disable-next-binding
-data Create (v :: Type -> Type) = Create
-  { projectId  :: Var Project.Id v
-  , creatable  :: Task.Creatable 'Validation.Raw
-  }
+
+data Create (v :: Type -> Type) = Create { projectId :: Var Project.Id v
+                                         , creatable :: Task.Creatable Validation.Raw
+                                         }
   deriving stock (Generic, Show)
 
 instance HTraversable Create where
@@ -180,10 +164,9 @@ createInvalid =
         response ^. #responseStatusCode . #statusCode === 422
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
-data GetAllByProjectId (v :: Type -> Type) = GetAllByProjectId
-  { projectId  :: Var Project.Id v
-  }
+
+data GetAllByProjectId (v :: Type -> Type) = GetAllByProjectId { projectId :: Var Project.Id v
+                                                               }
   deriving stock (Generic, Show)
 
 instance HTraversable GetAllByProjectId where
@@ -245,11 +228,10 @@ getAllByProjectIdForNonExistingProject =
   in
     Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
-data AddNotExistingId (v :: Type -> Type) = AddNotExistingId
-  { id :: Task.Id
-  }
-  deriving stock Show
+
+data AddNotExistingId (v :: Type -> Type) = AddNotExistingId { id :: Task.Id
+                                                             }
+  deriving stock (Show)
 
 instance HTraversable AddNotExistingId where
   htraverse _ (AddNotExistingId id) = pure $ AddNotExistingId id
@@ -266,10 +248,9 @@ addNotExistingId =
       update model _input id = model |> #task . #notExistingIds %~ cons id
   in  Command generator execute [Update update]
 
--- brittany-disable-next-binding
-newtype GetById (v :: Type -> Type) = GetById
-  { id :: Var Task.Id v
-  }
+
+newtype GetById (v :: Type -> Type)
+  = GetById { id :: Var Task.Id v }
   deriving stock (Generic, Show)
 
 instance HTraversable GetById where
@@ -322,11 +303,10 @@ getNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
-data UpdateById (v :: Type -> Type) = UpdateById
-  { id :: Var Task.Id v
-  , updatable :: Task.Updatable 'Validation.Raw
-  }
+
+data UpdateById (v :: Type -> Type) = UpdateById { id        :: Var Task.Id v
+                                                 , updatable :: Task.Updatable Validation.Raw
+                                                 }
   deriving stock (Generic, Show)
 
 instance HTraversable UpdateById where
@@ -427,10 +407,9 @@ updateNotExistingById =
         response ^. #responseStatusCode . #statusCode === 404
   in  Command generator execute [Ensure ensure]
 
--- brittany-disable-next-binding
-newtype DeleteById (v :: Type -> Type) = DeleteById
-  { id :: Var Task.Id v
-  }
+
+newtype DeleteById (v :: Type -> Type)
+  = DeleteById { id :: Var Task.Id v }
   deriving stock (Generic, Show)
 
 instance HTraversable DeleteById where

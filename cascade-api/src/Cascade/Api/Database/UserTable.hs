@@ -10,28 +10,28 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Database.UserTable (UserTable(..), PrimaryKey(..), Row) where
+module Cascade.Api.Database.UserTable
+    ( PrimaryKey (..)
+    , Row
+    , UserTable (..)
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
-import qualified Cascade.Api.Data.WrappedC          as Wrapped
-import qualified Cascade.Api.Effect.Scrypt          as Scrypt
-import           Chronos                             ( OffsetDatetime )
-import           Database.Beam                       ( Beamable
-                                                     , C
-                                                     , Table(..)
-                                                     )
+import qualified Cascade.Api.Data.User     as User
+import qualified Cascade.Api.Data.WrappedC as Wrapped
+import qualified Cascade.Api.Effect.Scrypt as Scrypt
+import           Chronos                   ( OffsetDatetime )
+import           Database.Beam             ( Beamable, C, Table (..) )
 
--- brittany-disable-next-binding
-data UserTable (f :: Type -> Type) = Row
-  { id                :: Wrapped.C f User.Id
-  , username          :: Wrapped.C f User.Username
-  , emailAddress      :: Wrapped.C f User.EmailAddress
-  , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
-  , createdAt         :: C f OffsetDatetime
-  , updatedAt         :: C f OffsetDatetime
-  }
-  deriving stock Generic
-  deriving anyclass Beamable
+
+data UserTable (f :: Type -> Type) = Row { id :: Wrapped.C f User.Id
+                                         , username :: Wrapped.C f User.Username
+                                         , emailAddress :: Wrapped.C f User.EmailAddress
+                                         , encryptedPassword :: Wrapped.C f (Scrypt.Encrypted User.Password)
+                                         , createdAt :: C f OffsetDatetime
+                                         , updatedAt :: C f OffsetDatetime
+                                         }
+  deriving stock (Generic)
+  deriving anyclass (Beamable)
 
 instance Table UserTable where
   newtype PrimaryKey UserTable f = PrimaryKey

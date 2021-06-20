@@ -10,17 +10,19 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Api.Network.Anatomy.Api.Users (Routes(..), CreateResponse) where
+module Cascade.Api.Network.Anatomy.Api.Users
+    ( CreateResponse
+    , Routes (..)
+    ) where
 
-import qualified Cascade.Api.Data.User              as User
+import qualified Cascade.Api.Data.User               as User
 import           Cascade.Api.Network.Anatomy.Prelude
-import qualified Cascade.Api.Servant.Response       as Response
-import qualified Cascade.Data.Validation            as Validation
-import           Data.Generics.Labels                ( )
+import qualified Cascade.Api.Servant.Response        as Response
+import qualified Cascade.Data.Validation             as Validation
+import           Data.Generics.Labels                ()
 
 type CreateResponse = '[Response.Created User.Readable , Response.Conflict , Response.Unprocessable (User.Creatable 'Validation.Error)]
 
-data Routes route = Routes
-  { create :: route :- ReqBody '[JSON] (User.Creatable 'Validation.Raw) :> Post '[JSON] CreateResponse
-  }
-  deriving stock Generic
+data Routes route = Routes { create :: route :- ReqBody '[JSON] (User.Creatable Validation.Raw) :> Post '[JSON] CreateResponse
+                           }
+  deriving stock (Generic)

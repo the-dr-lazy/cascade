@@ -10,31 +10,27 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Data.WrappedC (WrappedC(..), C, literal) where
+module Cascade.Api.Data.WrappedC
+    ( C
+    , WrappedC (..)
+    , literal
+    ) where
 
-import           Control.Lens                        ( Unwrapped
-                                                     , Wrapped
-                                                     , _Wrapped'
-                                                     , review
-                                                     , view
-                                                     )
-import qualified Database.Beam                      as Beam
-import           Database.Beam.Backend               ( BackendFromField
-                                                     , BeamSqlBackend
-                                                     )
-import qualified Database.Beam.Backend              as Beam
-import qualified Database.PostgreSQL.Simple.FromField
-                                                    as Postgres
-                                                     ( FromField(fromField) )
+import           Control.Lens
+    ( Unwrapped, Wrapped, _Wrapped', review, view )
+import qualified Database.Beam                        as Beam
+import           Database.Beam.Backend                ( BackendFromField, BeamSqlBackend )
+import qualified Database.Beam.Backend                as Beam
+import qualified Database.PostgreSQL.Simple.FromField as Postgres ( FromField (fromField) )
 
-newtype WrappedC a = WrappedC
-  { un :: a }
-  deriving stock Generic
-  deriving newtype (Show, Eq, Ord)
+newtype WrappedC a
+  = WrappedC { un :: a }
+  deriving stock (Generic)
+  deriving newtype (Eq, Ord, Show)
 
 instance Wrapped a => Wrapped (WrappedC a)
 

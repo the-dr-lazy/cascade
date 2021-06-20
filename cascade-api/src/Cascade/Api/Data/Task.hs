@@ -12,52 +12,48 @@ Portability : POSIX
 
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cascade.Api.Data.Task (Task, Id, Readable(..), Creatable(..), Updatable(..), parseRawCreatable, parseRawUpdatable) where
+module Cascade.Api.Data.Task
+    ( Creatable (..)
+    , Id
+    , Readable (..)
+    , Task
+    , Updatable (..)
+    , parseRawCreatable
+    , parseRawUpdatable
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
-                                                    as Aeson
-import qualified Cascade.Api.Data.Id                as Data
-import           Cascade.Api.Data.OffsetDatetime     ( FormattedOffsetDatetime
-                                                     , unFormattedOffsetDatetime
-                                                     )
-import           Cascade.Api.Data.OffsetDatetime.Deadline
-                                                     ( Deadline )
-import qualified Cascade.Api.Data.OffsetDatetime.Deadline
-                                                    as Deadline
-import qualified Cascade.Api.Data.Project           as Project
-import           Cascade.Api.Data.Text.Title         ( Title )
-import qualified Cascade.Api.Data.Text.Title        as Title
-import           Cascade.Api.Effect.Time             ( TimeL )
-import qualified Cascade.Api.Effect.Time            as Time
-import           Cascade.Data.Validation             ( Validate
-                                                     , Validation
-                                                     )
-import qualified Cascade.Data.Validation            as Validation
-import           Data.Aeson                          ( FromJSON(..)
-                                                     , ToJSON(..)
-                                                     )
-import           Polysemy                            ( Member
-                                                     , Sem
-                                                     )
+import qualified Cascade.Api.Data.Aeson.RecordErrorFormat as Aeson
+import qualified Cascade.Api.Data.Id                      as Data
+import           Cascade.Api.Data.OffsetDatetime
+    ( FormattedOffsetDatetime, unFormattedOffsetDatetime )
+import           Cascade.Api.Data.OffsetDatetime.Deadline ( Deadline )
+import qualified Cascade.Api.Data.OffsetDatetime.Deadline as Deadline
+import qualified Cascade.Api.Data.Project                 as Project
+import           Cascade.Api.Data.Text.Title              ( Title )
+import qualified Cascade.Api.Data.Text.Title              as Title
+import           Cascade.Api.Effect.Time                  ( TimeL )
+import qualified Cascade.Api.Effect.Time                  as Time
+import           Cascade.Data.Validation                  ( Validate, Validation )
+import qualified Cascade.Data.Validation                  as Validation
+import           Data.Aeson                               ( FromJSON (..), ToJSON (..) )
+import           Polysemy                                 ( Member, Sem )
 
 data Task
 
 type Id = Data.Id Task
 
-data Readable = Readable
-  { id         :: Id
-  , title      :: Title
-  , deadlineAt :: FormattedOffsetDatetime
-  , projectId  :: Project.Id
-  }
-  deriving stock (Generic, Show, Eq)
+data Readable = Readable { id         :: Id
+                         , title      :: Title
+                         , deadlineAt :: FormattedOffsetDatetime
+                         , projectId  :: Project.Id
+                         }
+  deriving stock (Eq, Generic, Show)
   deriving anyclass (FromJSON, ToJSON)
 
-data Creatable p = Creatable
-  { title      :: Validate p Text Title
-  , deadlineAt :: Validate p FormattedOffsetDatetime Deadline
-  }
-  deriving stock Generic
+data Creatable p = Creatable { title      :: Validate p Text Title
+                             , deadlineAt :: Validate p FormattedOffsetDatetime Deadline
+                             }
+  deriving stock (Generic)
 
 deriving stock instance Show (Creatable 'Validation.Raw)
 deriving stock instance Eq   (Creatable 'Validation.Raw)
@@ -76,11 +72,10 @@ parseRawCreatable raw = do
   now <- Time.now
   pure <| Validation.parseRecord Creatable { title = Title.parse, deadlineAt = Deadline.parse now . unFormattedOffsetDatetime } raw
 
-data Updatable p = Updatable
-  { title      :: Validate p (Maybe Text) (Maybe Title)
-  , deadlineAt :: Validate p (Maybe FormattedOffsetDatetime) (Maybe Deadline)
-  }
-  deriving stock Generic
+data Updatable p = Updatable { title :: Validate p (Maybe Text) (Maybe Title)
+                             , deadlineAt :: Validate p (Maybe FormattedOffsetDatetime) (Maybe Deadline)
+                             }
+  deriving stock (Generic)
 
 deriving stock    instance Show     (Updatable 'Validation.Raw)
 deriving stock    instance Eq       (Updatable 'Validation.Raw)

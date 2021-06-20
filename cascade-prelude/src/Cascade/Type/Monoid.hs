@@ -10,7 +10,10 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Type.Monoid (type (<>), Concat) where
+module Cascade.Type.Monoid
+    ( Concat
+    , type (<>)
+    ) where
 
 infixr 6 <>
 type a <> b = Concat a b

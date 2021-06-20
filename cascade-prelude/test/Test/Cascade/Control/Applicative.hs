@@ -1,9 +1,11 @@
-module Test.Cascade.Control.Applicative (tests) where
+module Test.Cascade.Control.Applicative
+    ( tests
+    ) where
 
 import           Cascade.Control.Applicative
 import           Hedgehog
-import qualified Hedgehog.Gen                       as Gen
-import qualified Hedgehog.Range                     as Range
+import qualified Hedgehog.Gen                as Gen
+import qualified Hedgehog.Range              as Range
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
 

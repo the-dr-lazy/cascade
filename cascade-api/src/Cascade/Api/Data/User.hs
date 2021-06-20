@@ -11,46 +11,46 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE UndecidableInstances #-}
-module Cascade.Api.Data.User (User, Id, Username, EmailAddress, Password, Readable(..), Creatable(..), parseRawCreatable) where
+module Cascade.Api.Data.User
+    ( Creatable (..)
+    , EmailAddress
+    , Id
+    , Password
+    , Readable (..)
+    , User
+    , Username
+    , parseRawCreatable
+    ) where
 
-import qualified Cascade.Api.Data.Aeson.RecordErrorFormat
-                                                    as Aeson
-import qualified Cascade.Api.Data.ByteString.Password
-                                                    as Password
-import           Cascade.Api.Data.ByteString.Password
-                                                     ( Password )
-import qualified Cascade.Api.Data.Id                as Data
-import           Cascade.Api.Data.Text.EmailAddress  ( EmailAddress )
-import qualified Cascade.Api.Data.Text.EmailAddress as EmailAddress
-import           Cascade.Api.Data.Text.Username      ( Username )
-import qualified Cascade.Api.Data.Text.Username     as Username
-import           Cascade.Data.Validation             ( Validate
-                                                     , Validation
-                                                     )
-import qualified Cascade.Data.Validation            as Validation
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import           Data.Generics.Labels                ( )
+import qualified Cascade.Api.Data.Aeson.RecordErrorFormat as Aeson
+import           Cascade.Api.Data.ByteString.Password     ( Password )
+import qualified Cascade.Api.Data.ByteString.Password     as Password
+import qualified Cascade.Api.Data.Id                      as Data
+import           Cascade.Api.Data.Text.EmailAddress       ( EmailAddress )
+import qualified Cascade.Api.Data.Text.EmailAddress       as EmailAddress
+import           Cascade.Api.Data.Text.Username           ( Username )
+import qualified Cascade.Api.Data.Text.Username           as Username
+import           Cascade.Data.Validation                  ( Validate, Validation )
+import qualified Cascade.Data.Validation                  as Validation
+import           Data.Aeson                               ( FromJSON, ToJSON )
+import           Data.Generics.Labels                     ()
 
 data User
 
 type Id = Data.Id User
 
-data Readable = Readable
-  { id           :: Id
-  , username     :: Username
-  , emailAddress :: EmailAddress
-  }
-  deriving stock (Generic, Show, Eq)
+data Readable = Readable { id           :: Id
+                         , username     :: Username
+                         , emailAddress :: EmailAddress
+                         }
+  deriving stock (Eq, Generic, Show)
   deriving anyclass (FromJSON, ToJSON)
 
-data Creatable p = Creatable
-  { username     :: Validate p Text Username
-  , emailAddress :: Validate p Text EmailAddress
-  , password     :: Validate p Text Password
-  }
-  deriving stock Generic
+data Creatable p = Creatable { username     :: Validate p Text Username
+                             , emailAddress :: Validate p Text EmailAddress
+                             , password     :: Validate p Text Password
+                             }
+  deriving stock (Generic)
 
 deriving stock instance Show (Creatable 'Validation.Raw)
 deriving anyclass instance ToJSON   (Creatable 'Validation.Raw)

@@ -12,19 +12,22 @@ Portability : POSIX
 
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Cascade.Data.Text.NonEmpty (NonEmpty, pattern NonEmpty, un, mk) where
+module Cascade.Data.Text.NonEmpty
+    ( NonEmpty
+    , mk
+    , pattern NonEmpty
+    , un
+    ) where
 
 
-import           Control.Lens.TH                     ( makeWrapped )
-import           Data.Aeson                          ( FromJSON
-                                                     , ToJSON
-                                                     )
-import qualified Data.Text                          as Text
-import           Prelude                      hiding ( NonEmpty )
+import           Control.Lens.TH ( makeWrapped )
+import           Data.Aeson      ( FromJSON, ToJSON )
+import qualified Data.Text       as Text
+import           Prelude         hiding ( NonEmpty )
 
-newtype NonEmpty = Mk
-  { un :: Text }
-  deriving newtype (Show, Eq, FromJSON, ToJSON)
+newtype NonEmpty
+  = Mk { un :: Text }
+  deriving newtype (Eq, FromJSON, Show, ToJSON)
 
 makeWrapped ''NonEmpty
 

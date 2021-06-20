@@ -13,17 +13,20 @@ Portability : POSIX
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Cascade.Api.Database.Sql.Query.Task (byId, byProjectId) where
+module Cascade.Api.Database.Sql.Query.Task
+    ( byId
+    , byProjectId
+    ) where
 
-import qualified Cascade.Api.Data.Project           as Project
-import qualified Cascade.Api.Data.Task              as Task
-import           Cascade.Api.Data.WrappedC           ( WrappedC(..) )
-import qualified Cascade.Api.Database.ProjectTable  as ProjectTable
-import           Cascade.Api.Database.Sql            ( Q )
-import qualified Cascade.Api.Database.Sql           as SQL
-import qualified Cascade.Api.Database.Sql.Query     as SQL.Query
-import           Cascade.Api.Database.TaskTable      ( TaskTable )
-import qualified Database.Beam                      as Beam
+import qualified Cascade.Api.Data.Project          as Project
+import qualified Cascade.Api.Data.Task             as Task
+import           Cascade.Api.Data.WrappedC         ( WrappedC (..) )
+import qualified Cascade.Api.Database.ProjectTable as ProjectTable
+import           Cascade.Api.Database.Sql          ( Q )
+import qualified Cascade.Api.Database.Sql          as SQL
+import qualified Cascade.Api.Database.Sql.Query    as SQL.Query
+import           Cascade.Api.Database.TaskTable    ( TaskTable )
+import qualified Database.Beam                     as Beam
 
 byId :: _ => Task.Id -> Q backend s (TaskTable (Beam.QExpr backend s))
 byId id = SQL.Query.all #tasks |> SQL.filter (#id `SQL.eq` SQL.literal id)

@@ -10,15 +10,14 @@ Portability : POSIX
 !!! INSERT MODULE LONG DESCRIPTION !!!
 -}
 
-module Cascade.Logger.Formatting (square, color) where
+module Cascade.Logger.Formatting
+    ( color
+    , square
+    ) where
 
-import qualified Data.Text                          as Text
-import           System.Console.ANSI                 ( Color
-                                                     , ColorIntensity(Vivid)
-                                                     , ConsoleLayer(Foreground)
-                                                     , SGR(..)
-                                                     , setSGRCode
-                                                     )
+import qualified Data.Text           as Text
+import           System.Console.ANSI
+    ( Color, ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..), setSGRCode )
 
 square :: Text -> Text
 square t = "[" <> t <> "] "
