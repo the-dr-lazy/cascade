@@ -30,6 +30,8 @@ in haskellPackages.shellFor {
     sqitchPg
     nodePackages.prettier
     nodePackages.yaml-language-server
+    nodePackages.bash-language-server
+    shellcheck
   ];
   shellHook = ''
     make setup
