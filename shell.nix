@@ -28,5 +28,10 @@ in haskellPackages.shellFor {
     stylish-haskell
     nixpkgs-fmt
     sqitchPg
+    nodePackages.prettier
+    nodePackages.yaml-language-server
   ];
+  shellHook = ''
+    make setup
+  '';
 }
