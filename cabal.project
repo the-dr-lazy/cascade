@@ -2,10 +2,13 @@ packages: cascade-prelude, cascade-api, cascade-cli
 with-compiler: ghc-8.8.4
 optimization: False
 documentation: True
+write-ghc-environment-files: always
 
 package *
   documentation: True
   ghc-options: -haddock
+               -fwrite-ide-info
+               -hiedir=.hie
 
 program-options
   ghc-options: -haddock
