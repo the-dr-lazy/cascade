@@ -22,12 +22,12 @@ jobs:
       - uses: cachix/cachix-action@v10
         with:
           name: cascade
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Cache ~/.cabal/store
         uses: actions/cache@v2.1.3
         with:
-          path: ${{ steps.haskell.outputs.cabal-store }}
+          path: ~/.cabal/store
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
       - name: Configure
