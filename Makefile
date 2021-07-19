@@ -15,7 +15,7 @@ clean:
 setup:
 	@git config core.hooksPath .githooks
 	@echo "Git hooks have been linked."
-	@./scripts/cabal
+	@./scripts/cabal.sh
 	@echo "Cabal files regenerated."
 
 wcabal:
