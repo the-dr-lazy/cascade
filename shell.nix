@@ -26,6 +26,10 @@ in haskellPackages.shellFor {
     sqitchPg
 
     ###################################################
+    # Languages:
+    dhall
+
+    ###################################################
     # Libraries:
     libjwt
     postgresql_13
@@ -37,10 +41,6 @@ in haskellPackages.shellFor {
     haskell-language-server
     nodePackages.bash-language-server
     nodePackages.yaml-language-server
-
-    ###################################################
-    # Languages:
-    dhall
 
     ###################################################
     # Package managers:
