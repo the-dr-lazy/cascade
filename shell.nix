@@ -8,32 +8,46 @@ let
 in haskellPackages.shellFor {
   packages = _: [ ];
   buildInputs = with pkgs; [
+    ###################################################
+    # Code styles:
+    (pkgs.haskell.lib.justStaticExecutables haskellPackages.stan)
+    headroom
+    hlint
+    nixpkgs-fmt
+    nodePackages.prettier
+    shellcheck
+    stylish-haskell
+
+    ###################################################
+    # Command line tools:
+    (pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall)
+    ghcid
+    gitFull
+    sqitchPg
+
+    ###################################################
     # Libraries:
-    zlib.dev
     libjwt
     postgresql_13
+    zlib.dev
 
-    # Dev tools:
-    gitFull
-    niv
-    headroom
-    cabal-install
-    haskell-language-server
-    dhall
+    ###################################################
+    # LSPs:
     dhall-lsp-server
-    (pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall)
-    (pkgs.haskell.lib.justStaticExecutables haskellPackages.stan)
-    ghcid
-    hlint
-    stylish-haskell
-    nixpkgs-fmt
-    sqitchPg
-    nodePackages.prettier
-    nodePackages.yaml-language-server
+    haskell-language-server
     nodePackages.bash-language-server
-    shellcheck
+    nodePackages.yaml-language-server
+
+    ###################################################
+    # Languages:
+    dhall
+
+    ###################################################
+    # Package managers:
+    cabal-install
+    niv
   ];
   shellHook = ''
-    make setup
+    make setup > /dev/null
   '';
 }
