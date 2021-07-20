@@ -40,7 +40,7 @@ jobs:
 
       - name: Check Formatting
         run: |
-          nix-shell -I nixpkgs=./nix -p cmake -p stylish-haskell --pure --run "make format"
+          nix-shell -I nixpkgs=./nix -p gnumake -p stylish-haskell --pure --run "make format"
 
           if [ -z "$(git status --porcelain)" ]; then
             echo "No formatting errors detected."
