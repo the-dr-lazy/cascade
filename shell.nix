@@ -21,6 +21,7 @@ in haskellPackages.shellFor {
     ###################################################
     # Command line tools:
     (pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall)
+    entr
     ghcid
     gitFull
     sqitchPg
