@@ -1,40 +1,52 @@
 {
-    "headroom-darwin": {
-        "sha256": "02mgcnrvii5vc8c6xwyw65c7z4712m1yjxr86nmkmmyx882c37af",
-        "type": "file",
-        "url": "https://github.com/vaclavsvejcar/headroom/releases/download/v0.4.2.0/headroom-0.4.2.0-macOS-ghc-8.10.4",
-        "url_template": "https://github.com/vaclavsvejcar/headroom/releases/download/v<version>/headroom-<version>-macOS-ghc-8.10.4",
-        "version": "0.4.2.0"
-    },
-    "headroom-linux": {
-        "sha256": "0m8w69c00zg9nkhmzvg7mzknv7wnc7j8c5y1hi5x0ynibsblgwkp",
-        "type": "file",
-        "url": "https://github.com/vaclavsvejcar/headroom/releases/download/v0.4.2.0/headroom-0.4.2.0-Linux-ghc-8.10.4",
-        "url_template": "https://github.com/vaclavsvejcar/headroom/releases/download/v<version>/headroom-<version>-Linux-ghc-8.10.4",
-        "version": "0.4.2.0"
-    },
-    "niv": {
-        "branch": "master",
-        "description": "Easy dependency management for Nix projects",
-        "homepage": "https://github.com/nmattia/niv",
-        "owner": "nmattia",
-        "repo": "niv",
-        "rev": "e0ca65c81a2d7a4d82a189f1e23a48d59ad42070",
-        "sha256": "1pq9nh1d8nn3xvbdny8fafzw87mj7gsmp6pxkdl65w2g18rmcmzx",
-        "type": "tarball",
-        "url": "https://github.com/nmattia/niv/archive/e0ca65c81a2d7a4d82a189f1e23a48d59ad42070.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "nixpkgs": {
-        "branch": "nixos-21.05",
-        "description": "Nix Packages collection",
-        "homepage": "",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "268dee84298d3affd8d7e92a8ea31f1fdcd44fc1",
-        "sha256": "0f1x4qdjsn5n6iz6jq1w73mh77agm07xgz8wqyp05pq48jp4013l",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/268dee84298d3affd8d7e92a8ea31f1fdcd44fc1.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    }
+  "haskell-nix": {
+    "branch": "master",
+    "description": "Alternative Haskell Infrastructure for Nixpkgs",
+    "homepage": "https://input-output-hk.github.io/haskell.nix",
+    "owner": "input-output-hk",
+    "repo": "haskell.nix",
+    "rev": "dbc2c05cb4555f9ce2289c482284f46b2d3dd0e6",
+    "sha256": "134dww1lfdy6ab2z7fb30lryphdaik8ln7zxx4ax04zg5di6c2bb",
+    "type": "tarball",
+    "url": "https://github.com/input-output-hk/haskell.nix/archive/dbc2c05cb4555f9ce2289c482284f46b2d3dd0e6.tar.gz",
+    "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+  },
+  "headroom-darwin": {
+    "sha256": "02mgcnrvii5vc8c6xwyw65c7z4712m1yjxr86nmkmmyx882c37af",
+    "type": "file",
+    "url": "https://github.com/vaclavsvejcar/headroom/releases/download/v0.4.2.0/headroom-0.4.2.0-macOS-ghc-8.10.4",
+    "url_template": "https://github.com/vaclavsvejcar/headroom/releases/download/v<version>/headroom-<version>-macOS-ghc-8.10.4",
+    "version": "0.4.2.0"
+  },
+  "headroom-linux": {
+    "sha256": "0m8w69c00zg9nkhmzvg7mzknv7wnc7j8c5y1hi5x0ynibsblgwkp",
+    "type": "file",
+    "url": "https://github.com/vaclavsvejcar/headroom/releases/download/v0.4.2.0/headroom-0.4.2.0-Linux-ghc-8.10.4",
+    "url_template": "https://github.com/vaclavsvejcar/headroom/releases/download/v<version>/headroom-<version>-Linux-ghc-8.10.4",
+    "version": "0.4.2.0"
+  },
+  "niv": {
+    "branch": "master",
+    "description": "Easy dependency management for Nix projects",
+    "homepage": "https://github.com/nmattia/niv",
+    "owner": "nmattia",
+    "repo": "niv",
+    "rev": "e0ca65c81a2d7a4d82a189f1e23a48d59ad42070",
+    "sha256": "1pq9nh1d8nn3xvbdny8fafzw87mj7gsmp6pxkdl65w2g18rmcmzx",
+    "type": "tarball",
+    "url": "https://github.com/nmattia/niv/archive/e0ca65c81a2d7a4d82a189f1e23a48d59ad42070.tar.gz",
+    "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+  },
+  "nixpkgs": {
+    "branch": "nixos-21.05",
+    "description": "Nix Packages collection",
+    "homepage": "",
+    "owner": "NixOS",
+    "repo": "nixpkgs",
+    "rev": "268dee84298d3affd8d7e92a8ea31f1fdcd44fc1",
+    "sha256": "0f1x4qdjsn5n6iz6jq1w73mh77agm07xgz8wqyp05pq48jp4013l",
+    "type": "tarball",
+    "url": "https://github.com/NixOS/nixpkgs/archive/268dee84298d3affd8d7e92a8ea31f1fdcd44fc1.tar.gz",
+    "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+  }
 }
