@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -I nixpkgs=./nix -i bash -p hpack-dhall --pure
+#! nix-shell -I nixpkgs=./nix -i bash -p hpack-dhall
 
 set -euo pipefail
 
