@@ -17,6 +17,7 @@ jobs:
       - uses: cachix/cachix-action@v10
         with:
           name: cascade
+          extraPullNames: iohk
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build
         run: nix-build shell.nix
