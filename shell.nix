@@ -6,7 +6,7 @@
 #   };
 
 project.shellFor {
-  packages = ps: with ps; [ cascade ];
+  packages = ps: with ps; [ cascade-cli ];
 
   withHoogle = true;
 
