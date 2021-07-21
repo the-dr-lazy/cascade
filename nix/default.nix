@@ -21,6 +21,10 @@ let
       else
         throw "There is no Headroom executable for this system architecture.";
     })
+    (final: _: {
+      hpack-dhall = final.haskell.lib.justStaticExecutables
+        (final.haskellPackages.hpack-dhall);
+    })
   ];
 
 in import haskell-nix.sources.nixpkgs-2105

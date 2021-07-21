@@ -30,8 +30,9 @@ jobs:
           path: ~/.cabal/store
           key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
 
-      - name: Configure
+      - name: Setup
         run: |
+          make setup
           nix-shell --pure --run "cabal update"
           nix-shell --pure --run "cabal new-configure --disable-documentation \
                                                       --disable-optimization \
