@@ -1,0 +1,22 @@
+name: nix
+
+on:
+  pull_request:
+    branches:
+      - next
+      - master
+
+jobs:
+  darwin:
+    name: Darwin
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v13
+      - uses: cachix/cachix-action@v10
+        with:
+          name: cascade
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: Build
+        run: nix-build shell.nix
