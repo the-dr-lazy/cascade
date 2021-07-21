@@ -20,4 +20,4 @@ jobs:
           extraPullNames: iohk
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build
-        run: nix-build shell.nix
+        run: nix-build shell.nix --quiet
