@@ -32,6 +32,7 @@ jobs:
 
       - name: Setup
         run: |
+          make setup
           nix-shell --pure --run "cabal update"
           nix-shell --pure --run "cabal new-configure --disable-documentation \
                                                       --disable-optimization \
