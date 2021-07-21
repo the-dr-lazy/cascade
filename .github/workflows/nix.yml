@@ -19,7 +19,5 @@ jobs:
           name: cascade
           extraPullNames: iohk
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - name: Setup
-        run: make setup
       - name: Build
         run: nix-build shell.nix --quiet
