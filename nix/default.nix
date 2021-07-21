@@ -1,26 +1,27 @@
 { system ? builtins.currentSystem, sources ? import ./sources.nix { } }:
 
 let
-  headroom-exe = if system == "x86_64-darwin" then
+  headroom = if system == "x86_64-darwin" then
     sources.headroom-darwin
   else if system == "x86_64-linux" then
     sources.headroom-linux
   else
     null;
 
-in import sources.nixpkgs {
-  overlays = [
-    (_: _: { inherit sources; })
+  haskell-nix = import sources.haskell-nix { };
+
+  overlays = haskell-nix.nixpkgsArgs.overlays ++ [
     (final: _: {
-      headroom = if headroom-exe != null then
+      headroom = if headroom != null then
         final.runCommand "headroom" { } ''
           mkdir -p $out/bin
-          cp ${headroom-exe} $out/bin/headroom
+          cp ${headroom} $out/bin/headroom
           chmod +x $out/bin/headroom
         ''
       else
         throw "There is no Headroom executable for this system architecture.";
     })
   ];
-  config = { };
-}
+
+in import haskell-nix.sources.nixpkgs-2105
+(haskell-nix.nixpkgsArgs // { inherit overlays; })
