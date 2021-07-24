@@ -6,6 +6,7 @@ let
   };
 
 in haskellPackages.shellFor {
+  name = "Cascade";
   packages = _: [ ];
   buildInputs = with pkgs; [
     ###################################################
@@ -48,7 +49,4 @@ in haskellPackages.shellFor {
     cabal-install
     niv
   ];
-  shellHook = ''
-    make setup > /dev/null
-  '';
 }
