@@ -5,48 +5,56 @@ let
     overrides = final: prev: { haskeline = final.haskeline_0_8_1_2; };
   };
 
-in haskellPackages.shellFor {
+  ci = builtins.getEnv "CI" == "true";
+
+  scriptsDir = builtins.toString ./scripts;
+in
+haskellPackages.shellFor {
   name = "Cascade";
   packages = _: [ ];
-  buildInputs = with pkgs; [
+  buildInputs = builtins.concatMap builtins.attrValues [
     ###################################################
-    # Code styles:
-    (pkgs.haskell.lib.justStaticExecutables haskellPackages.stan)
-    headroom
-    hlint
-    nixpkgs-fmt
-    nodePackages.prettier
-    shellcheck
-    stylish-haskell
+    # Command line tools:
+    {
+      inherit (pkgs) headroom hlint nixpkgs-fmt shellcheck stylish-haskell;
+      inherit (pkgs.nodePackages) prettier;
+
+      stan = pkgs.haskell.lib.justStaticExecutables haskellPackages.stan;
+    }
 
     ###################################################
     # Command line tools:
-    (pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall)
-    entr
-    ghcid
-    gitFull
-    sqitchPg
+    {
+      inherit (pkgs) entr ghcid gitFull sqitchPg;
+      hpack-dhall = pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall;
+    }
 
     ###################################################
     # Languages:
-    dhall
+    { inherit (pkgs) dhall; }
 
     ###################################################
-    # Libraries:
-    libjwt
-    postgresql_13
-    zlib.dev
+    # Nativ libraries:
+    {
+      inherit (pkgs) libjwt postgresql_13;
+      zlib = pkgs.zlib.dev;
+    }
 
     ###################################################
     # LSPs:
-    dhall-lsp-server
-    haskell-language-server
-    nodePackages.bash-language-server
-    nodePackages.yaml-language-server
+    {
+      inherit (pkgs) dhall-lsp-server haskell-language-server;
+      inherit (pkgs.nodePackages) bash-language-server yaml-language-server;
+    }
 
     ###################################################
     # Package managers:
-    cabal-install
-    niv
+    {
+      inherit (pkgs) cabal-install niv;
+    }
   ];
+
+  shellHook = ''
+    ${scriptsDir}/cabal.sh
+  '';
 }
