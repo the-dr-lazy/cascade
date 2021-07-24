@@ -1,15 +1,12 @@
-{ pkgs ? import ./nix { }, project ? import ./default.nix { } }:
+{ pkgs ? import ./nix { }, compiler ? "ghc884" }:
 
-# let
-#   haskellPackages = pkgs.haskell.packages.${compiler}.override {
-#     overrides = final: prev: { haskeline = final.haskeline_0_8_1_2; };
-#   };
+let
+  haskellPackages = pkgs.haskell.packages.${compiler}.override {
+    overrides = final: prev: { haskeline = final.haskeline_0_8_1_2; };
+  };
 
-project.shellFor {
-  packages = ps: with ps; [ cascade-cli ];
-
-  withHoogle = true;
-
+in haskellPackages.shellFor {
+  packages = _: [ ];
   buildInputs = with pkgs; [
     ###################################################
     # Code styles:
@@ -51,6 +48,7 @@ project.shellFor {
     cabal-install
     niv
   ];
-
-  exactDeps = true;
+  shellHook = ''
+    make setup > /dev/null
+  '';
 }
