@@ -18,10 +18,8 @@ setup:
 	@./scripts/cabal.sh
 	@echo "Cabal files regenerated."
 
-wcabal:
-	while sleep 0.3; do \
-	  git ls-files -cmo | egrep "\.hs$$|\.dhall$$" | entr -cdr ./scripts/cabal; \
-	done
+wcabal: ## Generate Cabal files from Dhall in watch mode.
+	@./scripts/watched-cabal.sh
 
 format: ## Run the code formatter.
 	@stylish-haskell -r -i .

@@ -1,5 +1,6 @@
-#! /bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-for file in $(find . -type f -path "./*/*" -name *.dhall); do
+for file in $(git ls-files -cmo | egrep "[^\/]+/package.dhall"); do
 	dhall-hpack-cabal --package-dhall $file
 done
