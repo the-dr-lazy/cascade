@@ -2,12 +2,8 @@ name: CI
 
 on:
   pull_request:
-    branches:
-      - next
-      - master
   push:
     branches:
-      - next
       - master
 
 jobs:
@@ -18,42 +14,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v13
-
       - uses: cachix/cachix-action@v10
         with:
           name: cascade
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
       - name: Cache ~/.cabal/store
         uses: actions/cache@v2.1.3
         with:
           path: ~/.cabal/store
-          key: build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project') }}-${{ hashFiles('cabal.project.freeze') }}-${{ hashFiles('cabal.project.local') }}
-
-      - name: Configure
+          key: ${{ runner.os }}-build-${{ hashFiles('shell.nix', 'cabal.project', 'cabal.project.freeze', 'cabal.project.local') }}
+      - name: Bootstrap
         run: |
-          nix-shell --pure --run "cabal update"
-          nix-shell --pure --run "cabal new-configure --disable-documentation \
+          nix-shell --pure --run "./scripts/bootstrap.sh && \
+                                  cabal update && \
+                                  cabal new-configure --disable-documentation \
                                                       --disable-optimization \
                                                       --enable-tests \
                                                       --enable-benchmarks \
                                                       --disable-coverage \
                                                       --test-show-details=direct"
-
-      - name: Install Dependencies
-        run: |
-          nix-shell --pure --run "cabal new-build all --only-dependencies"
-
       - name: Build
-        run: |
-          nix-shell --pure --run "cabal new-build all"
-
+        run: nix-shell --pure --run "cabal new-build all"
       - name: Cache ~/.cascade/tmp-postgres
         uses: actions/cache@v2.1.3
         with:
           path: ~/.cascade/tmp-postgres
-          key: test-${{ runner.os }}-${{ hashFiles('migrations/**/*') }}
-
+          key: ${{ runner.os }}-test-${{ hashFiles('migrations/**/*') }}
       - name: Test
-        run: |
-          nix-shell --pure --run "cabal new-test all"
+        run: nix-shell --pure --run "cabal new-test all"
