@@ -2,50 +2,25 @@ name: Code Style
 
 on:
   pull_request:
-    braches:
-      - next
-      - master
   push:
-    braches:
-      - next
-      - master
+    braches: [master]
 
 jobs:
-  headroom:
-    name: © Headers
+  checks:
+    name: Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v13
-
       - uses: cachix/cachix-action@v10
         with:
           name: cascade
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Check headers
-        run: nix-shell -I nixpkgs=./nix -p headroom --pure --run "headroom run --check-headers"
-
-  formatting:
-    name: Formatting
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: cachix/install-nix-action@v13
-
-      - uses: cachix/cachix-action@v10
-        with:
-          name: cascade
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
-      - name: Check Formatting
         run: |
-          nix-shell -I nixpkgs=./nix -p gnumake -p stylish-haskell --pure --run "make format"
-
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No formatting errors detected."
-          else
-            echo "Formatting errors detected:"
-            git --no-pager diff
-            exit 1
-          fi
+          set +e
+          nix-shell --pure --run "pre-commit run --all-files"
+          exitcode=$?
+          [ $exitcode != 0 ] && git --no-pager diff --color
+          exit $exitcode
