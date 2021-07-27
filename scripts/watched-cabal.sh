@@ -2,5 +2,5 @@
 set -euo pipefail
 
 while sleep 1; do
-    git ls-files -cmo | egrep ".hs|.dhall" | entr -cdr ./scripts/cabal.sh
+    git ls-files -cmo | grep -E ".hs|.dhall" | entr -cdr ./scripts/cabal.sh
 done
