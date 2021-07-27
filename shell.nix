@@ -29,7 +29,7 @@ pkgs.project.haskellPackages.shellFor {
     ###################################################
     # Command line tools:
     {
-      inherit (pkgs) entr ghcid gitFull sqitchPg;
+      inherit (pkgs) entr ghcid git git-lfs sqitchPg;
 
       hpack-dhall = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.hpack-dhall;
     }
