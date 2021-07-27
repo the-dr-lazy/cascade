@@ -1,60 +1,53 @@
-{ pkgs ? import ./nix { }, compiler ? "ghc884" }:
+{ pkgs ? import ./nix { } }:
 
-let
-  haskellPackages = pkgs.haskell.packages.${compiler}.override {
-    overrides = final: prev: { haskeline = final.haskeline_0_8_1_2; };
-  };
-
-  ci = builtins.getEnv "CI" == "true";
-
-  scriptsDir = builtins.toString ./scripts;
-in
-haskellPackages.shellFor {
+pkgs.project.haskellPackages.shellFor {
   name = "Cascade";
+
   packages = _: [ ];
+
   buildInputs = builtins.concatMap builtins.attrValues [
     ###################################################
-    # Command line tools:
+    # Native libraries:
     {
-      inherit (pkgs) headroom hlint nixpkgs-fmt shellcheck stylish-haskell;
+      inherit (pkgs) libjwt postgresql_13;
+
+      zlib = pkgs.zlib.dev;
+    }
+  ];
+
+  nativeBuildInputs = builtins.concatMap builtins.attrValues [
+    ###################################################
+    # Code styles:
+    {
+      inherit (pkgs) pre-commit headroom hlint nixpkgs-fmt nix-linter shellcheck shfmt stylish-haskell;
+      inherit (pkgs.python3Packages) pre-commit-hooks yamllint;
       inherit (pkgs.nodePackages) prettier;
 
-      stan = pkgs.haskell.lib.justStaticExecutables haskellPackages.stan;
+      stan = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.stan;
     }
 
     ###################################################
     # Command line tools:
     {
       inherit (pkgs) entr ghcid gitFull sqitchPg;
-      hpack-dhall = pkgs.haskell.lib.justStaticExecutables haskellPackages.hpack-dhall;
+
+      hpack-dhall = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.hpack-dhall;
     }
 
     ###################################################
     # Languages:
     { inherit (pkgs) dhall; }
 
-    ###################################################
-    # Nativ libraries:
-    {
-      inherit (pkgs) libjwt postgresql_13;
-      zlib = pkgs.zlib.dev;
-    }
 
     ###################################################
-    # LSPs:
+    # Language servers:
     {
       inherit (pkgs) dhall-lsp-server haskell-language-server;
-      inherit (pkgs.nodePackages) bash-language-server yaml-language-server;
+      inherit (pkgs.nodePackages) bash-language-server yaml-language-server vscode-json-languageserver-bin;
     }
 
     ###################################################
     # Package managers:
-    {
-      inherit (pkgs) cabal-install niv;
-    }
+    { inherit (pkgs) cabal-install niv; }
   ];
-
-  shellHook = ''
-    ${scriptsDir}/cabal.sh
-  '';
 }
