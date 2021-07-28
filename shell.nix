@@ -1,4 +1,4 @@
-{ pkgs ? import ./nix { } }:
+{ pkgs }:
 
 pkgs.project.haskellPackages.shellFor {
   name = "Cascade";
@@ -19,11 +19,12 @@ pkgs.project.haskellPackages.shellFor {
     ###################################################
     # Code styles:
     {
-      inherit (pkgs) pre-commit headroom hlint nixpkgs-fmt nix-linter shellcheck shfmt stylish-haskell;
+      inherit (pkgs) pre-commit hlint nixpkgs-fmt nix-linter shellcheck shfmt stylish-haskell;
       inherit (pkgs.python3Packages) pre-commit-hooks yamllint;
       inherit (pkgs.nodePackages) prettier;
 
       stan = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.stan;
+      headroom = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.headroom;
     }
 
     ###################################################
@@ -48,6 +49,6 @@ pkgs.project.haskellPackages.shellFor {
 
     ###################################################
     # Package managers:
-    { inherit (pkgs) cabal-install niv; }
+    { inherit (pkgs) cabal-install; }
   ];
 }

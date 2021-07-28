@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v13
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
       - uses: cachix/cachix-action@v10
         with:
           name: cascade
@@ -20,7 +23,7 @@ jobs:
       - name: Check headers
         run: |
           set +e
-          nix-shell --pure --run "pre-commit run --all-files"
+          nix develop -c pre-commit run --all-files
           exitcode=$?
           [ $exitcode != 0 ] && git --no-pager diff --color
           exit $exitcode
