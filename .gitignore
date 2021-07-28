@@ -60,3 +60,6 @@ Temporary Items
 
 # Coverage
 coverage
+
+# nix-direnv
+.direnv
