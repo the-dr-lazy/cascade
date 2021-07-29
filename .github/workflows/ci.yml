@@ -37,7 +37,7 @@ jobs:
                                              --enable-tests \
                                              --enable-benchmarks \
                                              --disable-coverage \
-                                             --test-show-details=direct"
+                                             --test-show-details=direct
       - name: Build
         run: nix develop -c cabal build all
       - name: Cache ~/.cascade/tmp-postgres
