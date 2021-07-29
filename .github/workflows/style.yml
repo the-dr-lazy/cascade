@@ -25,7 +25,7 @@ jobs:
       - name: Check headers
         run: |
           set +e
-          nix develop -c pre-commit run --all-files
+          nix -Lv develop -c pre-commit run --all-files
           exitcode=$?
           [ $exitcode != 0 ] && git --no-pager diff --color
           exit $exitcode
