@@ -28,8 +28,8 @@ jobs:
         with:
           path: ~/.cabal/store
           key: ${{ runner.os }}-build-${{ hashFiles('shell.nix', 'cabal.project', 'cabal.project.freeze', 'cabal.project.local') }}
-          restore-keys:
-            - ${{ runner.os }}-build-
+          restore-keys: |
+            ${{ runner.os }}-build-
       - name: Bootstrap
         run: |
           nix develop -c ./scripts/bootstrap.sh
