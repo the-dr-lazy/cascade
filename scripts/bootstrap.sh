@@ -5,9 +5,12 @@ SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ROOT_DIR=$(dirname "$SCRIPTS_DIR")
 SERVICES_DIR="$ROOT_DIR/services"
 
-[[ "${CI:-false}" == "true" ]] || pre-commit install
-
 "$SCRIPTS_DIR/cabal.sh"
+
+if [[ "${CI:-false}" == "true" ]]; then
+    printf "Short circuiting because of CI environment"
+    exit 0
+fi
 
 case "$(uname)" in
     'Darwin')
