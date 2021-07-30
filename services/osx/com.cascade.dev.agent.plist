@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.cascade.dev.agent</string>
+
+    <key>KeepAlive</key>
+    <true />
+
+    <key>WorkingDirectory</key>
+    <string><!--CASCADE_ROOT--></string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/env</string>
+      <string>bash</string>
+      <string>-c</string>
+      <string>$SHELL -c scripts/agent-wrapper.sh</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+      <string><!--CASCADE_ROOT-->/scripts/agent-wrapper.sh</string>
+      <string><!--CASCADE_ROOT-->/scripts/agent.sh</string>
+    </array>
+
+    <key>ProcessType</key>
+    <string>Standard</string>
+
+    <!-- Uncomment for debugging
+    <key>Debug</key>
+    <true />
+
+    <key>StandardOutPath</key>
+    <string>.local/log/dev.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>.local/log/dev.log</string>
+    -->
+  </dict>
+</plist>
