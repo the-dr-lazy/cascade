@@ -2,8 +2,8 @@
 set -euo pipefail
 
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIR=$(dirname "$SCRIPTS_DIR")
-SERVICES_DIR="$ROOT_DIR/services"
+# shellcheck source=scripts/variables.sh
+source "$SCRIPTS_DIR/variables.sh"
 
 "$SCRIPTS_DIR/cabal.sh"
 

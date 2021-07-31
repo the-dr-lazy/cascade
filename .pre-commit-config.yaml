@@ -113,7 +113,7 @@ repos:
             id: shellcheck
             types: [shell]
             language: system
-            entry: shellcheck
+            entry: shellcheck -x
 
           #############################################
           # Haskell

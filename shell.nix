@@ -33,6 +33,7 @@ pkgs.project.haskellPackages.shellFor {
       inherit (pkgs) entr ghcid git git-lfs sqitchPg;
 
       hpack-dhall = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.hpack-dhall;
+      dhall-yaml = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.dhall-yaml;
     }
 
     ###################################################

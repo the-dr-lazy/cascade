@@ -16,8 +16,7 @@ module Cascade.Logger.Severity
     ) where
 
 import           Cascade.Logger.Formatting
-import qualified Data.Text                 as Text
-import           GHC.Stack                 ( SrcLoc (..) )
+import           GHC.Stack                 ( SrcLoc (SrcLoc, srcLocModule, srcLocStartLine) )
 import           System.Console.ANSI       ( Color (..) )
 
 data Severity = Debug | Info | Warning | Error | Panic deriving stock (Eq)
@@ -37,4 +36,4 @@ prettyPrintStackTrace cs = case getCallStack cs of
 
 prettyPrintStackTraceLocation :: String -> SrcLoc -> Text
 prettyPrintStackTraceLocation callerName SrcLoc {..} =
-  Text.pack srcLocModule <> "." <> Text.pack callerName <> "#" <> Text.pack (show srcLocStartLine)
+  toText srcLocModule <> "." <> toText callerName <> "#" <> show srcLocStartLine
