@@ -22,6 +22,8 @@ jobs:
           name: cascade
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
+      - name: Bootstrap
+        run: nix -Lv develop -c ./scripts/bootstrap.sh
       - name: Check headers
         run: |
           set +e
