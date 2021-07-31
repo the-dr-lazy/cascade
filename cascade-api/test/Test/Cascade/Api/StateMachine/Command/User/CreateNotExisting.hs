@@ -55,7 +55,7 @@ generator model = Just do
   pure $ CreateNotExisting { .. }
 
 coverage :: MonadTest m => CreateNotExisting Concrete -> m ()
-coverage (CreateNotExisting Valid   _        ) = pure ()
+coverage (CreateNotExisting Valid   _        ) = pass
 coverage (CreateNotExisting Invalid creatable) = do
   cover 5 "too short username"    isUsernameTooShort
   cover 5 "too long username"     isUsernameTooLong

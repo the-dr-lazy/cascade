@@ -67,4 +67,4 @@ authenticated sections@(headerAndPayload, sig) = mkAuthenticatedRequest
   \_ request -> request { requestHeaders = request |> requestHeaders |> (Seq.|> (hCookie, cookie)) }
  where
   cookie =
-    renderCookies [(headerAndPayloadCookieName, headerAndPayload), (signatureCookieName, sig)] |> Builder.toLazyByteString |> LW8.toStrict
+    renderCookies [(headerAndPayloadCookieName, headerAndPayload), (signatureCookieName, sig)] |> Builder.toLazyByteString |> toStrict

@@ -66,10 +66,11 @@ data PrivateClaims = PrivateClaims { userId :: User.Id
   deriving stock (Eq, Generic, Show)
   deriving anyclass (Libjwt.FromPrivateClaims, Libjwt.ToPrivateClaims)
 
-
 type Jwt = Libjwt.Jwt PrivateClaimsList ( 'Libjwt.SomeNs Namespace)
 
-type JwtSections = (ByteString, ByteString)
+type HeaderAndPayload = ByteString
+type Signature = ByteString
+type JwtSections = (HeaderAndPayload, Signature)
 
 mk :: User.Id -> JwtSections
 mk userId = Libjwt.sign algorithm payload |> Libjwt.getToken |> dissociate
@@ -107,5 +108,5 @@ dissociate jwt = W8.breakEnd isSeparator jwt |> _1 %~ W8.init
 {-# INLINE dissociate #-}
 
 reassociate :: ByteString -> ByteString -> ByteString
-reassociate headerAndPayload sig = W8.intercalate (W8.singleton separator) [headerAndPayload, sig]
+reassociate headerAndPayload sig = W8.intercalate (one separator) [headerAndPayload, sig]
 {-# INLINE reassociate #-}

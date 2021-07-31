@@ -15,7 +15,6 @@ module Cascade.Logger.Formatting
     , square
     ) where
 
-import qualified Data.Text           as Text
 import           System.Console.ANSI
     ( Color, ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..), setSGRCode )
 
@@ -23,4 +22,4 @@ square :: Text -> Text
 square t = "[" <> t <> "] "
 
 color :: Color -> Text -> Text
-color c txt = Text.pack (setSGRCode [SetColor Foreground Vivid c]) <> txt <> Text.pack (setSGRCode [Reset])
+color c txt = toText (setSGRCode [SetColor Foreground Vivid c]) <> txt <> toText (setSGRCode [Reset])

@@ -43,7 +43,7 @@ apacheLog :: Request -> Int -> Maybe Jwt.PrivateClaims -> Text
 apacheLog req responseCode mclaims =
   ip <> " - " <> userId <> "\"" <> decodeUtf8 method <> " " <> decodeUtf8 path <> " " <> show (httpVersion req) <> "\" " <> show responseCode
  where
-  ip     = Text.pack . showSockAddr . remoteHost <| req
+  ip     = toText . showSockAddr . remoteHost <| req
   path   = rawPathInfo req <> rawQueryString req
   method = requestMethod req
   userId = case mclaims of
