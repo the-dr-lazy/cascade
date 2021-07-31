@@ -5,7 +5,8 @@ SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # shellcheck source=scripts/variables.sh
 source "$SCRIPTS_DIR/variables.sh"
 
-"$SCRIPTS_DIR/cabal.sh"
+"$GENERATOR_SCRIPTS_DIR/cabal.sh"
+"$GENERATOR_SCRIPTS_DIR/hlint.sh"
 
 if [[ "${CI:-false}" == "true" ]]; then
     printf "Short circuiting because of CI environment"
