@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  database:
+    container_name: cascade-postgres
+    image: postgres:14.1-alpine
+    restart: "no"
+    environment:
+      POSTGRES_USER: cascade
+      POSTGRES_PASSWORD: cascade
+      POSTGRES_DB: cascade-dev
+    logging:
+      options:
+        max-size: 8m
+        max-file: "3" # docker-compose bug: needs string instead of number
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    volumes:
+      - ./.local/cascade-postgres/data:/var/lib/postgresql/data
