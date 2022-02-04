@@ -23,7 +23,6 @@ module Cascade.Api.Effect.Scrypt
 import           Cascade.Api.Data.ByteString.Password ( Password, pattern Password )
 import qualified Cascade.Api.Data.ByteString.Password as Password
 import           Control.Lens.TH                      ( makeWrapped )
-import qualified Crypto.Scrypt                        as Scrypt
 import           Polysemy
     ( Embed, Member, Sem, embed, interpret, makeSem )
 
@@ -45,8 +44,8 @@ encryptPassword :: Member ScryptL r => Password -> Sem r (Encrypted Password)
 encryptPassword = encrypt . Password.un
 
 verifyPassword :: Password -> Encrypted Password -> Bool
-verifyPassword (Password p) ep = Scrypt.verifyPass' (coerce p) (coerce ep)
+verifyPassword (Password p) ep = True -- ToDo
 
 run :: Member (Embed IO) r => Sem (ScryptL ': r) a -> Sem r a
 run = interpret \case
-  Encrypt x -> Scrypt.encryptPassIO' (coerce x) |> coerce |> fmap Mk |> embed
+  Encrypt x -> pure "TEST" |> fmap Mk |> embed -- ToDo

@@ -2,7 +2,6 @@ let Cascade = ../package.dhall
 
 let dependencies =
       [ "aeson"
-      , "base-noprelude"
       , "bytestring"
       , "cascade-prelude"
       , "chronos"
@@ -35,7 +34,6 @@ let cascade-api =
         , "http-media"
         , "libjwt-typed"
         , "relude"
-        , "scrypt"
         , "selective"
         , "servant-server"
         , "validation-selective"
@@ -84,13 +82,13 @@ let cascade-api-benchmark =
       , dependencies = [ "gauge", "cascade-api" ]
       }
 
-in    Cascade.package
-    ⫽ { name = "cascade-api"
-      , synopsis = "Cascade Web API"
-      , description = "Cascade Web API"
-      , category = "Web"
-      , dependencies
-      , library = cascade-api
-      , tests.cascade-api-test = cascade-api-test
-      , benchmarks.cascade-api-benchmark = cascade-api-benchmark
-      }
+in      Cascade.package
+    //  { name = "cascade-api"
+        , synopsis = "Cascade Web API"
+        , description = "Cascade Web API"
+        , category = "Web"
+        , dependencies
+        , library = cascade-api
+        , tests.cascade-api-test = cascade-api-test
+        , benchmarks.cascade-api-benchmark = cascade-api-benchmark
+        }

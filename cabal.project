@@ -1,5 +1,5 @@
 packages: cascade-prelude, cascade-api, cascade-cli
-with-compiler: ghc-8.8.4
+with-compiler: ghc-8.10.7
 optimization: False
 documentation: True
 write-ghc-environment-files: always

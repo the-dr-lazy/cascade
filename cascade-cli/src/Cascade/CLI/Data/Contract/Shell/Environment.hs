@@ -14,6 +14,7 @@ module Cascade.CLI.Data.Contract.Shell.Environment
     ( readConfig
     ) where
 
+import           System.Environment                             (lookupEnv)
 import qualified Cascade.CLI.Data.Contract.Shell.Environment.Var as Environment.Var
 import           Cascade.CLI.Data.Model.Config                   ( ConfigP (..) )
 import qualified Cascade.CLI.Data.Model.Config                   as Config

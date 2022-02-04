@@ -1,6 +1,6 @@
 let Cascade = ../package.dhall
 
-let dependencies = [ "base-noprelude", "cascade-prelude" ]
+let dependencies = [ "cascade-prelude" ]
 
 let cascade =
       { source-dirs = "app"
@@ -38,13 +38,13 @@ let cascade-cli-test =
       , ghc-options = [ "-threaded", "-rtsopts", "-with-rtsopts=-N" ]
       }
 
-in    Cascade.package
-    ⫽ { name = "cascade-cli"
-      , synopsis = "Cascade command line tool"
-      , description = "Cascade command line tool"
-      , category = "CLI"
-      , dependencies
-      , executables.cascade = cascade
-      , library = cascade-cli
-      , tests.cascade-cli-test = cascade-cli-test
-      }
+in      Cascade.package
+    //  { name = "cascade-cli"
+        , synopsis = "Cascade command line tool"
+        , description = "Cascade command line tool"
+        , category = "CLI"
+        , dependencies
+        , executables.cascade = cascade
+        , library = cascade-cli
+        , tests.cascade-cli-test = cascade-cli-test
+        }
