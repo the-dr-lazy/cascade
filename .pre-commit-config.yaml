@@ -96,7 +96,7 @@ repos:
         id: dhall-lint
         files: '\.dhall$'
         language: system
-        entry: ./scripts/fmap.sh "dhall lint --inplace"
+        entry: dhall lint
 
       #############################################
       # Shell
