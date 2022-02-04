@@ -1,7 +1,7 @@
 {-|
 Module      : Cascade.CLI.Data.Contract.Shell.Environment
 Description : !!! INSERT MODULE SHORT DESCRIPTION !!!
-Copyright   : (c) 2020-2021 Cascade
+Copyright   : (c) 2020-2022 Cascade
 License     : MPL 2.0
 Maintainer  : Mohammad Hasani <the-dr-lazy@pm.me> (the-dr-lazy.github.io)
 Stability   : Stable

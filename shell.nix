@@ -1,7 +1,7 @@
-{ pkgs }:
+{ name, pkgs }:
 
 pkgs.project.haskellPackages.shellFor {
-  name = "Cascade";
+  inherit name;
 
   packages = _: [ ];
 
@@ -19,9 +19,17 @@ pkgs.project.haskellPackages.shellFor {
     ###################################################
     # Code styles:
     {
-      inherit (pkgs) pre-commit hlint nixpkgs-fmt nix-linter shellcheck shfmt stylish-haskell;
-      inherit (pkgs.python3Packages) pre-commit-hooks yamllint;
+      inherit (pkgs)
+        pre-commit
+        hlint
+        nixpkgs-fmt
+        nix-linter
+        shellcheck
+        shfmt
+        stylish-haskell;
+      inherit (pkgs.unstable.python310Packages) pre-commit-hooks yamllint;
       inherit (pkgs.nodePackages) prettier;
+
 
       stan = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.stan;
       headroom = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.headroom;
@@ -30,8 +38,13 @@ pkgs.project.haskellPackages.shellFor {
     ###################################################
     # Command line tools:
     {
-      inherit (pkgs) entr ghcid git git-lfs sqitchPg;
+      inherit (pkgs)
+        entr
+        git
+        git-lfs
+        sqitchPg;
 
+      ghcid = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.ghcid;
       hpack-dhall = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.hpack-dhall;
       dhall-yaml = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.dhall-yaml;
     }
@@ -44,8 +57,14 @@ pkgs.project.haskellPackages.shellFor {
     ###################################################
     # Language servers:
     {
-      inherit (pkgs) dhall-lsp-server haskell-language-server;
-      inherit (pkgs.nodePackages) bash-language-server yaml-language-server vscode-json-languageserver-bin;
+      inherit (pkgs)
+        dhall-lsp-server;
+      inherit (pkgs.nodePackages)
+        bash-language-server
+        yaml-language-server
+        vscode-json-languageserver-bin;
+
+      haskell-language-server = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.haskell-language-server;
     }
 
     ###################################################
