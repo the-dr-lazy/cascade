@@ -1,6 +1,6 @@
 let Cascade = ../package.dhall
 
-let dependencies = [ "chronos", "bytestring", "base-noprelude" ]
+let dependencies = [ "chronos", "bytestring", "base" ]
 
 let cascade-prelude =
       { source-dirs = "src"
@@ -19,6 +19,15 @@ let cascade-prelude =
         , "vector"
         , "word8"
         ]
+      , reexported-modules =
+        [ "Control.Exception"
+        , "Data.List"
+        , "Data.Version"
+        , "GHC.Generics"
+        , "System.Environment"
+        , "System.IO"
+        , "System.IO.Error"
+        ]
       }
 
 let cascade-prelude-test =
@@ -36,11 +45,12 @@ let cascade-prelude-test =
         ]
       }
 
-in    Cascade.package
-    ⫽ { name = "cascade-prelude"
-      , synopsis = "Cascade custom prelude"
-      , description = "Cascade custom prelude"
-      , dependencies
-      , library = cascade-prelude
-      , tests.cascade-prelude-test = cascade-prelude-test
-      }
+in      Cascade.package
+    //  { name = "cascade-prelude"
+        , synopsis = "Cascade custom prelude"
+        , description = "Cascade custom prelude"
+        , dependencies
+        , mixin = [ "base hiding (Prelude)" ]
+        , library = cascade-prelude
+        , tests.cascade-prelude-test = cascade-prelude-test
+        }

@@ -1,136 +1,133 @@
-exclude: '(nix/sources.nix$)'
+exclude: "(nix/sources.nix$)"
 repos:
-    - repo: local
-      hooks:
-          #############################################
-          # Constitutionals
-          #
-          # Reference: https://github.com/pre-commit/pre-commit-hooks/blob/d0d9883648b4b30a43cd965471c9b5fa8f8a4131/.pre-commit-hooks.yaml
-          - name: Check for case conflicts
-            id: check-case-conflict
-            language: system
-            entry: check-case-conflict
+  - repo: local
+    hooks:
+      #############################################
+      # Constitutionals
+      #
+      # Reference: https://github.com/pre-commit/pre-commit-hooks/blob/d0d9883648b4b30a43cd965471c9b5fa8f8a4131/.pre-commit-hooks.yaml
+      - name: Check for case conflicts
+        id: check-case-conflict
+        language: system
+        entry: check-case-conflict
 
-          - name: Check for merge conflicts
-            id: check-merge-conflict
-            types: [text]
-            language: system
-            entry: check-merge-conflict
+      - name: Check for merge conflicts
+        id: check-merge-conflict
+        types: [text]
+        language: system
+        entry: check-merge-conflict
 
-          - name: Check for broken symlinks
-            id: check-symlinks
-            types: [symlink]
-            language: system
-            entry: check-symlinks
+      - name: Check for broken symlinks
+        id: check-symlinks
+        types: [symlink]
+        language: system
+        entry: check-symlinks
 
-          - name: Check vcs permalinks
-            id: check-vcs-permalinks
-            types: [text]
-            language: system
-            entry: check-vcs-permalinks
+      - name: Check vcs permalinks
+        id: check-vcs-permalinks
+        types: [text]
+        language: system
+        entry: check-vcs-permalinks
 
-          - name: Fix End of Files
-            id: end-of-file-fixer
-            types: [text]
-            language: system
-            entry: end-of-file-fixer
+      - name: Fix End of Files
+        id: end-of-file-fixer
+        types: [text]
+        language: system
+        entry: end-of-file-fixer
 
-          - name: Trim Trailing Whitespace
-            id: trailing-whitespace
-            types: [text]
-            language: system
-            entry: trailing-whitespace-fixer
+      - name: Trim Trailing Whitespace
+        id: trailing-whitespace
+        types: [text]
+        language: system
+        entry: trailing-whitespace-fixer
 
-          - name: Check © headers
-            id: headroom
-            always_run: true
-            language: system
-            pass_filenames: false
-            entry: headroom run
+      - name: Check © headers
+        id: headroom
+        always_run: true
+        language: system
+        pass_filenames: false
+        entry: headroom run
 
+      #############################################
+      # JSON
+      - name: Check JSON for parsability
+        id: check-json
+        types: [json]
+        language: system
+        entry: check-json
 
-          #############################################
-          # JSON
-          - name: Check JSON for parsability
-            id: check-json
-            types: [json]
-            language: system
-            entry: check-json
+      #############################################
+      # YAML
+      - name: Check YAML for parsability
+        id: check-yaml
+        types: [yaml]
+        language: system
+        entry: check-yaml
 
+      - name: Static analysis YAML with yamllint
+        id: yamllint
+        types: [yaml]
+        language: system
+        entry: yamllint
 
-          #############################################
-          # YAML
-          - name: Check YAML for parsability
-            id: check-yaml
-            types: [yaml]
-            language: system
-            entry: check-yaml
+      #############################################
+      # Nix
+      - name: Check Nix code style with nixpkgs-fmt
+        id: nixpkgs-fmt
+        files: '\.nix$'
+        language: system
+        entry: nixpkgs-fmt
 
-          - name: Static analysis YAML with yamllint
-            id: yamllint
-            types: [yaml]
-            language: system
-            entry: yamllint
+      - name: Static analysis Nix with nix-linter
+        id: nix-linter
+        files: '\.nix$'
+        language: system
+        entry: nix-linter
 
+      #############################################
+      # Dhall
+      - name: Check Dhall code style
+        id: dhall-format
+        files: '\.dhall$'
+        language: system
+        entry: dhall format
 
-          #############################################
-          # Nix
-          - name: Check Nix code style with nixpkgs-fmt
-            id: nixpkgs-fmt
-            files: '\.nix$'
-            language: system
-            entry: nixpkgs-fmt
+      - name: Static analysis Dhall
+        id: dhall-lint
+        files: '\.dhall$'
+        language: system
+        entry: dhall lint
 
-          - name: Static analysis Nix with nix-linter
-            id: nix-linter
-            files: '\.nix$'
-            language: system
-            entry: nix-linter
+      #############################################
+      # Shell
+      - name: Check shell code style with shfmt
+        id: shfmt
+        types: [shell]
+        language: system
+        entry: shfmt
 
-          #############################################
-          # Dhall
-          - name: Check Dhall code style
-            id: dhall-format
-            files: '\.dhall$'
-            language: system
-            entry: ./scripts/fmap.sh "dhall format --inplace"
+      - name: Static analysis shell scripts with shellcheck
+        id: shellcheck
+        types: [shell]
+        language: system
+        entry: shellcheck -x
 
-          - name: Static analysis Dhall
-            id: dhall-lint
-            files: '\.dhall$'
-            language: system
-            entry: ./scripts/fmap.sh "dhall lint --inplace"
+      #############################################
+      # Haskell
+      - name: Check Haskell code style with stylish-hasklel
+        id: stylish-haskell
+        files: '\.hs$'
+        language: system
+        entry: stylish-haskell --inplace
 
-          #############################################
-          # Shell
-          - name: Check shell code style with shfmt
-            id: shfmt
-            types: [shell]
-            language: system
-            entry: shfmt
+      - name: Static analysis Haskell with hlint
+        id: hlint
+        files: '\.hs$'
+        language: system
+        entry: hlint
 
-          - name: Static analysis shell scripts with shellcheck
-            id: shellcheck
-            types: [shell]
-            language: system
-            entry: shellcheck -x
-
-          #############################################
-          # Haskell
-          - name: Check Haskell code style with stylish-hasklel
-            id: stylish-haskell
-            files: '\.hs$'
-            language: system
-            entry: stylish-haskell --inplace
-
-          - name: Static analysis Haskell with hlint
-            id: hlint
-            files: '\.hs$'
-            language: system
-            entry: hlint
-
-          # - name: Static analysis Haskell with stan
-          #   id: stan
-          #   files: '\.hs$'
-          #   language: system
-          #   entry: stan
+      # - name: Static analysis Haskell with stan
+      #   id: stan
+      #   files: '\.hs$'
+      #   language: system
+      #   entry: stan

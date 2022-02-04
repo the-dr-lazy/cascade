@@ -13,6 +13,8 @@ if [[ "${CI:-false}" == "true" ]]; then
     exit 0
 fi
 
+pre-commit install
+
 case "$(uname)" in
     'Darwin')
         SERVICE_NAME="com.cascade.dev.agent.plist"
