@@ -11,4 +11,5 @@ in    reludeHLintRules
       , Rule.Ignore { ignore.name = "Redundant id" }
       , Rule.Ignore { ignore.name = "Use traverseToSnd" }
       , Rule.Ignore { ignore.name = "Use newtype instead of data" }
+      , Rule.Ignore { ignore.name = "Use 'lookupEnv' from Relude" }
       ]
