@@ -31,7 +31,7 @@ pkgs.project.haskellPackages.shellFor {
       inherit (pkgs.nodePackages) prettier;
 
 
-      stan = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.stan;
+      # stan = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.stan;
       headroom = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.headroom;
     }
 
@@ -44,7 +44,7 @@ pkgs.project.haskellPackages.shellFor {
         git-lfs
         sqitchPg;
 
-      ghcid = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.ghcid;
+      # ghcid = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.ghcid;
       hpack-dhall = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.hpack-dhall;
       dhall-yaml = pkgs.haskell.lib.justStaticExecutables pkgs.haskellPackages.dhall-yaml;
     }
