@@ -86,10 +86,10 @@ finalize partial = getCompose do
 
   postgres <-
     Postgres
-    <$> pureMaybe Config.Default.postgresHost     (partial ^. #postgres . #host)
-    <*> pureMaybe Config.Default.postgresPort     (partial ^. #postgres . #port)
-    <*> pureMaybe Config.Default.postgresUser     (partial ^. #postgres . #user)
-    <*> pureMaybe Config.Default.postgresPassword (partial ^. #postgres . #password)
-    <*> pureMaybe Config.Default.postgresDatabase (partial ^. #postgres . #database)
+    <$> pureMaybe Config.Default.postgresHost     partial.postgres.host
+    <*> pureMaybe Config.Default.postgresPort     partial.postgres.port
+    <*> pureMaybe Config.Default.postgresUser     partial.postgres.user
+    <*> pureMaybe Config.Default.postgresPassword partial.postgres.password
+    <*> pureMaybe Config.Default.postgresDatabase partial.postgres.database
 
   pure Config { .. }

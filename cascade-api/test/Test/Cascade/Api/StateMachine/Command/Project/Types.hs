@@ -27,11 +27,10 @@ data GetById (v :: Type -> Type) = GetById { username :: Username
                                            , token    :: Var AuthToken v
                                            , id       :: Var Project.Id v
                                            }
-  deriving stock (Show)
+  deriving stock (Generic, Show)
 
-instance HTraversable GetById where
-  htraverse f GetById {..} = GetById username <$> htraverse f token <*> htraverse f id
-
+instance FunctorB GetById
+instance TraversableB GetById
 
 data UpdateById (v :: Type -> Type) = UpdateById { updatable :: Project.Updatable
                                                  , username  :: Username
@@ -40,9 +39,8 @@ data UpdateById (v :: Type -> Type) = UpdateById { updatable :: Project.Updatabl
                                                  }
   deriving stock (Generic, Show)
 
-instance HTraversable UpdateById where
-  htraverse f UpdateById {..} = UpdateById updatable username <$> htraverse f token <*> htraverse f id
-
+instance FunctorB UpdateById
+instance TraversableB UpdateById
 
 data DeleteById (v :: Type -> Type) = DeleteById { username :: Username
                                                  , token    :: Var AuthToken v
@@ -50,5 +48,5 @@ data DeleteById (v :: Type -> Type) = DeleteById { username :: Username
                                                  }
   deriving stock (Generic, Show)
 
-instance HTraversable DeleteById where
-  htraverse f DeleteById {..} = DeleteById username <$> htraverse f token <*> htraverse f id
+instance FunctorB DeleteById
+instance TraversableB DeleteById

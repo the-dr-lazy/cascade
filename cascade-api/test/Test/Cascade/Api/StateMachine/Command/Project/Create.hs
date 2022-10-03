@@ -39,8 +39,8 @@ data Create (v :: Type -> Type) = Create { creatable :: Project.Creatable
                                          }
   deriving stock (Generic, Show)
 
-instance HTraversable Create where
-  htraverse f Create {..} = Create creatable username <$> htraverse f token
+instance FunctorB Create
+instance TraversableB Create
 
 generator :: MonadGen g => Model Symbolic -> Maybe (g (Create Symbolic))
 generator model = case model ^@.. Model.Lens.indexTokenByUsername of

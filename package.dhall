@@ -46,6 +46,7 @@ let default-extensions =
       , "TypeFamilyDependencies"
       , "TypeOperators"
       , "ViewPatterns"
+      , "OverloadedRecordDot"
       ]
 
 let ghc-options =

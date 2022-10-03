@@ -47,10 +47,10 @@ commands =
 
 newtype AddNotExistingId (v :: Type -> Type)
   = AddNotExistingId Project.Id
-  deriving stock (Show)
+  deriving stock (Generic, Show)
 
-instance HTraversable AddNotExistingId where
-  htraverse _ input = pure $ coerce input
+instance FunctorB AddNotExistingId
+instance TraversableB AddNotExistingId
 
 addNotExistingId :: forall g m . MonadGen g => Applicative m => Command g m Model
 addNotExistingId =

@@ -65,8 +65,8 @@ data Create (v :: Type -> Type) = Create { projectId :: Var Project.Id v
                                          }
   deriving stock (Generic, Show)
 
-instance HTraversable Create where
-  htraverse f Create {..} = Create <$> htraverse f projectId <*> pure creatable
+instance FunctorB Create
+instance TraversableB Create
 
 createValidForExistingProject :: forall g m . MonadGen g => GenBase g ~ Identity => MonadIO m => MonadTest m => Command g m Model
 createValidForExistingProject =
@@ -169,8 +169,8 @@ data GetAllByProjectId (v :: Type -> Type) = GetAllByProjectId { projectId :: Va
                                                                }
   deriving stock (Generic, Show)
 
-instance HTraversable GetAllByProjectId where
-  htraverse f (GetAllByProjectId id) = GetAllByProjectId <$> htraverse f id
+instance FunctorB GetAllByProjectId
+instance TraversableB GetAllByProjectId
 
 getAllByProjectIdForExistingProject :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getAllByProjectIdForExistingProject =
@@ -231,10 +231,10 @@ getAllByProjectIdForNonExistingProject =
 
 data AddNotExistingId (v :: Type -> Type) = AddNotExistingId { id :: Task.Id
                                                              }
-  deriving stock (Show)
+  deriving stock (Generic, Show)
 
-instance HTraversable AddNotExistingId where
-  htraverse _ (AddNotExistingId id) = pure $ AddNotExistingId id
+instance FunctorB AddNotExistingId
+instance TraversableB AddNotExistingId
 
 addNotExistingId :: forall g m . MonadGen g => Applicative m => Command g m Model
 addNotExistingId =
@@ -253,8 +253,8 @@ newtype GetById (v :: Type -> Type)
   = GetById { id :: Var Task.Id v }
   deriving stock (Generic, Show)
 
-instance HTraversable GetById where
-  htraverse f (GetById id) = GetById <$> htraverse f id
+instance FunctorB GetById
+instance TraversableB GetById
 
 getExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 getExistingById =
@@ -309,8 +309,8 @@ data UpdateById (v :: Type -> Type) = UpdateById { id        :: Var Task.Id v
                                                  }
   deriving stock (Generic, Show)
 
-instance HTraversable UpdateById where
-  htraverse f UpdateById {..} = UpdateById <$> htraverse f id <*> pure updatable
+instance FunctorB UpdateById
+instance TraversableB UpdateById
 
 updateExistingByIdValid :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 updateExistingByIdValid =
@@ -412,8 +412,8 @@ newtype DeleteById (v :: Type -> Type)
   = DeleteById { id :: Var Task.Id v }
   deriving stock (Generic, Show)
 
-instance HTraversable DeleteById where
-  htraverse f (DeleteById id) = DeleteById <$> htraverse f id
+instance FunctorB DeleteById
+instance TraversableB DeleteById
 
 deleteExistingById :: forall g m . MonadGen g => MonadIO m => MonadTest m => Command g m Model
 deleteExistingById =

@@ -40,7 +40,6 @@ generator model = case usernameTokenProjectIdAList of
     id                <- model ^. #project . #notExistingIds
     pure (username, token, id)
 
-
 require :: Model Symbolic -> UpdateById Symbolic -> Bool
 require model UpdateById { username } = model |> has (#authToken . #byUsername . ix username)
 

@@ -32,10 +32,10 @@ createExisting = Command generator execute [Require require, Ensure ensure]
 
 newtype CreateExisting (v :: Type -> Type)
   = CreateExisting { creatable :: User.Creatable Validation.Raw }
-  deriving stock (Show)
+  deriving stock (Generic, Show)
 
-instance HTraversable CreateExisting where
-  htraverse _ input = pure $ coerce input
+instance FunctorB CreateExisting
+instance TraversableB CreateExisting
 
 generator :: MonadGen g => Model Symbolic -> Maybe (g (CreateExisting Symbolic))
 generator model | null usernames || null emailAddresses = Nothing

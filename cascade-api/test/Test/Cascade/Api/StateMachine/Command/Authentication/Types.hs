@@ -18,7 +18,7 @@ import           Hedgehog
 
 newtype Login (v :: Type -> Type)
   = Login (Authentication.Credential 'Validation.Raw)
-  deriving stock (Show)
+  deriving stock (Generic, Show)
 
-instance HTraversable Login where
-  htraverse _ = pure . coerce
+instance FunctorB Login
+instance TraversableB Login

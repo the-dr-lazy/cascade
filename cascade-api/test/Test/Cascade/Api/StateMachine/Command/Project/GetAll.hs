@@ -37,8 +37,8 @@ data GetAll (v :: Type -> Type) = GetAll { username :: Text
                                          }
   deriving stock (Generic, Show)
 
-instance HTraversable GetAll where
-  htraverse f GetAll {..} = GetAll username <$> htraverse f token
+instance FunctorB GetAll
+instance TraversableB GetAll
 
 generator :: MonadGen g => Model Symbolic -> Maybe (g (GetAll Symbolic))
 generator model = case model ^@.. Model.Lens.indexTokenByUsername of

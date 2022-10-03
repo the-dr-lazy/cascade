@@ -33,8 +33,8 @@ data CreateNotExisting (v :: Type -> Type) = CreateNotExisting { validity :: Val
                                                                }
   deriving stock (Generic, Show)
 
-instance HTraversable CreateNotExisting where
-  htraverse _ = pure . coerce
+instance FunctorB CreateNotExisting
+instance TraversableB CreateNotExisting
 
 createNotExisting :: MonadGen g => MonadIO m => MonadTest m => Command g m Model
 createNotExisting = Command generator execute [Update update, Ensure ensure]

@@ -23,22 +23,22 @@ import           Control.Lens                       ( _2, view )
 import           Control.Monad.Base                 ( MonadBase )
 import           Control.Monad.Managed
 import           Data.Pool                          ( Pool, createPool )
+import qualified Database.Postgres.Temp             as TempPostgres
 import           Database.PostgreSQL.Simple         ( connectPostgreSQL )
 import qualified Database.PostgreSQL.Simple         as Postgres
 import qualified Database.PostgreSQL.Simple.Options as Postgres
-import qualified Database.Postgres.Temp             as TempPostgres
 import qualified Relude.Unsafe                      as Unsafe
 import           System.Directory                   ( getCurrentDirectory )
-import           System.FilePath                    ( takeDirectory )
+import           System.FilePath                    ( takeDirectory, (</>) )
+import qualified System.Process.Typed               as Process
 import           System.Process.Typed
     ( nullStream, runProcess_, setStdout, setWorkingDir )
-import qualified System.Process.Typed               as Process
-import           Test.Tasty                         ( TestTree )
 import qualified Test.Tasty                         as Tasty
+import           Test.Tasty                         ( TestTree )
 
 migrate :: HasCallStack => TempPostgres.DB -> IO ()
 migrate db = do
-  cwd <- (getCurrentDirectory >>= findSqitchConfigFileUpward) |> (fmap . fmap) takeDirectory |> fmap Unsafe.fromJust
+  cwd <- (getCurrentDirectory >>= findSqitchConfigFileUpward . (</> "pseudo")) |> (fmap . fmap) takeDirectory |> fmap Unsafe.fromJust
   Process.proc "sqitch" ["deploy", "--target", connectionUri . TempPostgres.toConnectionOptions $ db]
     |> setStdout nullStream
     |> setWorkingDir cwd

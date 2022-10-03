@@ -1,5 +1,8 @@
 { name, pkgs }:
 
+let
+  disableCabalFlag = pkgs.haskell.lib.disableCabalFlag;
+in
 pkgs.project.haskellPackages.shellFor {
   inherit name;
 
@@ -27,7 +30,7 @@ pkgs.project.haskellPackages.shellFor {
         shellcheck
         shfmt
         stylish-haskell;
-      inherit (pkgs.unstable.python310Packages) pre-commit-hooks yamllint;
+      inherit (pkgs.python310Packages) pre-commit-hooks yamllint;
       inherit (pkgs.nodePackages) prettier;
 
 
@@ -64,11 +67,19 @@ pkgs.project.haskellPackages.shellFor {
         yaml-language-server
         vscode-json-languageserver-bin;
 
-      haskell-language-server = pkgs.haskell.lib.justStaticExecutables pkgs.project.haskellPackages.haskell-language-server;
+      haskell-language-server =
+        pkgs.lib.trivial.pipe pkgs.project.haskellPackages.haskell-language-server [
+          (drv: disableCabalFlag drv "ormolu")
+          (drv: disableCabalFlag drv "fourmolu")
+          (drv: disableCabalFlag drv "floskell")
+          (drv: disableCabalFlag drv "brittany")
+        ];
     }
 
     ###################################################
     # Package managers:
-    { inherit (pkgs) cabal-install; }
+    {
+      inherit (pkgs) cabal-install;
+    }
   ];
 }
